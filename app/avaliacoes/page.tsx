@@ -1,9 +1,10 @@
 import ReviewsCarousel from '@/components/ReviewsCarousel';
+
 export default function AvaliacoesPage(){
   return (
-    <div className="py-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Avaliações</h1>
+    <main className="min-h-screen py-6">
+      <h1 className="text-2xl font-semibold mb-4">Avaliações</h1>
       <ReviewsCarousel />
-    </div>
+    </main>
   );
 }
