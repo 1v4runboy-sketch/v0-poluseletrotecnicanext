@@ -4,22 +4,26 @@ import ProductGrid from '@/components/ProductGrid';
 
 export default function HomePage(){
   return (
-    <div className="space-y-8">
-      <section className="relative">
-        <div className="h-[36vh] sm:h-[52vh] rounded-2xl overflow-hidden border border-black/10 dark:border-white/10">
-          <img id="hero-img" src="/Loop-ezgif.com-video-to-webp-converter.webp" alt="Hero" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+    <>
+      <section className="relative rounded-[20px] overflow-hidden mt-4 ring-1 ring-white/10">
+        <HeroColorSync src="/Loop-ezgif.com-video-to-webp-converter.webp" />
+        <video
+          className="w-full h-[36vh] md:h-[52vh] object-cover"
+          src="/Loop-ezgif.com-video-to-webp-converter.webp"
+          autoPlay loop muted playsInline
+        />
+        <div className="absolute bottom-6 left-6 text-white drop-shadow-[0_2px_10px_rgba(0,0,0,.45)]">
+          <h1 className="text-2xl md:text-3xl font-semibold">Polus Eletrotécnica — Catálogo Técnico</h1>
+          <p className="opacity-90 text-sm">Peças para motores elétricos e bombas d’água.</p>
         </div>
-        <HeroColorSync />
       </section>
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Marcas em destaque</h2>
-        <BrandCarousel />
-      </section>
-      <section>
+
+      <BrandCarousel />
+
+      <section className="mt-6">
         <h2 className="text-lg font-semibold mb-3">Catálogo</h2>
         <ProductGrid />
       </section>
-    </div>
+    </>
   );
 }
