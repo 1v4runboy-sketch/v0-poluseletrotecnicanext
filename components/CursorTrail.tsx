@@ -1,23 +1,18 @@
 'use client';
-import React, { useEffect } from 'react';
-export default function CursorTrail() {
-  useEffect(() => {
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mql.matches) return;
-    function spawn(x:number,y:number){
+import { useEffect } from 'react';
+
+export default function CursorTrail(){
+  useEffect(()=>{
+    const on = (e: MouseEvent) => {
       const d = document.createElement('div');
       d.className = 'cursor-trail';
-      d.style.left = x+'px'; d.style.top = y+'px';
+      d.style.left = e.clientX + 'px';
+      d.style.top = e.clientY + 'px';
       document.body.appendChild(d);
-      setTimeout(()=>d.remove(), 700);
-    }
-    function onMove(e: MouseEvent){ spawn(e.pageX, e.pageY); }
-    function onTouch(e: TouchEvent){
-      const t = e.touches[0]; if (t) spawn(t.pageX, t.pageY);
-    }
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onTouch);
-    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('touchmove', onTouch); };
-  }, []);
+      setTimeout(()=> d.remove(), 700);
+    };
+    window.addEventListener('mousemove', on);
+    return ()=> window.removeEventListener('mousemove', on);
+  },[]);
   return null;
 }
