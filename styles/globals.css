@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --hero-color: rgba(255,255,255,0.6); }
+
+* { outline-color: theme('colors.emerald.500'); }
+
+html { background: var(--theme-fade); }
+
+.brand-logo { filter: drop-shadow(0 0 10px rgba(255,255,255,.25)); }
+.dark .brand-logo { animation: glow 2.2s ease-in-out infinite alternate; }
+@keyframes glow { from { filter: drop-shadow(0 0 8px rgba(14,165,233,.25)); } to { filter: drop-shadow(0 0 16px rgba(124,58,237,.35)); } }
+
+.cursor-trail { position: absolute; width: 10px; height: 10px; background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0)); pointer-events: none; transform: translate(-50%,-50%); animation: trail .7s ease-out forwards; }
+@keyframes trail { to { opacity: 0; transform: translate(-50%,-50%) scale(2); } }
+
+:focus-visible { outline: 2px dashed rgba(16,185,129,.9); outline-offset: 2px; }
+
+.dark body { cursor: url('/loading-logo.png') 8 8, auto; }
