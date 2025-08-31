@@ -1,6 +1,6 @@
 export const SITE = {
   name: 'Polus Eletrotécnica',
-  description: 'Catálogo técnico de peças para motores elétricos e bombas d\'água.',
+  description: "Catálogo técnico de peças para motores elétricos e bombas d'água.",
   instagram: 'https://www.instagram.com/_poluseletrotecnica/',
   address: 'R. José Maria Castelo Prado, 13 - Ayrosa, Osasco - SP, 06290-130',
   whatsappNumberIntl: '+551135992935',
