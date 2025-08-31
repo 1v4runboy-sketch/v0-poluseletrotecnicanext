@@ -1,39 +1,27 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
-export default function Starfield() {
+import { useEffect, useRef } from 'react';
+
+export default function Starfield(){
   const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    const canvas = ref.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
-    const count = 180;
-    const stars = Array.from({length: count}).map(() => ({
-      x: Math.random()*w, y: Math.random()*h, z: Math.random()*1, r: Math.random()*1.2+0.2, a: Math.random()*0.6+0.2, t: Math.random()*Math.PI*2
-    }));
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+  useEffect(()=>{
+    const c = ref.current; if(!c) return;
+    const ctx = c.getContext('2d')!;
+    let w = c.width = window.innerWidth, h = c.height = window.innerHeight;
+    const onRes = () => { w = c.width = window.innerWidth; h = c.height = window.innerHeight; };
+    window.addEventListener('resize', onRes);
+    const stars = Array.from({length: 140}, ()=>({ x: Math.random()*w, y: Math.random()*h, z: Math.random()*0.5 + 0.5 }));
     let raf = 0;
-    function draw(){
-      if (!ctx) return;
+    const draw = () => {
       ctx.clearRect(0,0,w,h);
-      for (const s of stars){
-        s.t += 0.01*(mql.matches?0.2:1);
-        const twinkle = (Math.sin(s.t)+1)/2;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255,255,255,${s.a*twinkle})`;
-        ctx.fill();
+      for(const s of stars){
+        s.x += 0.05 * s.z; if (s.x>w) s.x=0;
+        ctx.fillStyle = `rgba(147,197,253,${0.35*s.z})`;
+        ctx.fillRect(s.x, s.y, 1.2*s.z, 1.2*s.z);
       }
       raf = requestAnimationFrame(draw);
-    }
-    function onResize(){
-      w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', onResize);
-    draw();
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); };
-  }, []);
-  return <canvas aria-hidden className="fixed inset-0 z-[-1] hidden dark:block pointer-events-none" ref={ref} />;
+    };
+    raf = requestAnimationFrame(draw);
+    return ()=>{ cancelAnimationFrame(raf); window.removeEventListener('resize', onRes); };
+  },[]);
+  return <canvas ref={ref} className="pointer-events-none fixed inset-0 -z-10 hidden dark:block"/>;
 }
