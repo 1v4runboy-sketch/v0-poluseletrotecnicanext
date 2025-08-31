@@ -1,48 +1,54 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { BudgetItem, clear, list, remove, setQty } from '@/lib/budgetList';
+import { useEffect, useState } from 'react';
+import * as BL from '@/lib/budgetList';
+import { SITE } from '@/lib/site';
+
 export default function MiniCartDrawer(){
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<BudgetItem[]>([]);
+  const [items, setItems] = useState(BL.list());
+
   useEffect(()=>{
     const t = () => setOpen(v=>!v);
-    const refresh = () => setItems(list());
+    const r = () => setItems(BL.list());
     window.addEventListener('cart:toggle' as any, t);
-    window.addEventListener('budget:update' as any, refresh);
-    refresh();
-    return () => { window.removeEventListener('cart:toggle' as any, t); window.removeEventListener('budget:update' as any, refresh); };
-  }, []);
-  const total = items.reduce((a,b)=>a+b.qty,0);
+    window.addEventListener('budget:update' as any, r);
+    return ()=> { window.removeEventListener('cart:toggle' as any, t); window.removeEventListener('budget:update' as any, r); };
+  },[]);
+
+  const send = () => {
+    const lines = items.map(i => `• ${i.title} (x${i.qty})`).join('%0A');
+    const text = `Olá! Gostaria de solicitar uma cotação:%0A${lines}`;
+    const number = SITE.whatsappNumberIntl.replace('+','');
+    const href = `https://wa.me/${number}?text=${text}`;
+    window.open(href, '_blank');
+  };
+
   return (
-    <div className={`fixed inset-0 z-50 ${open?'':'pointer-events-none'}`}>
-      <div className={`absolute inset-0 bg-black/50 transition-opacity ${open?'opacity-100':'opacity-0'}`} onClick={()=>setOpen(false)} />
-      <aside className={`absolute right-0 top-0 h-full w-96 bg-white dark:bg-zinc-900 border-l border-black/10 dark:border-white/10 p-4 transition-transform ${open?'translate-x-0':'translate-x-full'}`}>
-        <h2 className="text-lg font-semibold mb-3">Orçamento</h2>
-        <div className="space-y-3 max-h-[70vh] overflow-auto pr-2">
-          {items.length===0 && <div className="text-sm text-zinc-500">Sua lista está vazia.</div>}
-          {items.map(it => (
-            <div key={it.id} className="flex items-center justify-between gap-2 border-b pb-2 border-black/10 dark:border-white/10">
-              <div>
-                <div className="font-medium">{it.title}</div>
-                {it.brand && <div className="text-xs text-zinc-500">{it.brand}</div>}
-              </div>
-              <div className="flex items-center gap-2">
-                <button aria-label="Diminuir" onClick={()=>setQty(it.id, Math.max(1, it.qty-1))} className="px-2 py-1 rounded border">-</button>
-                <span>{it.qty}</span>
-                <button aria-label="Aumentar" onClick={()=>setQty(it.id, it.qty+1)} className="px-2 py-1 rounded border">+</button>
-                <button aria-label="Remover" onClick={()=>remove(it.id)} className="px-2 py-1 rounded border">Remover</button>
+    <aside className={`fixed top-0 right-0 h-full w-80 max-w-[90vw] bg-white dark:bg-gray-900 ring-1 ring-black/10 dark:ring-white/10 shadow-2xl z-50 transition-transform ${open? 'translate-x-0':'translate-x-full'}`}>
+      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+        <h3 className="font-semibold">Lista de orçamento</h3>
+        <button onClick={()=> setOpen(false)} className="text-sm rounded px-2 py-1 border">Fechar</button>
+      </div>
+      <div className="p-3 space-y-2 overflow-y-auto h-[calc(100%-120px)]">
+        {items.length===0 && <p className="text-sm opacity-70">Sua lista está vazia.</p>}
+        {items.map(i=>(
+          <div key={i.slug} className="flex items-center gap-2 rounded border p-2">
+            <img src={i.image || '/produtos/placeholder.webp'} alt={i.title} className="w-12 h-12 object-contain"/>
+            <div className="text-sm flex-1">
+              <div className="font-medium line-clamp-1">{i.title}</div>
+              <div className="opacity-70">Qtd:
+                <button onClick={()=>{ BL.setQty(i.slug, Math.max(1, i.qty-1)); setItems(BL.list()); }} className="px-1 ml-2 border rounded">-</button>
+                <span className="px-2">{i.qty}</span>
+                <button onClick={()=>{ BL.setQty(i.slug, i.qty+1); setItems(BL.list()); }} className="px-1 border rounded">+</button>
               </div>
             </div>
-          ))}
-        </div>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm">Itens: <strong>{total}</strong></div>
-          <div className="space-x-2">
-            <button onClick={()=>clear()} className="px-3 py-2 rounded border">Limpar</button>
-            <a href="/orcamento" className="px-3 py-2 rounded bg-emerald-600 text-white">Ver tudo</a>
+            <button onClick={()=>{ BL.remove(i.slug); setItems(BL.list()); }} className="text-xs underline">remover</button>
           </div>
-        </div>
-      </aside>
-    </div>
+        ))}
+      </div>
+      <div className="p-3 border-t border-white/10">
+        <button disabled={!items.length} onClick={send} className="w-full px-3 py-2 rounded bg-green-600 text-white disabled:opacity-50">Enviar por WhatsApp</button>
+      </div>
+    </aside>
   );
 }
