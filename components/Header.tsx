@@ -11,7 +11,7 @@ export default function Header(){
   useEffect(()=>{
     const refresh = ()=>setCount(list().reduce((a,b)=>a+b.qty,0));
     refresh();
-    window.addEventListener('budget:update' as any, refresh);
+    window.addEventListener('budget:update', refresh);
     return () => window.removeEventListener('budget:update' as any, refresh);
   }, []);
   return (

@@ -11,8 +11,8 @@ export default function Sidebar(){
 
   useEffect(() => {
     const t = () => setOpen(v => !v);
-    window.addEventListener('sidebar:toggle' as any, t);
-    return () => window.removeEventListener('sidebar:toggle' as any, t);
+    window.addEventListener('sidebar:toggle', t);
+    return () => window.removeEventListener('sidebar:toggle', t);
   }, []);
 
   const cats = useMemo(() => Array.from(new Set(PRODUCTS.map(p => p.category))).sort(), []);

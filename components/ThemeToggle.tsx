@@ -6,7 +6,7 @@ import { useTheme } from './ThemeProvider';
 export default function ThemeToggle(){
   const { theme, setTheme } = useTheme();
   const isDark = theme==='dark';
-  const ref = useRef<HTMLButtonElement>(null);
+  const ref = useRef(null);
 
   useEffect(()=>{
     // tiny stars in dark

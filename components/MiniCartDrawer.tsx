@@ -7,10 +7,10 @@ export default function MiniCartDrawer(){
   useEffect(()=>{
     const t = () => setOpen(v=>!v);
     const refresh = () => setItems(list());
-    window.addEventListener('cart:toggle' as any, t);
-    window.addEventListener('budget:update' as any, refresh);
+    window.addEventListener('cart:toggle', t);
+    window.addEventListener('budget:update', refresh);
     refresh();
-    return () => { window.removeEventListener('cart:toggle' as any, t); window.removeEventListener('budget:update' as any, refresh); };
+    return () => { window.removeEventListener('cart:toggle', t); window.removeEventListener('budget:update', refresh); };
   }, []);
   const total = items.reduce((a,b)=>a+b.qty,0);
   return (
