@@ -1,27 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-
-type Props = {
-  src?: string;
-  alt?: string;
-  className?: string;
-  width?: number;
-  height?: number;
-} & React.ImgHTMLAttributes<HTMLImageElement>;
-
-export default function ImageSafe({ src, alt = '', className, width, height, ...rest }: Props){
+export default function ImageSafe({ src, alt, className, ...rest }:{src:string; alt:string; className?:string} & React.ImgHTMLAttributes<HTMLImageElement>){
   const [err, setErr] = useState(false);
-  const finalSrc = err ? '/produtos/placeholder.webp' : (src || '/produtos/placeholder.webp');
-  return (
-    <img
-      src={finalSrc}
-      alt={alt}
-      className={className}
-      width={width}
-      height={height}
-      loading="lazy"
-      onError={()=> setErr(true)}
-      {...rest}
-    />
-  );
+  return <img src={err? '/produtos/placeholder.webp' : src} alt={alt} className={className} onError={()=>setErr(true)} {...rest} />;
 }

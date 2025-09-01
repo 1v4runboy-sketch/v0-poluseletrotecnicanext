@@ -1,14 +1,10 @@
 'use client';
-import { IconMenu } from './icons';
-
+import React from 'react';
+import { MenuIcon } from './icons';
 export default function SidebarToggle(){
   return (
-    <button
-      onClick={()=> window.dispatchEvent(new Event('sidebar:toggle'))}
-      aria-label="Abrir menu lateral"
-      className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/70 dark:bg-black/40 ring-1 ring-black/10 dark:ring-white/10 hover:shadow"
-    >
-      <IconMenu />
+    <button aria-label="Abrir menu" onClick={()=>window.dispatchEvent(new CustomEvent('sidebar:toggle'))} className="p-2 rounded-md hover:bg:black/5 dark:hover:bg-white/10">
+      <MenuIcon />
     </button>
   );
 }

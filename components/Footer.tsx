@@ -1,17 +1,22 @@
+'use client';
+import React from 'react';
 import { SITE } from '@/lib/site';
-import { IconWhats, IconInsta } from './icons';
-
-export default function Footer() {
+export default function Footer(){
   return (
-    <footer className="mt-10 py-8 border-t border-white/10 text-sm bg-gradient-to-b from-transparent to-black/5 dark:to-white/5">
-      <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p className="opacity-75">&copy; {new Date().getFullYear()} {SITE.name} — CNPJ {SITE.cnpj}</p>
-        <div className="flex items-center gap-3">
-          <a href={SITE.instagram} target="_blank" rel="noopener noreferrer" className="icon-btn" title="Instagram"><IconInsta/></a>
-          <a href={SITE.whatsappHref()} target="_blank" rel="noopener noreferrer" className="icon-btn" title="WhatsApp"><IconWhats/></a>
-          <a href={`mailto:${SITE.email}`} className="underline">E-mail</a>
+    <footer className="mt-12 border-t border-black/10 dark:border-white/10">
+      <div className="max-w-6xl mx-auto px-4 py-10 grid sm:grid-cols-2 gap-6">
+        <div>
+          <img src="/polus-logo.svg" alt="Polus" className="h-10 w-auto mb-3" />
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{SITE.description}</p>
+        </div>
+        <div className="text-sm space-y-1">
+          <div><strong>Endereço:</strong> {SITE.address}</div>
+          <div><strong>E-mail:</strong> <a href={`mailto:${SITE.email}`} className="underline">{SITE.email}</a></div>
+          <div><strong>CNPJ:</strong> {SITE.cnpj}</div>
+          <div><strong>Instagram:</strong> <a className="underline" href={SITE.instagram} target="_blank">/@_poluseletrotecnica</a></div>
         </div>
       </div>
+      <div className="text-center text-xs text-zinc-500 py-4">© {new Date().getFullYear()} Polus Eletrotécnica</div>
     </footer>
   );
 }

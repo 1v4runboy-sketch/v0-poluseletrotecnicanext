@@ -1,25 +1,23 @@
 'use client';
-import { BRANDS } from '@/lib/brands';
 import React, { useRef } from 'react';
-import { IconChevronLeft, IconChevronRight } from './icons';
-
-export default function BrandCarousel() {
+import { BRANDS } from '@/lib/brands';
+import { ChevronLeft, ChevronRight } from './icons';
+export default function BrandCarousel(){
   const ref = useRef<HTMLDivElement>(null);
-  const scrollBy = (dx: number) => { const el = ref.current; if (!el) return; el.scrollBy({ left: dx, behavior: 'smooth' }); };
+  function scrollBy(dx:number){ ref.current?.scrollBy({ left: dx, behavior: 'smooth' }); }
   return (
-    <section className="mt-6 relative">
-      <h3 className="text-sm font-semibold mb-2 opacity-80">Marcas em destaque</h3>
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white dark:from-gray-900 to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white dark:from-gray-900 to-transparent" />
-      <button className="carousel-arrow left-0" aria-label="Anterior" onClick={()=>scrollBy(-300)}><IconChevronLeft/></button>
-      <button className="carousel-arrow right-0" aria-label="Próximo" onClick={()=>scrollBy(300)}><IconChevronRight/></button>
-      <div ref={ref} className="flex gap-6 overflow-x-auto py-3 px-1 snap-x snap-mandatory">
+    <div className="relative">
+      <div ref={ref} className="flex gap-8 overflow-x-auto px-10 py-4 scroll-smooth snap-x">
         {BRANDS.map(b => (
-          <div key={b.slug} className="snap-start flex-shrink-0 flex items-center justify-center h-14 px-3 rounded-md bg-white/80 dark:bg-black/40 ring-1 ring-black/10 dark:ring-white/10">
-            <img src={b.logo} alt={b.name} className="object-contain brand-logo h-8" />
+          <div key={b.slug} className="min-w-[120px] snap-start">
+            <img src={b.logo} alt={b.name} className="h-12 w-auto mx-auto brand-logo transition-transform hover:rotate-2 hover:scale-105" />
           </div>
         ))}
       </div>
-    </section>
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white dark:from-zinc-950 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white dark:from-zinc-950 to-transparent" />
+      <button aria-label="Marcas anteriores" onClick={()=>scrollBy(-240)} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full"><ChevronLeft /></button>
+      <button aria-label="Mais marcas" onClick={()=>scrollBy(240)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full"><ChevronRight /></button>
+    </div>
   );
 }

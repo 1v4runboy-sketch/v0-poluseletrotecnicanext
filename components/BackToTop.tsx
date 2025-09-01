@@ -1,21 +1,17 @@
 'use client';
-import { useEffect, useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 export default function BackToTop(){
   const [show, setShow] = useState(false);
   useEffect(()=>{
-    const on = () => setShow(window.scrollY > 500);
-    window.addEventListener('scroll', on, { passive: true });
-    on();
-    return ()=> window.removeEventListener('scroll', on);
-  },[]);
+    function onScroll(){ setShow(window.scrollY > 500); }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   if (!show) return null;
   return (
-    <button
-      onClick={()=> window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed bottom-24 right-4 z-40 rounded-full w-10 h-10 bg-white/80 dark:bg-black/60 ring-1 ring-black/10 dark:ring-white/10 shadow"
-      aria-label="Voltar ao topo"
-      title="Voltar ao topo"
-    >↑</button>
+    <button aria-label="Voltar ao topo" onClick={()=>window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-6 right-6 z-40 rounded-full px-3 py-2 bg-black/80 text-white dark:bg-white/80 dark:text-black border border-white/20 shadow-lg backdrop-blur">
+      ↑ Topo
+    </button>
   );
 }

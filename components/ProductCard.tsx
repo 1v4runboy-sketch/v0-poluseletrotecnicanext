@@ -1,36 +1,22 @@
 'use client';
-import Link from 'next/link';
+import React from 'react';
 import type { Product } from '@/lib/products';
 import ProductCarousel from './ProductCarousel';
 import BrandBadge from './BrandBadge';
 import { SITE } from '@/lib/site';
-import * as BL from '@/lib/budgetList';
-
-export default function ProductCard({ product }: { product: Product }) {
-  const href = `/produtos/${product.slug}`;
+import { add } from '@/lib/budgetList';
+export default function ProductCard({ p }: { p: Product }){
   return (
-    <div className="card-modern p-3">
-      <Link href={href} className="block">
-        <div className="relative aspect-square bg-white/60 dark:bg-black/20 rounded-lg overflow-hidden">\n          <BrandBadge brand={product.brand} />
-          <ProductCarousel images={product.images} />
-        </div>
-        <h3 className="mt-2 font-medium line-clamp-2">{product.title}</h3>
-        {product.shortDescription && <p className="text-xs opacity-70 line-clamp-2">{product.shortDescription}</p>}
-      </Link>
-      <div className="mt-2 flex items-center gap-2">
-        <a
-          href={SITE.whatsappHref(product.title)}
-          className="px-3 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700"
-          target="_blank" rel="noopener noreferrer"
-        >
-          WhatsApp
-        </a>
-        <button
-          onClick={()=> BL.add(product)}
-          className="px-3 py-1 rounded border text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-        >
-          Adicionar
-        </button>
+    <div className="relative rounded-xl border border-black/10 dark:border-white/10 p-3 bg-white/70 dark:bg-black/40 backdrop-blur shadow-sm hover:shadow-md transition [transform:translateZ(0)]">
+      <BrandBadge brand={p.brand} />
+      <ProductCarousel images={p.images.slice(0,3)} />
+      <div className="mt-3">
+        <h3 className="font-medium text-zinc-900 dark:text-zinc-50">{p.title}</h3>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300 line-clamp-2">{p.shortDescription || ''}</p>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <a aria-label={`WhatsApp ${p.title}`} href={SITE.whatsappHref(p.title)} target="_blank" rel="noreferrer" className="px-3 py-2 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Consultar / Cotação</a>
+        <button aria-label="Adicionar ao orçamento" onClick={()=>add({ id: p.id, title: p.title, qty: 1, brand: p.brand })} className="px-3 py-2 text-sm rounded-md bg-zinc-900 text-white dark:bg-white dark:text-black hover:opacity-90">Adicionar</button>
       </div>
     </div>
   );
