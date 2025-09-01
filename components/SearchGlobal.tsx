@@ -19,7 +19,7 @@ export default function SearchGlobal(){
         className="w-full rounded-md border bg-white/80 dark:bg-black/30 px-3 py-2"
       />
       {q && suggestions.length>0 && (
-        <div className="absolute mt-1 w-full rounded-md border bg-white dark:bg-gray-900 shadow">
+        <div className="absolute mt-1 w-full rounded-md border bg-white dark:bg-gray-900 shadow max-h-80 overflow-auto z-30">
           {suggestions.map(s => (
             <a key={s.slug} href={`/produtos/${s.slug}`} className="block px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
               {s.title}
