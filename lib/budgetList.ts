@@ -1,32 +1,47 @@
-import type { Product } from './products';
+'use client';
 
-type Item = { slug: string; title: string; image?: string; qty: number };
-const KEY = 'polus_budget_v1';
+export type BudgetItem = { id: string; title: string; qty: number; brand?: string };
 
-function read(): Item[] {
+const KEY = 'polus:budget';
+const EVT = 'budget:update';
+
+function read(): BudgetItem[] {
   if (typeof window === 'undefined') return [];
-  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+  try {
+    const raw = localStorage.getItem(KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
 }
-function write(items: Item[]) {
+
+function write(items: BudgetItem[]) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event('budget:update'));
+  window.dispatchEvent(new CustomEvent(EVT));
 }
 
-export function list() { return read(); }
-export function count() { return read().reduce((a,b)=>a+b.qty,0); }
-export function add(p: Product, qty = 1) {
+export function onBudgetUpdate(handler: () => void) {
+  if (typeof window === 'undefined') return;
+  window.addEventListener(EVT, handler as EventListener);
+  return () => window.removeEventListener(EVT, handler as EventListener);
+}
+
+export function list(): BudgetItem[] { return read(); }
+
+export function add(item: BudgetItem) {
   const items = read();
-  const i = items.findIndex(x => x.slug === p.slug);
-  if (i >= 0) items[i].qty += qty;
-  else items.push({ slug: p.slug, title: p.title, image: p.images?.[0]?.src, qty });
+  const i = items.findIndex(x => x.id === item.id);
+  if (i >= 0) items[i].qty += item.qty;
+  else items.push(item);
   write(items);
 }
-export function remove(slug: string) {
-  write(read().filter(x => x.slug !== slug));
+
+export function remove(id: string) {
+  write(read().filter(x => x.id !== id));
 }
-export function setQty(slug: string, qty: number) {
-  const items = read(); const i = items.findIndex(x => x.slug === slug);
-  if (i>=0) { items[i].qty = Math.max(1, qty); write(items); }
+
+export function setQty(id: string, qty: number) {
+  const items = read().map(x => x.id === id ? { ...x, qty } : x);
+  write(items);
 }
+
 export function clear() { write([]); }
