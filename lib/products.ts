@@ -10,6 +10,11 @@ export type Product = {
   techSpecs?: [string, string][];
 };
 
+// Conteúdo bruto (vindo do arquivo original)
+const RAW: any[] = [];
+  techSpecs?: [string, string][];
+};
+
 export const PRODUCTS: Product[] = [
   {
     "id": "",
@@ -3860,5 +3865,12 @@ export const PRODUCTS: Product[] = [
     "techSpecs": null
   }
 ];
+
+// Normalização: preenche id vazio com slug e remove techSpecs nulo
+export const PRODUCTS: Product[] = RAW.map((p) => {
+  const id = (p.id && String(p.id).trim()) ? p.id : p.slug;
+  const tech = Array.isArray(p.techSpecs) ? p.techSpecs : undefined;
+  return { ...p, id, techSpecs: tech } as Product;
+});
 
 export default PRODUCTS;
