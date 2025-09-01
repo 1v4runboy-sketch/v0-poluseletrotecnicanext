@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import type { Product } from '@/lib/products';
 import ProductCarousel from './ProductCarousel';
+import BrandBadge from './BrandBadge';
 import { SITE } from '@/lib/site';
 import * as BL from '@/lib/budgetList';
 
@@ -10,7 +11,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <div className="card-modern p-3">
       <Link href={href} className="block">
-        <div className="aspect-square bg-white/60 dark:bg-black/20 rounded-lg overflow-hidden">
+        <div className="relative aspect-square bg-white/60 dark:bg-black/20 rounded-lg overflow-hidden">\n          <BrandBadge brand={product.brand} />
           <ProductCarousel images={product.images} />
         </div>
         <h3 className="mt-2 font-medium line-clamp-2">{product.title}</h3>
