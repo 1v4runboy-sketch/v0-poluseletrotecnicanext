@@ -1,12 +1,13 @@
 'use client';
-import React from 'react';
 import { brandLogoByName } from '@/lib/brands';
-export default function BrandBadge({ brand, className='' }:{ brand?: string; className?: string }){
+
+export default function BrandBadge({ brand }:{ brand?: string }){
   const logo = brandLogoByName(brand);
-  if (!logo) return null;
+  if (!brand) return null;
   return (
-    <div className={`absolute top-2 left-2 rounded-md px-2 py-1 bg-black/50 backdrop-blur border border-white/20 ${className}`}>
-      <img src={logo} alt={brand} className="w-14 h-auto brand-logo" />
+    <div className="absolute top-2 left-2 z-10 rounded-md bg-white/80 dark:bg-black/50 ring-1 ring-black/10 dark:ring-white/10 backdrop-blur px-2 py-1 flex items-center gap-1">
+      {logo && <img src={logo} alt={brand} className="h-4 w-auto object-contain brand-logo" />}
+      <span className="text-[11px] font-medium">{brand}</span>
     </div>
   );
 }
