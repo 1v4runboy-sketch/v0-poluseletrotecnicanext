@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Sidebar from '@/components/Sidebar';
 import WhatsFloat from '@/components/WhatsFloat';
+import BackToTop from '@/components/BackToTop';
 import MiniCartDrawer from '@/components/MiniCartDrawer';
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="container mx-auto px-4 py-6">{children}</main>
           <Footer />
           <WhatsFloat />
+                  <BackToTop />
         </ThemeProvider>
       </body>
     </html>
