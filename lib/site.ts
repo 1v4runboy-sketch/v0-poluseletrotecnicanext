@@ -3,7 +3,7 @@ export const SITE = {
   description: "Catálogo técnico de peças para motores elétricos e bombas d'água.",
   instagram: 'https://www.instagram.com/_poluseletrotecnica/',
   address: 'R. José Maria Castelo Prado, 13 - Ayrosa, Osasco - SP, 06290-130',
-  whatsappNumberIntl: '+551135992935',
+  whatsappNumberIntl: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+551135992935',
   email: 'poluseletrotecnica@hotmail.com',
   cnpj: '05.886.392/0001-51',
   whatsappMessage(productTitle?: string): string {
