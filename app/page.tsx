@@ -1,4 +1,3 @@
-
 import HeroColorSync from '@/components/HeroColorSync';
 import BrandCarousel from '@/components/BrandCarousel';
 import ProductListPageClient from '@/components/ProductListPageClient';
