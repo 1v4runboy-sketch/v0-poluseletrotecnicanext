@@ -1,5 +1,5 @@
 'use client';
-import PRODUCTS, { type Product } from '@/lib/products';
+import PRODUCTS from '@/lib/products';
 import ProductCard from './ProductCard';
 import { useMemo, useState } from 'react';
 
