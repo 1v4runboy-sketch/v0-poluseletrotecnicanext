@@ -1,5 +1,5 @@
+// app/layout.tsx
 import './globals.css';
-import type { Metadata } from 'next';
 import ThemeProvider from '@/components/ThemeProvider';
 import Starfield from '@/components/Starfield';
 import CursorTrail from '@/components/CursorTrail';
@@ -10,26 +10,29 @@ import WhatsFloat from '@/components/WhatsFloat';
 import BackToTop from '@/components/BackToTop';
 import MiniCartDrawer from '@/components/MiniCartDrawer';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Polus Eletrotécnica — Catálogo Técnico',
   description: "Catálogo técnico de peças para motores elétricos e bombas d'água.",
-  generator: 'polus-fix'
+  generator: 'polus',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className="min-h-screen bg-noise antialiased">
+      <body>
         <ThemeProvider>
+          {/* Atmosfera / UX globais */}
           <Starfield />
           <CursorTrail />
           <Header />
           <Sidebar />
           <MiniCartDrawer />
+
           <main className="container mx-auto px-4 py-6">{children}</main>
+
           <Footer />
           <WhatsFloat />
-                  <BackToTop />
+          <BackToTop />
         </ThemeProvider>
       </body>
     </html>
