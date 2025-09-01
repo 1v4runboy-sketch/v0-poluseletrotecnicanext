@@ -41,3 +41,23 @@ html { background: var(--theme-fade); }
   box-shadow: var(--elev-2);
 }
 .anim-soft { transition: all var(--motion-base) var(--bezier); }
+
+
+/* Injected premium tokens + header hero glass */
+:root{
+  --radius: 16px;
+  --hairline-light: rgba(0,0,0,.08);
+  --hairline-dark: rgba(255,255,255,.08);
+  --elev-1: 0 6px 24px rgba(0,0,0,.06);
+  --elev-2: 0 12px 40px rgba(0,0,0,.10);
+  --hero-color: rgba(12,20,36,0.66);
+  --motion-fast: 160ms; --motion-base: 240ms; --bezier: cubic-bezier(.2,.8,.2,1);
+}
+.header-hero{ backdrop-filter: saturate(1.4) blur(12px); background: var(--hero-color); }
+.card-modern{ border-radius: var(--radius); border:1px solid var(--hairline-light);
+  background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.7)); box-shadow: var(--elev-1); }
+.dark .card-modern{ border-color: var(--hairline-dark);
+  background:linear-gradient(180deg,rgba(10,10,10,.7),rgba(10,10,10,.55)); box-shadow: var(--elev-2); }
+.brand-logo{ filter: drop-shadow(0 0 10px rgba(59,130,246,.25));
+  transition: transform var(--motion-base) var(--bezier), filter var(--motion-base) var(--bezier); }
+.brand-logo:hover{ transform: scale(1.05) rotateZ(2deg); filter: drop-shadow(0 0 18px rgba(59,130,246,.40)); }
