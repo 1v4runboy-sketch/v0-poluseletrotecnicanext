@@ -18,3 +18,26 @@ html { background: var(--theme-fade); }
 :focus-visible { outline: 2px dashed rgba(16,185,129,.9); outline-offset: 2px; }
 
 .dark body { cursor: url('/loading-logo.png') 8 8, auto; }
+
+:root{
+  --radius: 16px;
+  --hairline-light: rgba(0,0,0,.08);
+  --hairline-dark: rgba(255,255,255,.08);
+  --elev-1: 0 6px 24px rgba(0,0,0,.06);
+  --elev-2: 0 12px 40px rgba(0,0,0,.10);
+  --motion-fast: 160ms;
+  --motion-base: 240ms;
+  --bezier: cubic-bezier(.2,.8,.2,1);
+}
+.card-modern {
+  border-radius: var(--radius);
+  border: 1px solid var(--hairline-light);
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.7));
+  box-shadow: var(--elev-1);
+}
+.dark .card-modern {
+  border-color: var(--hairline-dark);
+  background: linear-gradient(180deg, rgba(10,10,10,.7), rgba(10,10,10,.55));
+  box-shadow: var(--elev-2);
+}
+.anim-soft { transition: all var(--motion-base) var(--bezier); }
