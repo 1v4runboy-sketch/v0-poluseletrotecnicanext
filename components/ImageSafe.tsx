@@ -1,6 +1,21 @@
+
 'use client';
-import React, { useState } from 'react';
-export default function ImageSafe({ src, alt, className, ...rest }:{src:string; alt:string; className?:string} & React.ImgHTMLAttributes<HTMLImageElement>){
-  const [err, setErr] = useState(false);
-  return <img src={err? '/produtos/placeholder.webp' : src} alt={alt} className={className} onError={()=>setErr(true)} {...rest} />;
+import Image from 'next/image';
+
+type Props = {
+  src?: string;
+  alt?: string;
+  className?: string;
+  width?: number;
+  height?: number;
+};
+
+const isExternal = (s?: string) => !!s && /^https?:\/\//i.test(s);
+
+export default function ImageSafe({ src, alt = '', className, width, height }: Props) {
+  const final = src || '/produtos/placeholder.webp';
+  if (isExternal(final)) {
+    return <img src={final} alt={alt} className={className} loading="lazy" decoding="async" />;
+  }
+  return <Image src={final} alt={alt} width={width ?? 1200} height={height ?? 900} className={className} priority={false} />;
 }

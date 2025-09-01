@@ -6,6 +6,21 @@ import { SITE } from '@/lib/site';
 import ProductCarousel from './ProductCarousel';
 import BrandBadge from './BrandBadge';
 import { add } from '@/lib/budgetList';
+
+function formatTitleCommercial(title) {
+  if (!title) return '';
+  const KEEP_UP = new Set(['WEG','HCH','NSK','JL','IGUI','iGUi','CIFA','LANC','AC', 'DC', 'DDU', 'ZZ']);
+  const LOWER = new Set(['de','da','do','das','dos','e','para','em','com']);
+  return title.split(/\s+/).map((w,i)=>{
+    const up = w.toUpperCase();
+    if (KEEP_UP.has(up)) return up;
+    if (LOWER.has(w.toLowerCase()) && i!==0) return w.toLowerCase();
+    // preserva medidas/códigos (1/2, 0,19mm, 6203)
+    if (/^\d+[\/\-]\d+$/.test(w) || /mm$/i.test(w) || /^\d{3,}$/.test(w)) return w;
+    return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
+  }).join(' ');
+}
+
 export default function ProductPageClient({ product }: { product: Product }){
   const related = useMemo(()=>PRODUCTS.filter(p => p.id!==product.id && (p.category===product.category || (product.brand && p.brand===product.brand))).slice(0,4), [product]);
   return (
@@ -14,7 +29,7 @@ export default function ProductPageClient({ product }: { product: Product }){
         <BrandBadge brand={product.brand} />
         <ProductCarousel images={product.images} />
       </div>
-      <h1 className="text-2xl font-semibold">{product.title}</h1>
+      <h1 className="text-2xl font-semibold">{formatTitleCommercial(product.title)}</h1>
       {product.shortDescription && <p className="text-zinc-700 dark:text-zinc-300">{product.shortDescription}</p>}
       {product.techSpecs && product.techSpecs.length>0 && (
         <div>

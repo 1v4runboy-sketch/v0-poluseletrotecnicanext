@@ -5,6 +5,21 @@ import ProductCarousel from './ProductCarousel';
 import BrandBadge from './BrandBadge';
 import { SITE } from '@/lib/site';
 import { add } from '@/lib/budgetList';
+
+function formatTitleCommercial(title) {
+  if (!title) return '';
+  const KEEP_UP = new Set(['WEG','HCH','NSK','JL','IGUI','iGUi','CIFA','LANC','AC', 'DC', 'DDU', 'ZZ']);
+  const LOWER = new Set(['de','da','do','das','dos','e','para','em','com']);
+  return title.split(/\s+/).map((w,i)=>{
+    const up = w.toUpperCase();
+    if (KEEP_UP.has(up)) return up;
+    if (LOWER.has(w.toLowerCase()) && i!==0) return w.toLowerCase();
+    // preserva medidas/códigos (1/2, 0,19mm, 6203)
+    if (/^\d+[\/\-]\d+$/.test(w) || /mm$/i.test(w) || /^\d{3,}$/.test(w)) return w;
+    return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
+  }).join(' ');
+}
+
 export default function ProductCard({ p }: { p: Product }){
   return (
     <div className="relative rounded-xl border border-black/10 dark:border-white/10 p-3 bg-white/70 dark:bg-black/40 backdrop-blur shadow-sm hover:shadow-md transition [transform:translateZ(0)]">

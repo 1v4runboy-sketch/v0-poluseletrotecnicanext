@@ -1,29 +1,44 @@
+
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { REVIEWS } from '@/lib/reviews';
-import { ChevronLeft, ChevronRight } from './icons';
+
 export default function ReviewsCarousel(){
-  const [i, setI] = useState(0);
-  useEffect(()=>{ const t = setInterval(()=>setI(prev => (prev+1)%REVIEWS.length), 4000); return ()=>clearInterval(t); }, []);
+  const [idx,setIdx]=useState(0);
+  const startX=useRef<number|null>(null);
+  const next=()=> setIdx(i=>(i+1)%REVIEWS.length);
+  const prev=()=> setIdx(i=>(i-1+REVIEWS.length)%REVIEWS.length);
+
+  useEffect(()=>{
+    const prefersReduced = typeof window!=='undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+    const id = setInterval(next, 4000);
+    return ()=> clearInterval(id);
+  },[]);
+
   return (
-    <div className="relative max-w-4xl mx-auto">
-      <div className="overflow-hidden rounded-xl border border-black/10 dark:border:white/10">
-        <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${i*100}%)` }}>
-          {REVIEWS.map((r,idx)=>(
-            <div key={idx} className="min-w-full p-6 bg-white/70 dark:bg-black/40 backdrop-blur">
-              <div className="flex gap-4 items-center">
-                <img src={r.avatar} alt={r.name} className="w-14 h-14 rounded-full object-cover border border-black/10 dark:border-white/10" onError={(e)=>{ (e.target as HTMLImageElement).src='/produtos/placeholder.webp'; }} />
-                <div>
-                  <div className="font-medium">{r.name}</div>
-                  <p className="text-zinc-600 dark:text-zinc-300">{r.text}</p>
-                </div>
+    <div className="relative w-full overflow-hidden rounded-xl ring-1 ring-black/10 dark:ring-white/10">
+      <div className="h-64 md:h-72 relative">
+        {REVIEWS.map((r,i)=>(
+          <div key={r.name}
+               className="absolute inset-0 p-4 grid grid-cols-[72px,1fr] gap-3 items-center transition-opacity duration-300"
+               style={{opacity: i===idx?1:0, transform: `translateX(${i===idx?0:(i<idx?-8:8)}px)`}}>
+            <img src={r.avatar} alt={r.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-white/60" loading="lazy" decoding="async"/>
+            <div>
+              <div className="flex items-center gap-2 text-yellow-400 text-sm" aria-label={`${r.rating} estrelas`}>
+                {'★★★★★'.slice(0, r.rating)}<span className="opacity-60 text-xs">{r.rating}.0</span>
               </div>
+              <h4 className="font-semibold">{r.name}</h4>
+              <p className="opacity-80 text-sm whitespace-pre-line">{r.text}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-      <button aria-label="Anterior" onClick={()=>setI((i-1+REVIEWS.length)%REVIEWS.length)} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full"><ChevronLeft/></button>
-      <button aria-label="Próxima" onClick={()=>setI((i+1)%REVIEWS.length)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full"><ChevronRight/></button>
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+        {REVIEWS.map((_,i)=>(
+          <button key={i} onClick={()=>setIdx(i)} className={`w-2 h-2 rounded-full ${i===idx?'bg-weg':'bg-white/60 dark:bg-white/30'}`} aria-label={'Slide '+(i+1)}/>
+        ))}
+      </div>
     </div>
   );
 }
