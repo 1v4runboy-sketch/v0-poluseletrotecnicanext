@@ -1,24 +1,36 @@
 'use client';
-import React, { useRef } from 'react';
-import { BRANDS } from '@/lib/brands';
+import { useEffect, useRef, useState } from 'react';
+
+const logos = ['weg','nsk','hch','jl','ddu','zz','polus'];
 
 export default function BrandCarousel(){
-  const ref = useRef(null);
-  const scrollBy = (dx)=>{ const el=ref.current; if(!el) return; el.scrollBy({left:dx, behavior:'smooth'}); };
+  const ref = useRef<HTMLDivElement>(null);
+  const [paused, setPaused] = useState(false);
+  useEffect(()=>{
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(mql.matches) return;
+    let raf=0, x=0;
+    const speed = 0.4;
+    const tick = ()=>{
+      if(!paused && ref.current){
+        x = (x - speed) % (ref.current.scrollWidth/2);
+        ref.current.style.transform = `translateX(${x}px)`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const onVis = ()=>{ if(document.hidden){ setPaused(true);} };
+    document.addEventListener('visibilitychange', onVis);
+    return ()=>{ cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', onVis); };
+  },[paused]);
+  const items = [...logos, ...logos];
   return (
-    <section className="mt-6 relative">
-      <h3 className="text-sm font-semibold mb-2 opacity-80">Marcas em destaque</h3>
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-white dark:from-gray-900 to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white dark:from-gray-900 to-transparent" />
-      <button className="carousel-arrow left-0" aria-label="Anterior" onClick={()=>scrollBy(-300)}>‹</button>
-      <button className="carousel-arrow right-0" aria-label="Próximo" onClick={()=>scrollBy(300)}>›</button>
-      <div ref={ref} className="flex gap-6 overflow-x-auto py-3 px-1 snap-x snap-mandatory">
-        {BRANDS.map(b=>(
-          <div key={b.slug} className="snap-start flex-shrink-0 flex items-center justify-center h-14 px-3 rounded-md bg-white/80 dark:bg-black/40 ring-1 ring-black/10 dark:ring-white/10">
-            <img src={b.logo} alt={b.name} className="object-contain brand-logo h-8"/>
-          </div>
+    <div className="overflow-hidden py-6" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+      <div ref={ref} className="flex items-center gap-10 will-change-transform">
+        {items.map((l,i)=> (
+          <img key={i} src={`/marcas/${l}.svg`} alt={l} className="h-10 w-auto brand-logo" loading="lazy" decoding="async" />
         ))}
       </div>
-    </section>
+    </div>
   );
 }

@@ -1,52 +1,42 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import BrandBadge from './BrandBadge';
-import { SITE } from '@/lib/site';
+import ImageSafe from './ImageSafe';
 
-function formatTitleCommercial(title){
-  if(!title) return '';
-  const KEEP_UP=new Set(['WEG','HCH','NSK','JL','IGUI','CIFA','LANC','AC','DC','DDU','ZZ']);
-  const LOWER=new Set(['de','da','do','das','dos','e','para','em','com']);
-  return title.split(/\s+/).map((w,i)=>{
-    const up=w.toUpperCase();
-    if(KEEP_UP.has(up)) return up;
-    if(LOWER.has(w.toLowerCase()) && i!==0) return w.toLowerCase();
-    if(/^\d+[\/\-]\d+$/.test(w) || /mm$/i.test(w) || /^\d{3,}$/.test(w)) return w;
-    return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
-  }).join(' ');
-}
-
-export default function ProductCard({ product }){
+export default function ProductCard({ product, highlight }){
   const router = useRouter();
-  const img = (product.images?.[0]?.src) || '/produtos/placeholder.webp';
-
   const go = ()=> router.push(`/produtos/${product.slug}`);
-  const onKey = (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); go(); } };
+  const onKey = (e)=> { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); go(); } };
+  const first = product.images?.[0];
+  const renderTitle = ()=>{
+    if(!highlight) return product.title;
+    const q = highlight.toLowerCase().trim();
+    if(!q) return product.title;
+    const idx = product.title.toLowerCase().indexOf(q);
+    if(idx<0) return product.title;
+    return (<>
+      {product.title.slice(0, idx)}<mark className="bg-yellow-200 dark:bg-yellow-600/50">{product.title.slice(idx, idx+q.length)}</mark>{product.title.slice(idx+q.length)}
+    </>);
+  };
+
+  const wpHref = `/api/whatsapp?title=${encodeURIComponent(product.title)}`;
 
   return (
-    <div
-      role="link" tabIndex={0}
-      onClick={go} onKeyDown={onKey}
-      className="card-modern relative block p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-weg/60 cursor-pointer"
-      aria-label={product.title}
-    >
-      <div className="relative aspect-square rounded-lg overflow-hidden bg-white/60 dark:bg-black/20">
-        <img src={img} alt={product.images?.[0]?.alt || product.title} className="w-full h-full object-contain" loading="lazy" decoding="async"/>
-        <div className="absolute top-2 left-2"><BrandBadge brand={product.brand} name={product.brand}/></div>
+    <div role="link" tabIndex={0} onClick={go} onKeyDown={onKey} className="card-modern flex flex-col gap-3 hover:cursor-pointer">
+      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+        {first && <ImageSafe src={first.src} alt={first.alt} className="w-full h-full object-cover" />}
+        <BrandBadge brand={product.brand} />
       </div>
-
-      <h3 className="mt-2 font-medium leading-tight line-clamp-2">{formatTitleCommercial(product.title)}</h3>
-      {product.shortDescription && <p className="text-xs opacity-70 line-clamp-2 mt-0.5">{product.shortDescription}</p>}
-
-      <div className="mt-2 flex items-center gap-2 relative z-10">
-        <a
-          href={SITE.whatsappHref(product.title)}
-          className="btn-magnetic px-3 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700"
-          target="_blank" rel="noopener noreferrer"
-          onClick={(e)=> e.stopPropagation()}
-        >
-          WhatsApp
-        </a>
+      <div className="flex-1">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{renderTitle()}</h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{product.shortDescription}</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <a href={wpHref} target="_blank" rel="noopener noreferrer" className="btn-magnetic text-sm">WhatsApp</a>
+        <button
+          onClick={(e)=>{ e.stopPropagation(); const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado à lista de orçamento'); }}
+          className="chip"
+        >Adicionar</button>
       </div>
     </div>
   );

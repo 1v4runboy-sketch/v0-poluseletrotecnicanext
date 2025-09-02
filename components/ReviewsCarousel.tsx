@@ -1,41 +1,40 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import { REVIEWS } from '@/lib/reviews';
+import { useEffect, useState } from 'react';
+import { reviews } from '../lib/reviews';
 
 export default function ReviewsCarousel(){
-  const [idx,setIdx]=useState(0);
-  const startX=useRef<number|null>(null);
-  const next=()=> setIdx(i=>(i+1)%REVIEWS.length);
-  const prev=()=> setIdx(i=>(i-1+REVIEWS.length)%REVIEWS.length);
-
+  const [i, setI] = useState(0);
+  const [hover, setHover] = useState(false);
   useEffect(()=>{
-    const prefersReduced = typeof window!=='undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-    const id = setInterval(next, 4000);
-    return ()=> clearInterval(id);
-  },[]);
-
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(mql.matches) return;
+    const t = setInterval(()=>{ if(!hover) setI(x=> (x+1)%reviews.length); }, 3500);
+    const onVis = ()=>{ if(document.hidden) setHover(true); };
+    document.addEventListener('visibilitychange', onVis);
+    return ()=>{ clearInterval(t); document.removeEventListener('visibilitychange', onVis); };
+  },[hover]);
   return (
-    <div className="relative w-full overflow-hidden rounded-xl ring-1 ring-black/10 dark:ring-white/10">
-      <div className="h-64 md:h-72 relative">
-        {REVIEWS.map((r,i)=>(
-          <div key={r.name}
-               className="absolute inset-0 p-4 grid grid-cols-[72px,1fr] gap-3 items-center transition-opacity duration-300"
-               style={{opacity: i===idx?1:0, transform: `translateX(${i===idx?0:(i<idx?-8:8)}px)`}}>
-            <img src={r.avatar} alt={r.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-white/60" loading="lazy" decoding="async"/>
-            <div>
-              <div className="flex items-center gap-2 text-yellow-400 text-sm" aria-label={`${r.rating} estrelas`}>
-                {'★★★★★'.slice(0, r.rating)}<span className="opacity-60 text-xs">{r.rating}.0</span>
+    <div className="relative" onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
+      <div className="overflow-hidden rounded-2xl">
+        <div className="flex transition-transform" style={{ transform:`translateX(-${i*100}%)`}}>
+          {reviews.map((r,idx)=>(
+            <div key={idx} className="min-w-full p-6 bg-white/60 dark:bg-white/5">
+              <div className="flex items-center gap-4">
+                <img src={r.avatar} alt={r.name} className="w-12 h-12 rounded-full object-cover"/>
+                <div>
+                  <div className="font-semibold">{r.name}</div>
+                  <div className="text-yellow-500">{'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}</div>
+                </div>
               </div>
-              <h4 className="font-semibold">{r.name}</h4>
-              <p className="opacity-80 text-sm whitespace-pre-line">{r.text}</p>
+              <p className="mt-3 text-slate-700 dark:text-slate-300">{r.text}</p>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-        {REVIEWS.map((_,i)=>(
-          <button key={i} onClick={()=>setIdx(i)} className={`w-2 h-2 rounded-full ${i===idx?'bg-weg':'bg-white/60 dark:bg-white/30'}`} aria-label={'Slide '+(i+1)}/>
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+        {reviews.map((_,idx)=>(
+          <button key={idx} aria-label={`Ir ao slide ${idx+1}`} onClick={()=>setI(idx)} className="w-2 h-2 rounded-full"
+            style={{ background: idx===i?'#0A6CB2':'rgba(0,0,0,.2)'}} />
         ))}
       </div>
     </div>

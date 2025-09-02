@@ -1,24 +1,27 @@
 'use client';
-import React, { useMemo, useState } from 'react';
-import PRODUCTS from '@/lib/products';
+import { useEffect, useMemo, useState } from 'react';
+import { products } from '../lib/products';
+import { useRouter } from 'next/navigation';
+import { titleCaseSmart } from '../lib/site';
 
 export default function SearchGlobal(){
-  const [q,setQ]=useState('');
-  const suggestions = useMemo(()=>{
-    const s=q.trim().toLowerCase();
+  const [q, setQ] = useState('');
+  const router = useRouter();
+  const list = useMemo(()=>{
+    const s = q.trim().toLowerCase();
     if(!s) return [];
-    return PRODUCTS.filter(p=> (p.title||'').toLowerCase().startsWith(s)).slice(0,6);
+    return products.filter(p => p.title.toLowerCase().startsWith(s)).slice(0,6);
   },[q]);
-
   return (
-    <div className="relative w-full max-w-xl">
-      <input id="global-search" value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar produto..." className="w-full rounded-md border bg-white/80 dark:bg-black/30 px-3 py-2"/>
-      {q && suggestions.length>0 && (
-        <div className="absolute mt-1 w-full rounded-md border bg-white dark:bg-gray-900 shadow">
-          {suggestions.map(s=>(
-            <a key={s.slug} href={`/produtos/${s.slug}`} className="block px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800">
-              {s.title}
-            </a>
+    <div className="relative">
+      <input value={q} onChange={(e)=>setQ(e.target.value)} placeholder="Buscar..." className="px-3 py-2 rounded-xl w-60 bg-white/70 dark:bg-white/10 outline-none"/>
+      {list.length>0 && (
+        <div className="absolute mt-1 w-full bg-white/90 dark:bg-black/70 rounded-xl shadow z-50">
+          {list.map(p=> (
+            <div key={p.slug} className="px-3 py-2 hover:bg-slate-100/70 dark:hover:bg-white/10 cursor-pointer rounded-lg"
+              onClick={()=> router.push(`/produtos/${p.slug}`)}>
+              {titleCaseSmart(p.title)}
+            </div>
           ))}
         </div>
       )}

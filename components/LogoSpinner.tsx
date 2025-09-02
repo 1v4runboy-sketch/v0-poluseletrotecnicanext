@@ -1,27 +1,19 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
-export default function LogoSpinner({ size = 40 }){
-  const [speed,setSpeed]=useState(8);
-  const ref=useRef(null);
-  useEffect(()=>{
-    const el=ref.current; if(!el) return;
-    let rot=0, raf=0;
-    const step=()=>{ rot=(rot+(360/(speed*60)))%360; el.style.transform=`rotateY(${rot}deg)`; raf=requestAnimationFrame(step); };
-    raf=requestAnimationFrame(step);
-    return ()=> cancelAnimationFrame(raf);
-  },[speed]);
-
+export default function LogoSpinner(){
+  const [hover, setHover] = useState(false);
   return (
-    <div ref={ref} onMouseEnter={()=>setSpeed(3)} onMouseLeave={()=>setSpeed(8)}
-         className="relative [transform-style:preserve-3d] will-change-transform"
-         style={{ width:size, height:size, filter:'drop-shadow(0 0 14px rgba(99,102,241,.50)) drop-shadow(0 0 26px rgba(14,165,233,.35))' }}
-         aria-label="Logo giratório">
-      <div className="absolute inset-0 backface-hidden flex items-center justify-center" style={{transform:'rotateY(0deg)'}}>
-        <img src="/polus-logo.svg" alt="Polus" className="w-[70%] h-[70%] object-contain"/>
-      </div>
-      <div className="absolute inset-0 backface-hidden flex items-center justify-center" style={{transform:'rotateY(180deg)'}}>
-        <img src="/polus-logo.svg" alt="Polus (verso)" className="w-[70%] h-[70%] object-contain"/>
+    <div
+      onMouseEnter={()=>setHover(true)}
+      onMouseLeave={()=>setHover(false)}
+      className="relative w-10 h-10 backface-hidden"
+      style={{ perspective: '600px', filter:'drop-shadow(0 6px 18px rgba(10,108,178,.45))' }}
+    >
+      <div className="absolute inset-0 rounded-xl backface-hidden"
+        style={{ transform: `rotateY(${hover?360:0}deg)`, transition:'transform .9s var(--easing)', transformStyle:'preserve-3d'}}>
+        <img src="/polus-logo.svg" alt="Polus" className="absolute inset-0 w-full h-full object-contain backface-hidden" />
+        <img src="/motor-favicon.svg" alt="" className="absolute inset-0 w-full h-full object-contain backface-hidden" style={{ transform:'rotateY(180deg)'}}/>
       </div>
     </div>
   );

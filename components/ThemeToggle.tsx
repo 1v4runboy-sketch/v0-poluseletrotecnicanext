@@ -1,37 +1,33 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
 export default function ThemeToggle(){
   const { theme, setTheme } = useTheme();
-  const isDark = theme==='dark';
-  const ref = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(()=>{ setMounted(true); },[]);
+  if(!mounted) return null;
 
-  useEffect(()=>{
-    // tiny stars in dark
-    const el = ref.current; if(!el) return;
-    if (!isDark) { el.querySelectorAll('.star').forEach(n=>n.remove()); return; }
-    for (let i=0;i<8;i++){
-      const s = document.createElement('span');
-      s.className='star';
-      s.style.left = Math.random()*80 + '%';
-      s.style.top = Math.random()*60 + '%';
-      el.appendChild(s);
-      setTimeout(()=> s.remove(), 1500 + (Math.random()*1000|0));
-    }
-  }, [isDark]);
-
+  const isDark = theme === 'dark';
   return (
     <button
-      ref={ref}
+      aria-label="Alternar tema"
       onClick={()=> setTheme(isDark ? 'light' : 'dark')}
-      className={`relative w-16 h-9 rounded-full border anim-soft overflow-hidden ${
-        isDark?'bg-gradient-to-r from-indigo-900 to-purple-800':'bg-gradient-to-r from-white to-blue-50'
-      }`}
-      aria-label="Trocar tema"
-      title="Trocar tema"
+      className="relative w-16 h-9 rounded-full overflow-hidden backface-hidden"
+      style={{boxShadow:'var(--hairline-light)'}}
     >
-      <span className={`absolute top-1 left-1 w-7 h-7 rounded-full bg-white dark:bg-gray-200 shadow anim-soft ${isDark?'translate-x-7':''}`}/>
+      <div className="absolute inset-0 transition-all"
+        style={{background: isDark ? 'linear-gradient(180deg,#1e1b4b,#0ea5e9)' : 'linear-gradient(180deg,#e0f2fe,#ffffff)'}}/>
+      <div
+        className="absolute top-1 left-1 w-7 h-7 rounded-full bg-white dark:bg-slate-200 transition-all"
+        style={{transform: isDark ? 'translateX(28px)' : 'translateX(0)'}}
+      />
+      {isDark && <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        {/* ephemeral stars */}
+        <svg className="w-full h-full opacity-60" viewBox="0 0 100 100">
+          {Array.from({length:10}).map((_,i)=> <circle key={i} cx={Math.random()*100} cy={Math.random()*100} r={Math.random()*0.8+0.2} fill="white" />)}
+        </svg>
+      </div>}
     </button>
   );
 }
