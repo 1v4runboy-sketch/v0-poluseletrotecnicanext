@@ -1,16 +1,13 @@
 'use client';
-import { useMemo } from 'react';
-import { products } from '../lib/products';
 import ProductCarousel from './ProductCarousel';
 import BrandBadge from './BrandBadge';
-import { whatsappHref, hashSlug, stableShuffle } from '../lib/site';
-import ImageSafe from './ImageSafe';
+import { whatsappHref, hashSlug, stableShuffle, titleCaseSmart } from '../lib/site';
 import ProductCard from './ProductCard';
+import { products } from '../lib/products';
 import { useRouter } from 'next/navigation';
 
-export default function ProductPageClient({ slug }){
+export default function ProductPageClient({ product }){
   const router = useRouter();
-  const product = useMemo(()=> products.find(p=>p.slug===slug), [slug]);
   if(!product) return <div className="p-4">Produto não encontrado.</div>;
 
   const relatedPool = products.filter(p=> p.slug!==product.slug && (p.category===product.category || p.brand===product.brand));
@@ -19,23 +16,36 @@ export default function ProductPageClient({ slug }){
   const seed = hashSlug(product.slug);
   const related = stableShuffle(pool, seed).slice(0,4);
 
+  const niceTitle = titleCaseSmart(product.title || '');
+
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
-        <ProductCarousel images={product.images} brand={product.brand} />
+        <div className="relative select-none">
+          <ProductCarousel images={product.images} brand={product.brand} />
+        </div>
         <div className="space-y-4">
-          <h1 className="text-2xl font-bold">{product.title}</h1>
+          <h1 className="text-2xl font-bold">{niceTitle}</h1>
           <div className="flex flex-wrap gap-2">
-            <button onClick={()=> router.push(`/?marca=${encodeURIComponent(product.brand)}`)} className="chip">{product.brand}</button>
-            <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}`)} className="chip">{product.category}</button>
-            <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}&sub=${encodeURIComponent(product.subcategory)}`)} className="chip">{product.subcategory}</button>
+            {product.brand && (
+              <button onClick={()=> router.push(`/?marca=${encodeURIComponent(product.brand)}`)} className="chip">{product.brand}</button>
+            )}
+            {product.category && (
+              <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}`)} className="chip">{product.category}</button>
+            )}
+            {product.subcategory && (
+              <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}&sub=${encodeURIComponent(product.subcategory)}`)} className="chip">{product.subcategory}</button>
+            )}
           </div>
           <p className="text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
           <div className="flex items-center gap-2">
-            <a href={whatsappHref(product.title)} target="_blank" rel="noopener noreferrer" className="btn-magnetic">WhatsApp</a>
+            <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-magnetic">WhatsApp</a>
             <button
               onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado à lista de orçamento'); }}
-              className="chip">Adicionar à lista</button>
+              className="chip"
+            >
+              Adicionar à lista
+            </button>
           </div>
         </div>
       </div>
