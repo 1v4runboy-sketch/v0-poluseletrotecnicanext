@@ -1,30 +1,42 @@
 import ReviewsCarousel from '@/components/ReviewsCarousel';
 import { SITE } from '@/lib/site';
 
-export const metadata = { title: 'Avaliações — Polus Eletrotécnica' };
+export const metadata = { title: 'Avaliações, Loja e Contato — Polus Eletrotécnica' };
 
-export default function AvaliacoesPage(){
+export default function AvaliacoesLojaContatoPage(){
   return (
-    <main className="min-h-screen py-6 space-y-6">
+    <main className="min-h-screen py-6 space-y-10">
+      {/* Avaliações */}
       <section>
         <h1 className="text-2xl font-semibold mb-3">Avaliações de clientes</h1>
         <ReviewsCarousel />
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <h2 className="font-semibold mb-2">Nossa localização</h2>
-          <div className="aspect-[16/9] w-full overflow-hidden rounded-xl ring-1 ring-black/10 dark:ring-white/10">
-            <iframe src={SITE.mapsEmbed} className="w-full h-full" loading="lazy" />
-          </div>
+      {/* Fachada da loja */}
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Nossa loja</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[1,2,3,4].map(i=> (
+            <img key={i} src={`/loja/fachada-${i}.webp`} alt={`Fachada ${i}`} className="w-full h-40 object-cover rounded-xl"/>
+          ))}
         </div>
-        <div>
-          <h2 className="font-semibold mb-2">Fachada da loja</h2>
-          <div className="grid grid-cols-2 gap-2">
-            <img src="/loja/fachada-1.webp" alt="Fachada 1" className="w-full h-28 object-cover rounded"/>
-            <img src="/loja/fachada-2.webp" alt="Fachada 2" className="w-full h-28 object-cover rounded"/>
-            <img src="/loja/fachada-3.webp" alt="Fachada 3" className="w-full h-28 object-cover rounded"/>
-            <img src="/loja/fachada-4.webp" alt="Fachada 4" className="w-full h-28 object-cover rounded"/>
+      </section>
+
+      {/* Contato + Mapa */}
+      <section>
+        <h2 className="text-xl font-semibold mb-3">Endereço e contato</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="aspect-video rounded-2xl overflow-hidden shadow ring-1 ring-black/10">
+              <iframe src={SITE.mapsEmbed} className="w-full h-full" loading="lazy" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p><strong>Endereço:</strong> {SITE.address}</p>
+            <p><strong>WhatsApp:</strong> {SITE.whatsappNumberIntl}</p>
+            <p><strong>Instagram:</strong> <a className="text-weg underline" href={SITE.instagram} target="_blank" rel="noopener noreferrer">{SITE.instagram}</a></p>
+            <p><strong>Email:</strong> {SITE.email}</p>
+            <p><strong>CNPJ:</strong> {SITE.cnpj}</p>
           </div>
         </div>
       </section>

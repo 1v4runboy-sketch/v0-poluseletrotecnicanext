@@ -5,7 +5,7 @@ import ProductListPageClient from "@/components/ProductListPageClient"
 export default function HomePage() {
   return (
     <>
-      <section className="relative rounded-[20px] overflow-hidden mt-4 ring-1 ring-white/10 z-0">
+      <section className="relative rounded-[20px] overflow-hidden mt-4 ring-1 ring-white/10 z-0 hero-wrap">
         <HeroColorSync src="/Loop-ezgif.com-video-to-webp-converter.webp" />
         <img
           src="/Loop-ezgif.com-video-to-webp-converter.webp"
@@ -17,7 +17,7 @@ export default function HomePage() {
           id="hero-img"
         />
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,.25), transparent 40%)' }} />
-        <div className="absolute bottom-4 left-4 text-white drop-shadow">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white drop-shadow text-center">
           <h1 className="text-2xl md:text-3xl font-semibold">Polus Eletrotécnica — Catálogo Técnico</h1>
           <p className="opacity-90 text-sm">Peças para motores elétricos e bombas d’água.</p>
         </div>

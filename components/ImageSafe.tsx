@@ -18,17 +18,14 @@ export default function ImageSafe({
       srcs.forEach(push);
     } else if (src) {
       push(src);
-      // Troca extensão
       if (/\.(webp)$/i.test(src)) {
         push(src.replace(/\.webp$/i, '.png'));
         push(src.replace(/\.webp$/i, '.jpg'));
         push(src.replace(/\.webp$/i, '.jpeg'));
       }
-      // Remove sufixo -1/-2
       push(src.replace(/-\d+(\.\w+)$/i, '$1'));
     }
 
-    // Placeholders finais
     if (type === 'brand') {
       push('/polus-logo.svg');
     } else {

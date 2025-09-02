@@ -8,6 +8,7 @@ import SearchGlobal from './SearchGlobal';
 
 export default function Header(){
   const [open, setOpen] = useState(false);
+
   // Hero color sync (average of hero image)
   useEffect(()=>{
     const img = document.getElementById('hero-img') as HTMLImageElement | null;
@@ -24,21 +25,28 @@ export default function Header(){
         for(let i=0;i<data.length;i+=4){ r+=data[i]; g+=data[i+1]; b+=data[i+2]; count++; }
         r=Math.round(r/count); g=Math.round(g/count); b=Math.round(b/count);
         document.documentElement.style.setProperty('--hero-color', `rgb(${r} ${g} ${b})`);
-      }catch(e){ /* cross-origin or other */ }
+      }catch{}
     };
     if(img.complete) onLoad(); else img.addEventListener('load', onLoad, { once:true });
     return ()=> img?.removeEventListener('load', onLoad);
   },[]);
 
   return (
-    <header className="header-hero">
-      <div className="max-w-6xl mx-auto flex items-center gap-3 px-4 py-3">
-        <SidebarToggle onClick={()=>setOpen(true)} />
-        <LogoSpinner />
-        <div className="font-bold">Polus Eletrotécnica</div>
-        <div className="flex-1" />
-        <SearchGlobal />
-        <ThemeToggle />
+    <header className="header-hero relative">
+      <div className="max-w-6xl mx-auto px-4 py-3 relative">
+        {/* Esquerda: menu */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2">
+          <SidebarToggle onClick={()=>setOpen(true)} />
+        </div>
+        {/* Centro: logo */}
+        <div className="flex items-center justify-center">
+          <LogoSpinner />
+        </div>
+        {/* Direita: busca + tema */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+          <SearchGlobal />
+          <ThemeToggle />
+        </div>
       </div>
       <Sidebar open={open} setOpen={setOpen} />
     </header>

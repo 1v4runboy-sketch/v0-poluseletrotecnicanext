@@ -3,6 +3,12 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import ImageSafe from './ImageSafe';
 import { brands as brandsAll } from '../lib/products';
 
+const EXCLUDE = new Set(['polus','polus eletrotecnica','polus eletrotécnica']);
+
+function norm(s:string){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+
 function cand(brand: string) {
   const base = String(brand || '').toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -19,8 +25,20 @@ function cand(brand: string) {
 }
 
 export default function BrandCarousel(){
-  const logos = useMemo(() => (brandsAll.length ? brandsAll : ['WEG','NSK','HCH','JL']), []);
-  const ref = useRef(null);
+  const logos = useMemo(() => {
+    const uniq: string[] = [];
+    for(const b of brandsAll){
+      const n = norm(b);
+      if(!n || EXCLUDE.has(n)) continue;
+      if(!uniq.some(x=> norm(x)===n)) uniq.push(b);
+    }
+    // Extras para garantir visibilidade
+    const extras = ['Cifa','JL Capacitores','Jacuzzi','IGUI','Lanc Comercial','Solda Cobix','WEG','NSK','HCH'];
+    for(const e of extras){ if(!uniq.some(x=> norm(x)===norm(e))) uniq.push(e); }
+    return uniq;
+  }, []);
+
+  const ref = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
 
   useEffect(()=>{
@@ -29,17 +47,17 @@ export default function BrandCarousel(){
     let raf=0, x=0;
     const speed = 0.4;
     const tick = ()=>{
-      const el = ref.current as unknown as HTMLDivElement | null;
+      const el = ref.current;
       if(el && !paused){
-        x = (x - speed) % (el.scrollWidth/2 || 1);
+        x = (x - speed) % (Math.max(1, el.scrollWidth/2));
         el.style.transform = `translateX(${x}px)`;
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    const vis = ()=>{ /* pausa em background */ };
-    document.addEventListener('visibilitychange', vis);
-    return ()=>{ cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', vis); };
+    const stop = ()=>{};
+    document.addEventListener('visibilitychange', stop);
+    return ()=>{ cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', stop); };
   },[paused]);
 
   const items = [...logos, ...logos];

@@ -4,14 +4,19 @@ import { brands, products } from '../lib/products';
 import { useRouter } from 'next/navigation';
 import { whatsappHref } from '../lib/site';
 
+function norm(s:string){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+
 function treeFromProducts(){
-  const out = {};
+  const out: Record<string, Set<string>> = {};
   for(const p of products){
     if(!p.category) continue;
-    out[p.category] ??= new Set();
-    if (p.subcategory) out[p.category].add(p.subcategory);
+    const cat = p.category;
+    out[cat] ??= new Set();
+    if (p.subcategory) out[cat].add(p.subcategory);
   }
-  const obj = {};
+  const obj: Record<string,string[]> = {};
   for(const k of Object.keys(out)) obj[k] = Array.from(out[k]).sort();
   return obj;
 }
@@ -25,23 +30,23 @@ export default function Sidebar({ open, setOpen }){
   },[setOpen]);
 
   const tree = treeFromProducts();
+  const brandList = brands.filter(b => norm(b) !== 'polus' && norm(b) !== 'polus eletrotecnica' && norm(b) !== 'polus eletrotécnica');
 
   return (
-    <div className={`fixed inset-0 z-[80] transition ${open?'':'pointer-events-none'}`} aria-hidden={!open}>
+    <div className={`fixed inset-0 z-[120] transition ${open?'':'pointer-events-none'}`} aria-hidden={!open}>
       <div className={`absolute inset-0 bg-black/40 ${open?'opacity-100':'opacity-0'}`} onClick={()=>setOpen(false)} />
       <aside className={`absolute left-0 top-0 bottom-0 w-80 p-4 bg-white dark:bg-slate-900 shadow-xl transition-transform ${open?'translate-x-0':'-translate-x-full'}`}>
         <h3 className="text-lg font-semibold mb-3">Navegação</h3>
         <nav className="space-y-2">
           <button onClick={()=>{ router.push('/'); setOpen(false); }} className="chip w-full justify-start">Catálogo</button>
-          <button onClick={()=>{ router.push('/avaliacoes'); setOpen(false); }} className="chip w-full justify-start">Avaliações & Loja</button>
-          <button onClick={()=>{ router.push('/contato'); setOpen(false); }} className="chip w-full justify-start">Contato</button>
+          <button onClick={()=>{ router.push('/avaliacoes'); setOpen(false); }} className="chip w-full justify-start">Avaliações & Loja & Contato</button>
           <a href="https://www.instagram.com/_poluseletrotecnica/" target="_blank" rel="noopener noreferrer" className="chip w-full justify-start">Instagram</a>
         </nav>
 
         <div className="mt-4">
           <div className="text-sm font-semibold mb-2">Marcas</div>
           <div className="flex flex-wrap gap-2">
-            {brands.map((b)=>(
+            {brandList.map((b)=>(
               <button key={b} onClick={()=>{ router.push('/?marca='+encodeURIComponent(b)); setOpen(false);} } className="chip">{b}</button>
             ))}
           </div>

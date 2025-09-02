@@ -4,7 +4,6 @@ import Starfield from '@/components/Starfield';
 import CursorTrail from '@/components/CursorTrail';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Sidebar from '@/components/Sidebar';
 import WhatsFloat from '@/components/WhatsFloat';
 import BackToTop from '@/components/BackToTop';
 import MiniCartDrawer from '@/components/MiniCartDrawer';
@@ -15,23 +14,22 @@ export const metadata = {
   generator: 'polus',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }){
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen">
         <ThemeProvider>
-          {/* Atmosfera / UX globais */}
-          <Starfield />
-          <CursorTrail />
           <Header />
-          <Sidebar />
+          {/* Sidebar removida daqui (é controlada pelo Header) */}
           <MiniCartDrawer />
 
-          <main className="container mx-auto px-4 py-6">{children}</main>
+          <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
 
           <Footer />
           <WhatsFloat />
           <BackToTop />
+          <CursorTrail />
+          <Starfield />
         </ThemeProvider>
       </body>
     </html>
