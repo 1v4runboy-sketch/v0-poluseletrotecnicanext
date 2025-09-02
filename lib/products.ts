@@ -1,15 +1,3 @@
-export type Product = {
-  id: string;
-  slug: string;
-  title: string;
-  brand?: string;
-  category: string;
-  subcategory?: string;
-  shortDescription?: string;
-  images: { src: string; alt: string }[];
-  techSpecs?: [string, string][];
-};
-
 export const PRODUCTS: Product[] = [
   {
     "id": "",
@@ -3865,78 +3853,86 @@ export const PRODUCTS: Product[] = [
  *  ============================================
  * - Deixa `id` vazio -> `slug`
  * - `techSpecs: null` -> `undefined`
- * - `title` em Title Case técnico (sem alterar o array original)
+ * - Remove "600V" de categorias de Cabos
+ * - Força modelos A/B em maiúsculo
+ * - `title` final em Title Case técnico
  */
 
 function titleCaseSmartLocal(raw: string): string {
   if (!raw) return '';
   let s = String(raw).trim();
 
-  // 1) 12-50mm -> 12,50 mm (padrão BR)
+  // 12-50mm -> 12,50 mm
   s = s.replace(/(\d+)-(\d+)\s*(mm)\b/gi, (_m, a, b, u) => `${a},${b} ${u.toUpperCase()}`);
 
-  // 2) Separadores para espaço
+  // Separadores -> espaço
   s = s.replace(/[_]+/g, ' ').replace(/[-]+/g, ' ');
 
-  // 3) Espaço entre número e unidade
+  // Espaço número + unidade
   const unitMap: Record<string,string> = {
-    'mm':'mm','cm':'cm','m':'m','awg':'AWG','cv':'CV','hp':'HP','hz':'Hz','v':'V','vac':'VAC','vca':'VCA','vcc':'VCC','a':'A',
-    'w':'W','kw':'kW','rpm':'RPM'
+    'mm':'mm','cm':'cm','m':'m','awg':'AWG','cv':'CV','hp':'HP','hz':'Hz','v':'V','vac':'VAC','vca':'VCA','vcc':'VCC','a':'A','w':'W','kw':'kW','rpm':'RPM'
   };
-  s = s.replace(/(\d+)\s*(mm|cm|m|awg|cv|hp|hz|v|vac|vca|vcc|a|w|kw|rpm)\b/gi,
-    (_m, num, u) => `${num} ${unitMap[u.toLowerCase()] || u}`);
+  s = s.replace(/(\d+)\s*(mm|cm|m|awg|cv|hp|hz|v|vac|vca|vcc|a|w|kw|rpm)\b/gi, (_m, num, u) => `${num} ${unitMap[u.toLowerCase()] || u}`);
 
-  // 4) µF e °C
+  // µF e °C
   s = s.replace(/(\d+)\s*(uF|uf|µf)\b/gi, (_m, num) => `${num} µF`);
   s = s.replace(/(\d+)\s*c\b/gi, (_m, num) => `${num} °C`);
 
   const words = s.split(/\s+/).filter(Boolean);
   const keepUpper = new Set(['WEG','NSK','HCH','JL','DDU','ZZ','AC','DC','IP','NBR']);
-  const lowerSmall = new Set(['de','da','do','das','dos','e','em','para','por','com','sem','a','o','as','os','no','na','nos','nas','ao','à','às','aos','pra','pro']);
-
-  const upAcronym = (w: string) => {
-    if (/^[0-9]+[a-zA-Z]+[0-9a-zA-Z]*$/.test(w)) return w.toUpperCase();
-    if (keepUpper.has(w.toUpperCase())) return w.toUpperCase();
-    return w;
-  };
+  const lowerSmall = new Set(['de','da','do','das','dos','e','em','para','por','com','sem','o','as','os','no','na','nos','nas','ao','à','às','aos','pra','pro']);
+  const upAcronym = (w: string) => (/^[0-9]+[a-zA-Z]+[0-9a-zA-Z]*$/.test(w) || keepUpper.has(w.toUpperCase())) ? w.toUpperCase() : w;
   const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
 
   const out: string[] = [];
   for (let i = 0; i < words.length; i++) {
     let w = words[i];
 
-    if (w.includes('/')) {
-      w = w.split('/').map(part => upAcronym(part)).join('/');
-      out.push(i === 0 ? cap(w) : w);
+    if (w.includes('/')) { // IP/IS
+      const t = w.split('/').map(upAcronym).join('/');
+      out.push(i===0 ? cap(t) : t);
       continue;
     }
-    if (/^[0-9]+[a-zA-Z]+/.test(w) || /^[A-Z0-9\-]{2,}$/.test(w)) {
-      out.push(upAcronym(w));
-      continue;
-    }
+
+    // Força modelos A/B
+    if (/^[ab]$/i.test(w)) { out.push(w.toUpperCase()); continue; }
+
+    if (/^[0-9]+[a-zA-Z]+/.test(w) || /^[A-Z0-9\-]{2,}$/.test(w)) { out.push(upAcronym(w)); continue; }
+
     const lower = w.toLowerCase();
-    if (i > 0 && lowerSmall.has(lower)) {
-      out.push(lower);
-    } else {
-      out.push(cap(upAcronym(w)));
-    }
+    if (i > 0 && lowerSmall.has(lower)) out.push(lower);
+    else out.push(cap(upAcronym(w)));
   }
+
   return out.join(' ').replace(/\s{2,}/g, ' ').trim();
+}
+
+function formatTitle(p: Product): string {
+  let base = p.title || p.slug || '';
+
+  // Remover "600V" apenas para categorias de Cabos
+  if (/(cabo|cabos)/i.test(p.category || '')) {
+    base = base.replace(/\b600\s*v\b/gi, '').replace(/\s{2,}/g,' ').trim();
+  }
+
+  // Title Case técnico + A/B maiúsculo já tratado
+  let nice = titleCaseSmartLocal(base);
+  // Correção extra: se sobrou "  ,", limpa
+  nice = nice.replace(/\s+,/g, ',');
+  return nice;
 }
 
 export const products: Product[] = PRODUCTS.map((p) => ({
   ...p,
   id: p.id && String(p.id).trim() !== '' ? p.id : p.slug,
-  title: titleCaseSmartLocal(p.title || p.slug),
+  title: formatTitle(p),
   techSpecs: (p as any).techSpecs == null ? undefined : p.techSpecs,
 }));
 
 export const brands = Array.from(new Set(products.map(p => p.brand).filter(Boolean) as string[])).sort();
 export const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean) as string[])).sort();
 export function subcategoriesOf(cat: string) {
-  return Array.from(
-    new Set(products.filter(p => p.category === cat).map(p => p.subcategory).filter(Boolean) as string[])
-  ).sort();
+  return Array.from(new Set(products.filter(p => p.category === cat).map(p => p.subcategory).filter(Boolean) as string[])).sort();
 }
 
 export default products;

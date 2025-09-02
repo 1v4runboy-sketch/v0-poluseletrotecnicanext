@@ -1,16 +1,53 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-export default function ImageSafe({ src, alt, className, loading='lazy', decoding='async' }){
-  const [err, setErr] = useState(false);
+export default function ImageSafe({
+  src,
+  srcs,
+  alt = '',
+  className,
+  loading = 'lazy',
+  decoding = 'async',
+  type = 'product', // 'product' | 'brand'
+}) {
+  const initialList = useMemo(() => {
+    const cand: string[] = [];
+    const push = (s?: string) => { if (s && !cand.includes(s)) cand.push(s); };
+
+    if (Array.isArray(srcs) && srcs.length) {
+      srcs.forEach(push);
+    } else if (src) {
+      push(src);
+      // Troca extensão
+      if (/\.(webp)$/i.test(src)) {
+        push(src.replace(/\.webp$/i, '.png'));
+        push(src.replace(/\.webp$/i, '.jpg'));
+        push(src.replace(/\.webp$/i, '.jpeg'));
+      }
+      // Remove sufixo -1/-2
+      push(src.replace(/-\d+(\.\w+)$/i, '$1'));
+    }
+
+    // Placeholders finais
+    if (type === 'brand') {
+      push('/polus-logo.svg');
+    } else {
+      push('/produtos/placeholder.webp');
+    }
+    return cand;
+  }, [src, srcs, type]);
+
+  const [i, setI] = useState(0);
+  const cur = initialList[i] || initialList[initialList.length - 1];
+
   return (
     <img
-      src={err ? '/produtos/placeholder.webp' : src}
-      alt={alt || ''}
+      src={cur}
+      alt={alt}
+      className={className}
       loading={loading}
       decoding={decoding}
-      onError={()=> setErr(true)}
-      className={className}
+      onError={() => { if (i < initialList.length - 1) setI(i + 1); }}
     />
   );
 }
