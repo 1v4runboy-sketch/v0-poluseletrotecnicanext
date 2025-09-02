@@ -1,54 +1,53 @@
-"use client"
-import type { Product } from "@/lib/products"
-import ProductCarousel from "./ProductCarousel"
-import BrandBadge from "./BrandBadge"
-import { SITE } from "@/lib/site"
-import { add } from "@/lib/budgetList"
+'use client';
+import { useRouter } from 'next/navigation';
+import BrandBadge from './BrandBadge';
+import { SITE } from '@/lib/site';
 
-function formatTitleCommercial(title: string) {
-  if (!title) return ""
-  const KEEP_UP = new Set(["WEG", "HCH", "NSK", "JL", "IGUI", "iGUi", "CIFA", "LANC", "AC", "DC", "DDU", "ZZ"])
-  const LOWER = new Set(["de", "da", "do", "das", "dos", "e", "para", "em", "com"])
-  return title
-    .split(/\s+/)
-    .map((w, i) => {
-      const up = w.toUpperCase()
-      if (KEEP_UP.has(up)) return up
-      if (LOWER.has(w.toLowerCase()) && i !== 0) return w.toLowerCase()
-      // preserva medidas/códigos (1/2, 0,19mm, 6203)
-      if (/^\d+[/-]\d+$/.test(w) || /mm$/i.test(w) || /^\d{3,}$/.test(w)) return w
-      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-    })
-    .join(" ")
+function formatTitleCommercial(title){
+  if(!title) return '';
+  const KEEP_UP=new Set(['WEG','HCH','NSK','JL','IGUI','CIFA','LANC','AC','DC','DDU','ZZ']);
+  const LOWER=new Set(['de','da','do','das','dos','e','para','em','com']);
+  return title.split(/\s+/).map((w,i)=>{
+    const up=w.toUpperCase();
+    if(KEEP_UP.has(up)) return up;
+    if(LOWER.has(w.toLowerCase()) && i!==0) return w.toLowerCase();
+    if(/^\d+[\/\-]\d+$/.test(w) || /mm$/i.test(w) || /^\d{3,}$/.test(w)) return w;
+    return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
+  }).join(' ');
 }
 
-export default function ProductCard({ p }: { p: Product }) {
+export default function ProductCard({ product }){
+  const router = useRouter();
+  const img = (product.images?.[0]?.src) || '/produtos/placeholder.webp';
+
+  const go = ()=> router.push(`/produtos/${product.slug}`);
+  const onKey = (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); go(); } };
+
   return (
-    <div className="relative rounded-xl border border-black/10 dark:border-white/10 p-3 bg-white/70 dark:bg-black/40 backdrop-blur shadow-sm hover:shadow-md transition [transform:translateZ(0)]">
-      <BrandBadge brand={p.brand} />
-      <ProductCarousel images={p.images.slice(0, 3)} />
-      <div className="mt-3">
-        <h3 className="font-medium text-zinc-900 dark:text-zinc-50">{formatTitleCommercial(p.title)}</h3>
-        <p className="text-sm text-zinc-600 dark:text-zinc-300 line-clamp-2">{p.shortDescription || ""}</p>
+    <div
+      role="link" tabIndex={0}
+      onClick={go} onKeyDown={onKey}
+      className="card-modern relative block p-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-weg/60 cursor-pointer"
+      aria-label={product.title}
+    >
+      <div className="relative aspect-square rounded-lg overflow-hidden bg-white/60 dark:bg-black/20">
+        <img src={img} alt={product.images?.[0]?.alt || product.title} className="w-full h-full object-contain" loading="lazy" decoding="async"/>
+        <div className="absolute top-2 left-2"><BrandBadge brand={product.brand} name={product.brand}/></div>
       </div>
-      <div className="mt-3 flex gap-2">
+
+      <h3 className="mt-2 font-medium leading-tight line-clamp-2">{formatTitleCommercial(product.title)}</h3>
+      {product.shortDescription && <p className="text-xs opacity-70 line-clamp-2 mt-0.5">{product.shortDescription}</p>}
+
+      <div className="mt-2 flex items-center gap-2 relative z-10">
         <a
-          aria-label={`WhatsApp ${p.title}`}
-          href={SITE.whatsappHref(p.title)}
-          target="_blank"
-          rel="noreferrer"
-          className="px-3 py-2 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-700"
+          href={SITE.whatsappHref(product.title)}
+          className="btn-magnetic px-3 py-1 rounded bg-green-600 text-white text-sm hover:bg-green-700"
+          target="_blank" rel="noopener noreferrer"
+          onClick={(e)=> e.stopPropagation()}
         >
-          Consultar / Cotação
+          WhatsApp
         </a>
-        <button
-          aria-label="Adicionar ao orçamento"
-          onClick={() => add({ id: p.id, title: p.title, qty: 1, brand: p.brand })}
-          className="px-3 py-2 text-sm rounded-md bg-zinc-900 text-white dark:bg-white dark:text-black hover:opacity-90"
-        >
-          Adicionar
-        </button>
       </div>
     </div>
-  )
+  );
 }
