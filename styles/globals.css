@@ -1,90 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ... seu conteúdo atual ... */
 
-:root{
-  --radius: 16px;
-  --hairline-light: rgba(0,0,0,.08);
-  --hairline-dark: rgba(255,255,255,.08);
-  --elev-1: 0 6px 24px rgba(0,0,0,.06);
-  --elev-2: 0 12px 40px rgba(0,0,0,.10);
-  --hero-color: rgba(12,20,36,0.66);
-  --motion-fast: 160ms;
-  --motion-base: 240ms;
-  --bezier: cubic-bezier(.2,.8,.2,1);
+/* Botão verde: Solicitar cotação */
+.btn-quote{
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white shadow;
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  box-shadow: 0 10px 30px rgba(34,197,94,.35);
+  transition: transform .15s var(--bezier), box-shadow .2s var(--bezier);
 }
+.btn-quote:hover{ transform: translateY(-1px); box-shadow: 0 12px 34px rgba(34,197,94,.45); }
+.btn-quote:active{ transform: translateY(0); }
 
-html, body {
-  height: 100%;
-  background: linear-gradient(180deg, #f8fafc, #eef2ff);
-  cursor: url('/loading-logo.png'), auto;
-  scroll-behavior: smooth;
+/* Botão escuro: Adicionar ao carrinho */
+.btn-cart{
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white;
+  background: linear-gradient(180deg, #0f172a, #0b1326);
+  border: 1px solid rgba(255,255,255,.1);
+  transition: transform .15s var(--bezier), background .2s var(--bezier);
 }
-
-.dark html, .dark body {
-  background: radial-gradient(1200px 600px at 50% 0%, #0a0b2e, #040517 60%, #020316 100%);
-}
-
-.header-hero {
-  @apply backdrop-blur-md sticky top-0 z-[60];
-  background: color-mix(in oklab, var(--hero-color) 30%, transparent);
-  box-shadow: 0 0 0 1px var(--hairline-light) inset;
-}
-
-/* Card base */
-.card-modern {
-  @apply rounded-2xl p-4 bg-white/80 dark:bg-white/5 shadow;
-  box-shadow: var(--elev-1);
-  transition: transform .2s var(--bezier), box-shadow .3s var(--bezier), background .3s var(--bezier);
-}
-.card-modern:hover { transform: translateY(-2px); box-shadow: var(--elev-2); }
-
-/* Chips */
-.chip {
-  @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition;
-}
-
-/* CTA primário */
-.btn-magnetic {
-  @apply inline-flex items-center justify-center px-4 py-2 rounded-xl font-semibold;
-  background: linear-gradient(180deg, #0A6CB2, #0b58a0);
-  color: white;
-  box-shadow: 0 8px 24px rgba(10,108,178,.35);
-  transition: transform .15s var(--bezier);
-}
-.btn-magnetic:active { transform: translateY(1px) scale(.99); }
-
-/* Logos das marcas BEM maiores */
-.brand-logo {
-  filter: drop-shadow(0 6px 28px rgba(10,108,178,.45));
-  transition: transform .2s var(--bezier), filter .2s var(--bezier);
-}
-.brand-logo:hover { transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 8px 34px rgba(10,108,178,.55)); }
-
-/* Setas de carrossel */
-.carousel-arrow {
-  @apply absolute top-1/2 -translate-y-1/2 p-2 rounded-full text-white;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(6px);
-}
-
-.cursor-trail{
-  position: fixed; width:8px; height:8px; border-radius:999px;
-  background: radial-gradient(circle, rgba(96,165,250,.9), rgba(96,165,250,0));
-  pointer-events:none; transform: translate(-50%,-50%);
-  animation: trailFade .7s ease-out forwards;
-}
-@keyframes trailFade{
-  from{ opacity:1; } to{ opacity:0; transform: translate(-50%,-50%) scale(3); }
-}
-
-.backface-hidden{ backface-visibility: hidden; }
-.anim-soft { transition: all var(--motion-base) var(--bezier); }
-
-/* Hero SEMPRE abaixo da sidebar */
-.hero-wrap { position: relative; z-index: 0; }
-
-/* Giro 3D contínuo p/ logo no topo */
-@keyframes spinY3D { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
-.logo-spin { animation: spinY3D 12s linear infinite; }
-.logo-spin.fast { animation-duration: 5s; }
+.btn-cart:hover{ transform: translateY(-1px); background: linear-gradient(180deg, #111827, #0d1630); }
+.btn-cart:active{ transform: translateY(0); }

@@ -33,15 +33,21 @@ function inferBrand(product){
     product.slug,
   ].filter(Boolean).map(norm).join(' ');
 
+  // Resinas -> Lanc Comercial
+  if (/\bresina\b|\bcalas\b|\bincolor\b|\bvermelh/.test(cand) || /\bresinas\b/.test(cand) || /\bcalas\b/.test(cand)) {
+    return 'Lanc Comercial';
+  }
+
+  // Demais heurísticas
   if (/\bweg\b/.test(cand)) return 'WEG';
   if (/\bnsk\b/.test(cand)) return 'NSK';
   if (/\bhch\b/.test(cand)) return 'HCH';
   if (/\bjl\b|\bcapacitor(es)?\b/.test(cand)) return 'JL Capacitores';
-  if (/\blanc\b/.test(cand)) return 'Lanc Comercial';
   if (/\bcobix\b|\bsolda\b/.test(cand)) return 'Solda Cobix';
   if (/\bcifa\b/.test(cand)) return 'Cifa';
   if (/\bigui\b/.test(cand)) return 'IGUI';
   if (/\bjacuzzi\b/.test(cand)) return 'Jacuzzi';
+
   return (product.brand || '').trim();
 }
 

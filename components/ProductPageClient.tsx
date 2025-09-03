@@ -3,10 +3,12 @@ import ProductCarousel from './ProductCarousel';
 import { whatsappHref, hashSlug, stableShuffle, titleCaseSmart } from '../lib/site';
 import ProductCard from './ProductCard';
 import { products } from '../lib/products';
-import { useRouter } from 'next/navigation';
+
+const CartIcon = (props)=>(
+  <svg width="18" height="18" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M7 18a2 2 0 1 0 0 4a2 2 0 0 0 0-4m10 0a2 2 0 1 0 0 4a2 2 0 0 0 0-4M6.16 6l.84 2h10a1 1 0 0 1 .96 1.27l-1.5 5A2 2 0 0 1 14.55 16H9.45a2 2 0 0 1-1.91-1.36L5 8H3a1 1 0 0 1 0-2z"/></svg>
+);
 
 export default function ProductPageClient({ product }){
-  const router = useRouter();
   if(!product) return <div className="p-4">Produto não encontrado.</div>;
 
   const relatedPool = products.filter(p=> p.slug!==product.slug && (p.category===product.category || p.subcategory===product.subcategory));
@@ -28,15 +30,9 @@ export default function ProductPageClient({ product }){
           <h1 className="text-2xl font-bold">{niceTitle}</h1>
 
           <div className="flex flex-wrap gap-2">
-            {product.brand && (
-              <button onClick={()=> router.push(`/?marca=${encodeURIComponent(product.brand)}`)} className="chip">{product.brand}</button>
-            )}
-            {product.category && (
-              <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}`)} className="chip">{product.category}</button>
-            )}
-            {product.subcategory && (
-              <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}&sub=${encodeURIComponent(product.subcategory)}`)} className="chip">{product.subcategory}</button>
-            )}
+            {product.brand && (<span className="chip">{product.brand}</span>)}
+            {product.category && (<span className="chip">{product.category}</span>)}
+            {product.subcategory && (<span className="chip">{product.subcategory}</span>)}
           </div>
 
           {product.shortDescription && (
@@ -44,10 +40,11 @@ export default function ProductPageClient({ product }){
           )}
 
           <div className="flex items-center gap-2">
-            <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-magnetic">WhatsApp</a>
+            <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-quote">Solicitar cotação</a>
             <button
-              onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado à lista de orçamento'); }}
-              className="chip">Adicionar à lista</button>
+              onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado ao carrinho'); }}
+              className="btn-cart"
+            ><CartIcon/> Adicionar ao carrinho</button>
           </div>
         </div>
       </div>

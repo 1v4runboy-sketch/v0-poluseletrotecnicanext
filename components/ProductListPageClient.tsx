@@ -7,14 +7,28 @@ import { hashSlug, stableShuffle } from '../lib/site';
 
 const PER_PAGE = 15;
 
+// Marcas curadas (batem com as logos e com a inferência)
+const BRAND_OPTIONS = [
+  'WEG','NSK','HCH','JL Capacitores','Lanc Comercial','Solda Cobix','Cifa','IGUI','Jacuzzi'
+];
+
 function buildTree(list){
   const out = {};
   for(const p of list){
     if(!p.category) continue;
     out[p.category] ??= {};
-    if(p.subcategory) out[p.category][p.subcategory] = (out[p.category][p.subcategory]||0)+1;
+    const sub = p.subcategory || 'Outros';
+    out[p.category][sub] = (out[p.category][sub]||0)+1;
   }
   return out;
+}
+
+function countByCategory(tree){
+  const res = {};
+  for(const c of Object.keys(tree)){
+    res[c] = Object.values(tree[c]).reduce((a,b)=>a+b,0);
+  }
+  return res;
 }
 
 function pageNumbers(cur, total){
@@ -50,9 +64,25 @@ export default function ProductListPageClient(){
   useEffect(()=>{ scrollTopSmooth(); }, [page, pathname]);
 
   const tree = useMemo(()=> buildTree(products), []);
+  const catCount = useMemo(()=> countByCategory(tree), [tree]);
+
+  // aplica filtros
   const filtered = useMemo(()=>{
     let arr = products.slice();
-    if(marca) arr = arr.filter(p => p.brand === marca);
+    // filtro de marca: usa inferência simples a partir de título/slug/sub
+    if(marca){
+      const m = marca.toLowerCase();
+      arr = arr.filter(p=>{
+        const bag = [p.brand, p.category, p.subcategory, p.title, p.slug]
+          .filter(Boolean).join(' ').toLowerCase();
+        if (m==='lanc comercial') return /\bresina\b|\bcalas\b|\bincolor\b|\bvermelh/.test(bag) || /lanc/.test(bag);
+        if (m==='jl capacitores') return /\bcapacitor/.test(bag) || /jl/.test(bag);
+        if (m==='solda cobix') return /\bcobix\b|\bsolda\b/.test(bag);
+        if (m==='igui') return /\bigui\b/.test(bag);
+        if (m==='jacuzzi') return /\bjacuzzi\b/.test(bag);
+        return bag.includes(m);
+      });
+    }
     if(cat)   arr = arr.filter(p => p.category === cat);
     if(sub)   arr = arr.filter(p => p.subcategory === sub);
     if(debounced.trim()){
@@ -80,31 +110,68 @@ export default function ProductListPageClient(){
     scrollTopSmooth();
   }
 
-  return (
-    <div className="space-y-4">
-      {/* Busca + Ordem */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <input value={q} onChange={(e)=> setQ(e.target.value)} placeholder="Buscar produtos..." className="px-3 py-2 rounded-xl bg-white/70 dark:bg-white/10 outline-none" />
-        <select className="chip" value={ord} onChange={e=> setParam('ord', e.target.value)}>
-          <option value="rand">Misturar catálogo</option>
-          <option value="">Ordenar A–Z</option>
-        </select>
-      </div>
+  function clearFilters(){
+    const sp = new URLSearchParams(searchParams.toString());
+    ['marca','cat','sub','q','ord','page'].forEach(k=> sp.delete(k));
+    router.push(`${pathname}?${sp.toString()}`);
+    setQ('');
+    scrollTopSmooth();
+  }
 
-      {/* Filtros por Categoria/Sub */}
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          <button onClick={()=> setParam('cat','')} className={`chip ${!cat?'ring-2 ring-weg/60':''}`}>Todas as categorias</button>
-          {Object.keys(tree).sort().map(C=>(
-            <button key={C} onClick={()=> setParam('cat', C)} className={`chip ${cat===C?'ring-2 ring-weg/60':''}`}>{C}</button>
-          ))}
+  return (
+    <div className="space-y-5">
+      {/* Barra de Filtros completa */}
+      <div className="card-modern">
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            value={q}
+            onChange={(e)=> setQ(e.target.value)}
+            placeholder="Buscar produtos..."
+            className="px-3 py-2 rounded-xl bg-white/70 dark:bg-white/10 outline-none"
+          />
+          <select className="chip" value={ord} onChange={e=> setParam('ord', e.target.value)}>
+            <option value="rand">Misturar catálogo</option>
+            <option value="">Ordenar A–Z</option>
+          </select>
+          <button onClick={clearFilters} className="chip">Limpar filtros</button>
         </div>
-        {cat && tree[cat] && (
+
+        {/* Marcas (curadas) */}
+        <div className="mt-4">
+          <div className="text-sm font-semibold mb-2">Marcas</div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={()=> setParam('sub','')} className={`chip ${!sub?'ring-2 ring-weg/60':''}`}>Todas as subcategorias</button>
-            {Object.keys(tree[cat]).sort().map(S=>(
-              <button key={S} onClick={()=> setParam('sub', S)} className={`chip ${sub===S?'ring-2 ring-weg/60':''}`}>{S} <span className="opacity-60">({tree[cat][S]})</span></button>
+            <button onClick={()=> setParam('marca','')} className={`chip ${!marca?'ring-2 ring-weg/60':''}`}>Todas</button>
+            {BRAND_OPTIONS.map(b=>(
+              <button key={b} onClick={()=> setParam('marca',b)} className={`chip ${marca===b?'ring-2 ring-weg/60':''}`}>{b}</button>
             ))}
+          </div>
+        </div>
+
+        {/* Categorias com contagem */}
+        <div className="mt-4">
+          <div className="text-sm font-semibold mb-2">Categorias</div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={()=> setParam('cat','')} className={`chip ${!cat?'ring-2 ring-weg/60':''}`}>Todas</button>
+            {Object.keys(catCount).sort().map(C=>(
+              <button key={C} onClick={()=> setParam('cat',C)} className={`chip ${cat===C?'ring-2 ring-weg/60':''}`}>
+                {C} <span className="opacity-60">({catCount[C]})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Subcategorias com contagem (quando há categoria selecionada) */}
+        {cat && tree[cat] && (
+          <div className="mt-4">
+            <div className="text-sm font-semibold mb-2">Subcategorias</div>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={()=> setParam('sub','')} className={`chip ${!sub?'ring-2 ring-weg/60':''}`}>Todas</button>
+              {Object.keys(tree[cat]).sort().map(S=>(
+                <button key={S} onClick={()=> setParam('sub', S)} className={`chip ${sub===S?'ring-2 ring-weg/60':''}`}>
+                  {S} <span className="opacity-60">({tree[cat][S]})</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
