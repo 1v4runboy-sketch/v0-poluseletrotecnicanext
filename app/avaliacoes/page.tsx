@@ -1,4 +1,5 @@
 import ReviewsCarousel from '@/components/ReviewsCarousel';
+import ImageSafe from '@/components/ImageSafe';
 import { SITE } from '@/lib/site';
 
 export const metadata = { title: 'Avaliações, Loja e Contato — Polus Eletrotécnica' };
@@ -12,12 +13,19 @@ export default function AvaliacoesLojaContatoPage(){
         <ReviewsCarousel />
       </section>
 
-      {/* Fachada da loja */}
+      {/* Fachada da loja (apenas 3 imagens) */}
       <section>
         <h2 className="text-xl font-semibold mb-3">Nossa loja</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[1,2,3,4].map(i=> (
-            <img key={i} src={`/loja/fachada-${i}.webp`} alt={`Fachada ${i}`} className="w-full h-40 object-cover rounded-xl"/>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {[1,2,3].map(i=> (
+            <div key={i} className="w-full h-40 rounded-xl overflow-hidden border border-black/10 dark:border-white/10 flex items-center justify-center bg-white/5">
+              <ImageSafe
+                src={`/loja/fachada-${i}.webp`}
+                alt={`Fachada ${i}`}
+                className="max-w-full max-h-full object-contain"
+                type="facade"
+              />
+            </div>
           ))}
         </div>
       </section>

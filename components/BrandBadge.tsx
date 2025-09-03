@@ -36,8 +36,13 @@ function brandCandidates(brand) {
 export default function BrandBadge({ brand }){
   const srcs = brandCandidates(brand);
   return (
-    <div className="absolute left-2 top-2 p-2 rounded-lg bg-white/85 dark:bg-black/50 shadow">
-      <ImageSafe srcs={srcs} alt={brand} className="w-24 h-10 object-contain brand-logo" type="brand" />
+    <div className="absolute left-2 top-2 p-2 rounded-lg bg-white/90 dark:bg-black/55 shadow">
+      <ImageSafe
+        srcs={srcs}
+        alt={brand}
+        className="w-32 h-14 object-contain brand-logo"
+        type="brand"
+      />
     </div>
   );
 }

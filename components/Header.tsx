@@ -9,7 +9,6 @@ import SearchGlobal from './SearchGlobal';
 export default function Header(){
   const [open, setOpen] = useState(false);
 
-  // Hero color sync (average of hero image)
   useEffect(()=>{
     const img = document.getElementById('hero-img');
     if(!img) return;
@@ -27,7 +26,7 @@ export default function Header(){
         document.documentElement.style.setProperty('--hero-color', `rgb(${r} ${g} ${b})`);
       }catch{}
     };
-    if(img.complete) onLoad(); else img.addEventListener('load', onLoad, { once:true });
+    if((img as any).complete) onLoad(); else img.addEventListener('load', onLoad, { once:true });
     return ()=> img && img.removeEventListener('load', onLoad);
   },[]);
 
@@ -38,7 +37,7 @@ export default function Header(){
         <div className="absolute left-0 top-1/2 -translate-y-1/2">
           <SidebarToggle onClick={()=>setOpen(true)} />
         </div>
-        {/* Centro: logo (link para home) */}
+        {/* Centro: logo */}
         <div className="flex items-center justify-center">
           <LogoSpinner />
         </div>
@@ -48,6 +47,8 @@ export default function Header(){
           <ThemeToggle />
         </div>
       </div>
+
+      {/* Sidebar via PORTAL */}
       <Sidebar open={open} setOpen={setOpen} />
     </header>
   );

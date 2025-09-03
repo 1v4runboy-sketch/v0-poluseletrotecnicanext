@@ -4,8 +4,7 @@ import ImageSafe from './ImageSafe';
 import { brands as brandsAll } from '../lib/products';
 
 const EXCLUDE = new Set(['polus','polus eletrotecnica','polus eletrotécnica']);
-
-function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+const norm = (s)=> String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
 function cand(brand) {
   const base = String(brand || '').toLowerCase()
@@ -30,7 +29,6 @@ export default function BrandCarousel(){
       if(!n || EXCLUDE.has(n)) continue;
       if(!uniq.some(x=> norm(x)===n)) uniq.push(b);
     }
-    // Extras visuais
     const extras = ['Cifa','JL Capacitores','Jacuzzi','IGUI','Lanc Comercial','Solda Cobix','WEG','NSK','HCH'];
     for(const e of extras){ if(!uniq.some(x=> norm(x)===norm(e))) uniq.push(e); }
     return uniq;
@@ -43,7 +41,7 @@ export default function BrandCarousel(){
     const m = window.matchMedia('(prefers-reduced-motion: reduce)');
     if(m.matches) return;
     let raf=0, x=0;
-    const speed = 0.4;
+    const speed = 0.45;
     const tick = ()=>{
       const el = ref.current;
       if(el && !paused){
@@ -53,22 +51,42 @@ export default function BrandCarousel(){
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    const stop = ()=>{};
-    document.addEventListener('visibilitychange', stop);
-    return ()=>{ cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', stop); };
+    return ()=> cancelAnimationFrame(raf);
   },[paused]);
 
   const items = [...logos, ...logos];
 
   return (
-    <div className="overflow-hidden py-8" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
-      <div ref={ref} className="flex items-center gap-12 will-change-transform">
-        {items.map((name,i)=> (
-          <div key={i} className="h-16 md:h-20 w-auto brand-logo">
-            <ImageSafe srcs={cand(name)} alt={name} className="h-full w-auto object-contain" type="brand" />
-          </div>
-        ))}
+    <section className="py-8">
+      <h2 className="text-center text-sm sm:text-base tracking-[0.25em] text-slate-600 dark:text-slate-300 mb-6">
+        MARCAS QUE TRABALHAMOS
+      </h2>
+
+      <div
+        className="overflow-hidden"
+        onMouseEnter={()=>setPaused(true)}
+        onMouseLeave={()=>setPaused(false)}
+      >
+        <div
+          ref={ref}
+          className="flex items-center gap-16 sm:gap-20 md:gap-24 will-change-transform"
+        >
+          {items.map((name,i)=> (
+            <div
+              key={i}
+              className="h-28 sm:h-32 md:h-36 lg:h-40 w-auto brand-logo"
+              title={String(name)}
+            >
+              <ImageSafe
+                srcs={cand(name)}
+                alt={name}
+                className="h-full w-auto object-contain"
+                type="brand"
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

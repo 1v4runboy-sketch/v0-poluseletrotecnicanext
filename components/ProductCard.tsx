@@ -2,10 +2,9 @@
 import { useRouter } from 'next/navigation';
 import BrandBadge from './BrandBadge';
 import ImageSafe from './ImageSafe';
-import { titleCaseSmart, whatsappHref } from '../lib/site';
+import { titleCaseSmart } from '../lib/site';
 
 function SpecMini({ p }){
-  // até 3 specs curtas, se houver:
   const list = Array.isArray(p.techSpecs) ? p.techSpecs.slice(0,3) : [];
   if(!list.length) return null;
   return (
@@ -19,8 +18,16 @@ export default function ProductCard({ product, highlight }){
   const router = useRouter();
   const go = ()=> router.push(`/produtos/${product.slug}`);
   const onKey = (e)=> { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); go(); } };
-  const first = product.images?.[0];
+
   const niceTitle = titleCaseSmart(product.title || '');
+  const first = product.images?.[0];
+  const candidates = [
+    first?.src,
+    `/produtos/${product.slug}-1.webp`,
+    `/produtos/${product.slug}.webp`,
+    `/produtos/${product.slug}.png`,
+    `/produtos/${product.slug}.jpg`,
+  ].filter(Boolean);
 
   const renderTitle = ()=>{
     const base = niceTitle;
@@ -34,8 +41,10 @@ export default function ProductCard({ product, highlight }){
   return (
     <div role="link" tabIndex={0} onClick={go} onKeyDown={onKey}
          className="card-modern hover:cursor-pointer overflow-hidden bg-gradient-to-b from-white/90 to-white/60 dark:from-white/10 dark:to-white/5">
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
-        {first && <ImageSafe src={first.src} alt={first.alt || niceTitle} className="w-full h-full object-cover" />}
+      <div className="relative rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-black/5 dark:border-white/10">
+        <div className="w-full aspect-[4/3] flex items-center justify-center p-3">
+          <ImageSafe srcs={candidates} alt={niceTitle} className="max-h-full max-w-full object-contain" />
+        </div>
         <BrandBadge brand={product.brand} />
       </div>
 

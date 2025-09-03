@@ -15,7 +15,7 @@ export const metadata = {
   generator: 'polus',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }){
+export default function RootLayout({ children }){
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className="min-h-screen">

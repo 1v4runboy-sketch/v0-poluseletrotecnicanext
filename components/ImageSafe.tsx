@@ -1,48 +1,40 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import reviews from '../lib/reviews';
+import ImageSafe from './ImageSafe';
 
-export default function ImageSafe({
-  src,
-  srcs,
-  alt = '',
-  className,
-  loading = 'lazy',
-  decoding = 'async',
-  type = 'product', // 'product' | 'brand'
-}) {
-  const initialList = useMemo(() => {
-    const cand = [];
-    const push = (s) => { if (s && !cand.includes(s)) cand.push(s); };
-
-    if (Array.isArray(srcs) && srcs.length) {
-      srcs.forEach(push);
-    } else if (src) {
-      push(src);
-      if (/\.webp$/i.test(src)) {
-        push(src.replace(/\.webp$/i, '.png'));
-        push(src.replace(/\.webp$/i, '.jpg'));
-        push(src.replace(/\.webp$/i, '.jpeg'));
-      }
-      push(src.replace(/-\d+(\.\w+)$/i, '$1'));
-    }
-
-    if (type === 'brand') push('/polus-logo.svg');
-    else push('/produtos/placeholder.webp');
-
-    return cand;
-  }, [src, srcs, type]);
-
+export default function ReviewsCarousel(){
   const [i, setI] = useState(0);
-  const cur = initialList[i] || initialList[initialList.length - 1];
+
+  useEffect(()=>{
+    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(m.matches || reviews.length <= 1) return;
+    const t = setInterval(()=> setI(x=> (x+1)%reviews.length), 3500);
+    return ()=> clearInterval(t);
+  },[]);
+
+  if (!Array.isArray(reviews) || reviews.length === 0) {
+    return <div className="p-4 rounded-2xl bg-white/60 dark:bg-white/5">Sem avaliações ainda.</div>;
+  }
 
   return (
-    <img
-      src={cur}
-      alt={alt}
-      className={className}
-      loading={loading}
-      decoding={decoding}
-      onError={() => { if (i < initialList.length - 1) setI(i + 1); }}
-    />
+    <div className="relative select-none pointer-events-none">
+      <div className="overflow-hidden rounded-2xl">
+        <div className="flex transition-transform duration-500 ease-linear" style={{ transform:`translateX(-${i*100}%)`}}>
+          {reviews.map((r,idx)=>(
+            <div key={idx} className="min-w-full p-6 bg-white/60 dark:bg-white/5">
+              <div className="flex items-center gap-4">
+                <ImageSafe src={r.avatar} type="avatar" alt={r.name} className="w-12 h-12 rounded-full object-cover"/>
+                <div>
+                  <div className="font-semibold">{r.name}</div>
+                  <div className="text-yellow-500">{'★'.repeat(Math.max(0,Math.min(5,r.rating)))}{'☆'.repeat(Math.max(0,5-r.rating))}</div>
+                </div>
+              </div>
+              <p className="mt-3 text-slate-700 dark:text-slate-300">{r.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
