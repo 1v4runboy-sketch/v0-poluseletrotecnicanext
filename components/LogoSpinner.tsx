@@ -1,52 +1,83 @@
 'use client';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
+/**
+ * Aceleração fluida SEM reset:
+ * - angleRef: acumula posição
+ * - speedRef/targetRef: aceleração com lerp
+ * Verso correto: scaleX(-1) rotateY(180deg)  (ordem importa!)
+ */
 export default function LogoSpinner(){
   const router = useRouter();
   const goHome = ()=> router.push('/');
-  const onKey = (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); goHome(); } };
+
+  const shellRef = useRef<HTMLDivElement|null>(null);
+  const coreRef  = useRef<HTMLDivElement|null>(null);
+
+  const angleRef  = useRef(0);      // graus acumulados
+  const speedRef  = useRef(40);     // deg/s atual
+  const targetRef = useRef(40);     // alvo (40 normal; 120 no hover)
+  const hoverRef  = useRef(false);  // estado de hover
+  const runningRef= useRef(false);
+
+  useEffect(()=>{
+    if (runningRef.current) return;
+    runningRef.current = true;
+
+    let raf = 0;
+    let last = performance.now();
+    const lerp = (a:number,b:number,t:number)=> a + (b-a)*t;
+
+    const loop = (now: number)=>{
+      const dt = (now - last) / 1000; last = now;
+
+      // target por hover; nunca zera ângulo
+      targetRef.current = hoverRef.current ? 120 : 40;
+      speedRef.current  = lerp(speedRef.current, targetRef.current, Math.min(1, dt*6));
+      angleRef.current  = (angleRef.current + speedRef.current * dt) % 360;
+
+      const shell = shellRef.current;
+      if (shell) shell.style.transform = `rotateY(${angleRef.current}deg)`;
+
+      const core  = coreRef.current;
+      if (core)  core.style.transform  = `scale(${hoverRef.current ? 1.02 : 1})`;
+
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return ()=> cancelAnimationFrame(raf);
+  },[]);
 
   return (
     <div
       role="link"
       tabIndex={0}
       aria-label="Voltar ao catálogo"
-      onKeyDown={onKey}
       onClick={goHome}
+      onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); goHome(); } }}
+      onMouseEnter={()=> (hoverRef.current = true)}
+      onMouseLeave={()=> (hoverRef.current = false)}
       className="relative w-14 h-14 select-none cursor-pointer"
-      style={{ perspective: '800px' }}
+      style={{ perspective:'900px', filter:'drop-shadow(0 8px 24px rgba(10,108,178,.45))' }}
     >
-      {/* shell gira continuamente (não reinicia nunca) */}
-      <div
-        className="absolute inset-0 will-change-transform group"
-        style={{
-          transformStyle:'preserve-3d',
-          animation: 'spinY_slow 6s linear infinite', // rápido e estável
-          filter: 'drop-shadow(0 8px 24px rgba(10,108,178,.45))'
-        }}
-      >
-        {/* core só dá um leve punch no hover (sem alterar timeline) */}
-        <div className="absolute inset-0 will-change-transform group-hover:scale-[1.02]" style={{ transformStyle:'preserve-3d' }}>
-          {/* Frente */}
-          <img
-            src="/polus-logo.svg"
-            alt="Polus"
-            className="absolute inset-0 w-full h-full object-contain"
-            style={{ backfaceVisibility:'hidden' }}
-          />
-          {/* Verso não espelhado → rotateY(180) + scaleX(-1) */}
-          <img
-            src="/polus-logo.svg"
-            alt=""
-            className="absolute inset-0 w-full h-full object-contain"
-            style={{ transform:'rotateY(180deg) scaleX(-1)', backfaceVisibility:'hidden' }}
-          />
-        </div>
+      <div ref={shellRef} className="absolute inset-0 will-change-transform" style={{ transformStyle:'preserve-3d' }}>
+        {/* Frente */}
+        <img
+          src="/polus-logo.svg"
+          alt="Polus"
+          className="absolute inset-0 w-full h-full object-contain"
+          style={{ backfaceVisibility:'hidden' }}
+        />
+        {/* Verso NÃO espelhado: aplicar depois do rotateY => escrever 'scaleX(-1) rotateY(180deg)' */}
+        <img
+          src="/polus-logo.svg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-contain"
+          style={{ transform:'scaleX(-1) rotateY(180deg)', backfaceVisibility:'hidden' }}
+        />
       </div>
-
-      <style>{`
-        @keyframes spinY_slow { from { transform: rotateY(0deg) } to { transform: rotateY(360deg) } }
-      `}</style>
+      <div ref={coreRef} className="absolute inset-0 will-change-transform" />
     </div>
   );
 }

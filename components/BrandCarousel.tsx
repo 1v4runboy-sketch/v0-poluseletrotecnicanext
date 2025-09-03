@@ -1,7 +1,6 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
-// Marcas conforme sua pasta /public/marcas
 const BRANDS = [
   { label: 'Cifa',            src: '/marcas/cifa.webp' },
   { label: 'HCH',             src: '/marcas/hch-logo.webp' },
@@ -18,82 +17,77 @@ const BRANDS = [
 
 export default function BrandCarousel(){
   const trackRef = useRef<HTMLDivElement|null>(null);
-  const [paused, setPaused] = useState(false);
-  const [contentW, setContentW] = useState(0);
+  const pausedRef = useRef(false);
+  const widthRef  = useRef(0);
+  const xRef      = useRef(0);
 
-  // mede largura da primeira sequência para loop perfeito
+  // medir largura da seq uma única vez + onresize
   useEffect(()=>{
-    const seq = trackRef.current?.querySelector<HTMLDivElement>('.brand-seq');
-    function measure(){
+    const measure = ()=>{
       const el = trackRef.current?.querySelector<HTMLDivElement>('.brand-seq');
-      if (!el) return;
-      setContentW(el.scrollWidth || 0);
-    }
+      widthRef.current = el?.scrollWidth || 0;
+    };
     measure();
-    const ro = seq ? new ResizeObserver(measure) : null;
-    if (seq && ro) ro.observe(seq);
+    const ro = new ResizeObserver(measure);
+    if (trackRef.current) ro.observe(trackRef.current);
     window.addEventListener('resize', measure);
-    return ()=>{ window.removeEventListener('resize', measure); ro?.disconnect(); };
+    return ()=>{ try{ro.disconnect()}catch{}; window.removeEventListener('resize', measure); };
   },[]);
 
-  // animação rAF robusta (sem acessar .style em null)
+  // animação rAF contínua (não reinicia xRef)
   useEffect(()=>{
     const m = window.matchMedia('(prefers-reduced-motion: reduce)');
     if(m.matches) return;
-    let raf = 0, x = 0, prev = performance.now();
-    function tick(t:number){
+    let raf = 0, last = performance.now();
+    const loop = (now:number)=>{
       const el = trackRef.current;
-      if (!el) { raf = requestAnimationFrame(tick); prev=t; return; }
-      const dt = t - prev; prev = t;
-      if(!paused && contentW > 0){
-        x -= 0.58 * (dt/16);            // ~35px/s (suave)
-        if (x <= -contentW) x += contentW;
-        el.style.transform = `translateX(${x}px)`;
+      const contentW = widthRef.current;
+      const dt = (now - last) / 1000; last = now;
+      if (el && contentW > 0 && !pausedRef.current){
+        xRef.current -= 0.5 * (dt*60); // ~30 px/s
+        if (xRef.current <= -contentW) xRef.current += contentW;
+        el.style.transform = `translateX(${xRef.current}px)`;
       }
-      raf = requestAnimationFrame(tick);
-    }
-    raf = requestAnimationFrame(tick);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
     return ()=> cancelAnimationFrame(raf);
-  },[paused, contentW]);
+  },[]);
 
-  const items = [...BRANDS, ...BRANDS]; // duplicado
+  const onEnter = ()=> (pausedRef.current = true);
+  const onLeave = ()=> (pausedRef.current = false);
+
+  const items = [...BRANDS, ...BRANDS];
 
   return (
     <section className="py-8">
       <h2 className="text-center text-xs sm:text-sm tracking-[0.3em] text-slate-500 dark:text-slate-300 mb-6">
         MARCAS QUE TRABALHAMOS
       </h2>
-
-      <div
-        className="overflow-hidden"
-        onMouseEnter={()=>setPaused(true)}
-        onMouseLeave={()=>setPaused(false)}
-      >
+      <div className="overflow-hidden" onMouseEnter={onEnter} onMouseLeave={onLeave}>
         <div ref={trackRef} className="flex will-change-transform">
-          {/* seq A */}
           <div className="brand-seq flex items-center gap-12 px-6" style={{flex:'0 0 auto'}}>
             {BRANDS.map((b,i)=>(
               <div key={`a-${i}`} className="flex items-center justify-center" style={{flex:'0 0 auto'}}>
                 <img
                   src={b.src}
                   alt={b.label}
-                  className="h-[48px] sm:h-[56px] md:h-[60px] w-auto object-contain"
+                  className="h-[44px] sm:h-[50px] md:h-[56px] w-auto object-contain transition-transform duration-150 ease-out hover:scale-[1.06]"
                   loading="lazy" decoding="async"
-                  style={{filter:'drop-shadow(0 4px 14px rgba(10,108,178,.22))', opacity:.98}}
+                  style={{filter:'drop-shadow(0 4px 12px rgba(10,108,178,.20))'}}
                 />
               </div>
             ))}
           </div>
-          {/* seq B (clone) */}
           <div className="brand-seq flex items-center gap-12 px-6" style={{flex:'0 0 auto'}} aria-hidden>
             {BRANDS.map((b,i)=>(
               <div key={`b-${i}`} className="flex items-center justify-center" style={{flex:'0 0 auto'}}>
                 <img
                   src={b.src}
                   alt=""
-                  className="h-[48px] sm:h-[56px] md:h-[60px] w-auto object-contain"
+                  className="h-[44px] sm:h-[50px] md:h-[56px] w-auto object-contain transition-transform duration-150 ease-out hover:scale-[1.06]"
                   loading="lazy" decoding="async"
-                  style={{filter:'drop-shadow(0 4px 14px rgba(10,108,178,.22))', opacity:.92}}
+                  style={{filter:'drop-shadow(0 4px 12px rgba(10,108,178,.18))'}}
                 />
               </div>
             ))}

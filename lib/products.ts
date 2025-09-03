@@ -2609,8 +2609,8 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "",
-    "slug": "corpo-pre-filtro-jacuzzi-a",
-    "title": "corpo-pre-filtro-jacuzzi-a",
+    "slug": "corpo-pre-filtro-jacuzzi-A",
+    "title": "corpo-pre-filtro-jacuzzi-A",
     "brand": null,
     "category": "Componentes e Peças",
     "subcategory": "Jacuzzi",
@@ -3848,63 +3848,80 @@ export const PRODUCTS: Product[] = [
     "techSpecs": null
   }
 ];
+
 /** ============================================
- *  Normalização + Títulos bonitos (Title Case)
+ *  Normalização de títulos (Title Case) + UF/VAC
  *  ============================================
- * - Deixa `id` vazio -> `slug`
- * - `techSpecs: null` -> `undefined`
- * - Remove "600V" para categorias de Cabos
- * - Capacitores: traz µF antes de VAC
+ * - id vazio -> slug
+ * - techSpecs: null -> undefined
+ * - Cabos: remove "600V"
+ * - Capacitores: MF/µF -> UF e UF antes de VAC
  */
+
 function titleCaseSmartLocal(raw: string): string {
-  if (!raw) return ''; let s = String(raw).trim();
+  if (!raw) return '';
+  let s = String(raw).trim();
+  // MF/µF -> UF
+  s = s.replace(/\b([0-9]+(?:[.,][0-9]+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/g, (_m, num) => `${num} UF`);
+  // 12-50mm -> 12,50 mm
   s = s.replace(/(\d+)-(\d+)\s*(mm)\b/gi, (_m, a, b, u) => `${a},${b} ${u.toUpperCase()}`);
+  // separadores -> espaço
   s = s.replace(/[_]+/g, ' ').replace(/[-]+/g, ' ');
-  const unitMap: Record<string,string> = { 'mm':'mm','cm':'cm','m':'m','awg':'AWG','cv':'CV','hp':'HP','hz':'Hz','v':'V','vac':'VAC','vca':'VCA','vcc':'VCC','a':'A','w':'W','kw':'kW','rpm':'RPM' };
-  s = s.replace(/(\d+)\s*(mm|cm|m|awg|cv|hp|hz|v|vac|vca|vcc|a|w|kw|rpm)\b/gi, (_m, num, u) => `${num} ${unitMap[u.toLowerCase()] || u}`);
-  s = s.replace(/(\d+)\s*(uF|uf|µf)\b/gi, (_m, num) => `${num} µF`);
-  s = s.replace(/(\d+)\s*c\b/gi, (_m, num) => `${num} °C`);
-  const words = s.split(/\s+/).filter(Boolean);
-  const keepUpper = new Set(['WEG','NSK','HCH','JL','DDU','ZZ','AC','DC','IP','NBR']);
-  const lowerSmall = new Set(['de','da','do','das','dos','e','em','para','por','com','sem','o','as','os','no','na','nos','nas','ao','à','às','aos','pra','pro']);
-  const upAcronym = (w: string) => (/^[0-9]+[a-zA-Z]+[0-9a-zA-Z]*$/.test(w) || keepUpper.has(w.toUpperCase())) ? w.toUpperCase() : w;
-  const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-  const out: string[] = [];
-  for (let i = 0; i < words.length; i++) {
-    let w = words[i];
-    if (w.includes('/')) { const t = w.split('/').map(upAcronym).join('/'); out.push(i===0 ? cap(t) : t); continue; }
-    if (/^[ab]$/i.test(w)) { out.push(w.toUpperCase()); continue; }
-    if (/^[0-9]+[a-zA-Z]+/.test(w) || /^[A-Z0-9\-]{2,}$/.test(w)) { out.push(upAcronym(w)); continue; }
-    const lower = w.toLowerCase();
-    if (i > 0 && lowerSmall.has(lower)) out.push(lower); else out.push(cap(upAcronym(w)));
-  }
-  return out.join(' ').replace(/\s{2,}/g, ' ').trim();
+  // espaços número+unidade
+  const unitMap: Record<string,string> = { mm:'mm', cm:'cm', m:'m', awg:'AWG', cv:'CV', hp:'HP', hz:'Hz', v:'V', vac:'VAC', vca:'VCA', vcc:'VCC', a:'A', w:'W', kw:'kW', rpm:'RPM', uf:'UF' };
+  s = s.replace(/(\d+)\s*(mm|cm|m|awg|cv|hp|hz|v|vac|vca|vcc|a|w|kw|rpm|uf)\b/gi, (_m, num, u) => `${num} ${unitMap[u.toLowerCase()] || u.toUpperCase()}`);
+  // Title Case básico (preserva siglas)
+  const keep = new Set(['WEG','NSK','HCH','JL','DDU','ZZ','AC','DC','IP','NBR','UF','VAC','RPM','AWG','CV','HP','HZ','V','A','KW']);
+  const lower = new Set(['de','da','do','das','dos','e','em','para','por','com','sem','o','as','os','no','na','nos','nas','ao','à','às','aos','pra','pro']);
+  const up = (w:string)=> (keep.has(w.toUpperCase()) || /^[0-9]+[a-zA-Z]+[0-9a-zA-Z]*$/.test(w)) ? w.toUpperCase() : w;
+  const cap = (w:string)=> w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+  s = s.split(/\s+/).filter(Boolean).map((w,i)=>{
+    if(w.includes('/')){ const t = w.split('/').map(up).join('/'); return i===0 ? cap(t) : t; }
+    if(/^[ab]$/i.test(w)) return w.toUpperCase();
+    if(/^[0-9]+[a-zA-Z]+/.test(w) || /^[A-Z0-9\-]{2,}$/.test(w)) return up(w);
+    const l = w.toLowerCase(); return (i>0 && lower.has(l)) ? l : cap(up(w));
+  }).join(' ').replace(/\s{2,}/g,' ').trim();
+  return s;
 }
+
 function reorderCapacitorTitle(base: string): string {
-  const uf = base.match(/(\d+(?:[.,]\d+)?)\s*(?:uF|uf|µf)/i);
+  const uf = base.match(/(\d+(?:[.,]\d+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/i);
   const vac = base.match(/(\d+(?:[-/]\d{2,4})?)\s*(?:vac|vca|v)\b/i);
-  let rest = base; if (uf) rest = rest.replace(uf[0], ''); if (vac) rest = rest.replace(vac[0], '');
-  const vacNum = vac ? vac[1].replace(/-/g, '–') : ''; const vacUnit = vac ? 'VAC' : '';
-  const parts: string[] = []; const cleanRest = rest.replace(/\s{2,}/g,' ').trim();
-  if (cleanRest) parts.push(cleanRest); if (uf) parts.push(`${uf[1].replace(',', '.')} µF`.replace('.0','')); if (vac) parts.push(`${vacNum} ${vacUnit}`.trim());
+  let rest = base;
+  if (uf) rest = rest.replace(uf[0], '');
+  if (vac) rest = rest.replace(vac[0], '');
+  const ufNum = uf ? uf[1].replace(',', '.') : '';
+  const vacNum = vac ? vac[1].replace(/-/g, '–') : '';
+  const parts: string[] = [];
+  if (uf) parts.push(`${ufNum} UF`.replace('.0',''));
+  if (vac) parts.push(`${vacNum} VAC`);
+  const cleanRest = rest.replace(/\s{2,}/g,' ').trim();
+  if (cleanRest) parts.push(cleanRest);
   return parts.filter(Boolean).join(' ').replace(/\s{2,}/g,' ').trim();
 }
-function formatTitle(p: Product): string {
+
+export function formatTitle(p: Product): string {
   let base = p.title || p.slug || '';
   if (/(cabo|cabos)/i.test(p.category || '')) base = base.replace(/\b600\s*v\b/gi, '').replace(/\s{2,}/g,' ').trim();
-  if (/(capacitor|capacitores)/i.test(p.category || '') || /capacitor/i.test(base)) base = reorderCapacitorTitle(base);
+  if (/(capacitor|capacitores)/i.test(p.category || '') || /capacitor/i.test(base)) {
+    base = base.replace(/\b([0-9]+(?:[.,][0-9]+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/g, (_m, num) => `${num} UF`);
+    base = reorderCapacitorTitle(base);
+  }
   let nice = titleCaseSmartLocal(base);
-  return nice.replace(/\s+,/g, ',').replace(/\bvac\b/gi, 'VAC').replace(/\bµf\b/gi, 'µF').replace(/(\d+)\s*–\s*(\d+)/g, '$1–$2');
+  return nice.replace(/\s+,/g, ',').replace(/\bvac\b/gi, 'VAC').replace(/\buf\b/gi, 'UF').replace(/(\d+)\s*–\s*(\d+)/g, '$1–$2');
 }
+
 export const products: Product[] = PRODUCTS.map((p) => ({
   ...p,
   id: p.id && String(p.id).trim() !== '' ? p.id : p.slug,
   title: formatTitle(p),
   techSpecs: (p as any).techSpecs == null ? undefined : p.techSpecs,
 }));
+
 export const brands = Array.from(new Set(products.map(p => p.brand).filter(Boolean) as string[])).sort();
 export const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean) as string[])).sort();
 export function subcategoriesOf(cat: string) {
   return Array.from(new Set(products.filter(p => p.category === cat).map(p => p.subcategory).filter(Boolean) as string[])).sort();
 }
+
 export default products;

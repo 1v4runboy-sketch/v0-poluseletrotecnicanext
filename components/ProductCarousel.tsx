@@ -9,7 +9,6 @@ export default function ProductCarousel({ images, brand, product }){
   const progRef = useRef(null);
   const n = pics.length;
 
-  // autoplay
   useEffect(()=>{
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     if(mql.matches || n <= 1) return;
@@ -19,13 +18,10 @@ export default function ProductCarousel({ images, brand, product }){
     return ()=> clearTimeout(t);
   },[n, hover]);
 
-  // progress bar
   useEffect(()=>{
     if(!progRef.current || n<=1) return;
     progRef.current.style.width = '0%';
-    const id = setTimeout(()=>{
-      if(progRef.current){ progRef.current.style.transition = 'width 3.5s linear'; progRef.current.style.width = '100%'; }
-    }, 50);
+    const id = setTimeout(()=>{ if(progRef.current){ progRef.current.style.transition='width 3.5s linear'; progRef.current.style.width='100%'; } }, 50);
     return ()=>{ clearTimeout(id); if(progRef.current){ progRef.current.style.transition='none'; } };
   },[idx, n]);
 
@@ -33,11 +29,11 @@ export default function ProductCarousel({ images, brand, product }){
 
   // swipe
   useEffect(()=>{
-    let startX=0, dx=0, el;
-    const onStart = (e)=>{ el=e.currentTarget; startX=(e.touches?.[0]?.clientX)||0; dx=0; };
-    const onMove = (e)=>{ dx=((e.touches?.[0]?.clientX)||0) - startX; };
-    const onEnd  = ()=>{ if(Math.abs(dx)>50) go(dx>0?-1:1); };
+    let startX=0, dx=0;
     const node = document.getElementById('prod-slider');
+    const onStart = (e)=>{ startX=e.touches[0].clientX; dx=0; };
+    const onMove  = (e)=>{ dx = e.touches[0].clientX - startX; };
+    const onEnd   = ()=>{ if(Math.abs(dx)>50) go(dx>0?-1:1); };
     node?.addEventListener('touchstart', onStart, {passive:true});
     node?.addEventListener('touchmove', onMove, {passive:true});
     node?.addEventListener('touchend', onEnd, {passive:true});
@@ -71,6 +67,21 @@ export default function ProductCarousel({ images, brand, product }){
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
             <div ref={progRef} className="h-full bg-weg" />
           </div>
+
+          {/* Bolinhas indicativas */}
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+            {pics.map((_,i)=>(
+              <button
+                key={i}
+                aria-label={`Ir à imagem ${i+1}`}
+                onClick={()=> setIdx(i)}
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ background: i===idx ? '#0A6CB2' : 'rgba(255,255,255,.65)', boxShadow: i===idx ? '0 0 0 2px rgba(0,0,0,.15)' : 'none' }}
+              />
+            ))}
+          </div>
         </>}
       </div>
-    </di
+    </div>
+  );
+}
