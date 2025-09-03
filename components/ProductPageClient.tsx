@@ -3,6 +3,7 @@ import ProductCarousel from './ProductCarousel';
 import { whatsappHref, hashSlug, stableShuffle, titleCaseSmart } from '../lib/site';
 import ProductCard from './ProductCard';
 import { products } from '../lib/products';
+import WhatsButton from './WhatsButton';
 
 function Highlights({ product }){
   const specs = Array.isArray(product.techSpecs)? product.techSpecs : [];
@@ -58,7 +59,7 @@ export default function ProductPageClient({ product }){
           )}
 
           <div className="flex items-center gap-2">
-            <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-quote">Solicitar cotação</a>
+            <WhatsButton href={whatsappHref(niceTitle)} text="Whatsapp" />
             <button
               onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado ao carrinho'); }}
               className="btn-cart">Adicionar ao carrinho</button>

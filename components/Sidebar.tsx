@@ -16,12 +16,18 @@ function buildTree(){
   return out;
 }
 
-export default function Sidebar({ open, setOpen }:{
-  open: boolean; setOpen: (v:boolean)=>void
-}){
+// ícones inline (JS-only)
+const IconHome = (p:any)=>(<svg width="18" height="18" viewBox="0 0 24 24" {...p}><path fill="currentColor" d="M12 3 3 10h2v10h5v-6h4v6h5V10h2z"/></svg>);
+const IconStar = (p:any)=>(<svg width="18" height="18" viewBox="0 0 24 24" {...p}><path fill="currentColor" d="m12 17.27 6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.73-1.64 7.03z"/></svg>);
+const IconIg   = (p:any)=>(<svg width="18" height="18" viewBox="0 0 24 24" {...p}><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5m10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3m-5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10m0 2.2A2.8 2.8 0 1 0 14.8 12 2.8 2.8 0 0 0 12 7.2M18 6.5a1 1 0 1 1-1 1a1 1 0 0 1 1-1"/></svg>);
+const IconWp   = (p:any)=>(<svg width="18" height="18" viewBox="0 0 24 24" {...p}><path fill="currentColor" d="M12 2a10 10 0 0 0-8.94 14.61L2 22l5.55-1.46A10 10 0 1 0 12 2m0 2a8 8 0 0 1 6.32 12.91l-.33.4l.63 2.34l-2.41-.65l-.4.24A8 8 0 1 1 12 4m-3.6 4.1l.16-.02c.32 0 .74.05 1.19.81c.12.2.29.5.33.54c.05.06.07.13.03.21c-.35.72-.73 1.1-.94 1.32c-.14.14-.3.31-.13.58c.17.26.76 1.26 1.64 2.04c1.12.99 2.07 1.32 2.36 1.46c.29.14.46.12.63-.07c.17-.2.72-.84.91-1.13c.19-.29.38-.24.63-.14c.26.1 1.62.76 1.9.9c.28.14.47.21.53.33c.06.14.06.8-.19 1.57c-.26.77-1.51 1.48-2.11 1.58c-.53.08-1.2.16-2.03-.13c-.83-.29-1.81-.63-3.13-1.54c-1.32-.91-2.17-2.06-2.48-2.4c-.31-.34-.79-1.05-1.06-1.94c-.27-.88-.02-1.86.1-2.03c.12-.17.27-.39.47-.61c.2-.22.55-.53.62-.58Z"/></svg>);
+
+export default function Sidebar({ open, setOpen }:{ open:boolean; setOpen:(v:boolean)=>void }){
   const router = useRouter();
   const tree = buildTree();
-  const brandList = brands.filter(b => !['polus','polus eletrotecnica','polus eletrotécnica'].includes(norm(b)));
+  const brandList = brands
+    .filter(b => !['polus','polus eletrotecnica','polus eletrotécnica'].includes(norm(b)))
+    .slice(0,24);
   const go = (url:string)=>{ setOpen(false); router.push(url); };
 
   // ESC
@@ -55,15 +61,15 @@ export default function Sidebar({ open, setOpen }:{
     return ()=>{ el?.removeEventListener('touchstart', onStart); el?.removeEventListener('touchmove', onMove); el?.removeEventListener('touchend', onEnd); };
   },[open, setOpen]);
 
-  // Essentials inline (garante overlay mesmo sem CSS carregado)
+  // Essentials inline → overlay sempre
   const overlay: React.CSSProperties = { position:'fixed', inset:'0', zIndex:100000, pointerEvents: open?'auto':'none' };
   const mask: React.CSSProperties    = { position:'absolute', inset:'0', background:'rgba(0,0,0,.45)', opacity: open?1:0, transition:'opacity .25s cubic-bezier(.2,.8,.2,1)' };
   const panel: React.CSSProperties   = {
-    position:'fixed', left:0, top:0, height:'100vh', width:'min(88vw,340px)', padding:'18px', overflow:'auto',
+    position:'fixed', left:0, top:0, height:'100vh', width:'min(88vw,360px)', padding:'20px', overflow:'auto',
     background:'linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78))',
     backdropFilter:'blur(14px)', borderRight:'1px solid rgba(0,0,0,.06)',
     boxShadow:'0 10px 50px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.35)',
-    transform:`translateX(${open?0:-100}%)`, transition:'transform .28s cubic-bezier(.2,.8,.2,1)'
+    transform:`translateX(${open?0:-100}%)`, transition:'transform .28s cubic-bezier(.2,.8,.2,1)', borderRadius:'0 18px 18px 0'
   };
 
   return (
@@ -71,17 +77,20 @@ export default function Sidebar({ open, setOpen }:{
       <div style={overlay} aria-hidden={!open}>
         <div style={mask} onClick={()=> setOpen(false)} />
         <aside ref={panelRef} style={panel}>
-          <div className="sidebar-header">
-            <div className="text-base font-semibold">Menu</div>
+          {/* Cabeçalho */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-base font-semibold">Navegação</div>
             <button onClick={()=> setOpen(false)} className="sidebar-close" aria-label="Fechar">×</button>
           </div>
 
-          <nav className="sidebar-section">
-            <button onClick={()=> go('/')} className="sidebar-link">🏠 Catálogo</button>
-            <button onClick={()=> go('/avaliacoes')} className="sidebar-link">⭐ Avaliações & Loja & Contato</button>
-            <a href="https://www.instagram.com/_poluseletrotecnica/" target="_blank" rel="noopener noreferrer" className="sidebar-link">📸 Instagram</a>
-          </nav>
+          {/* Ações rápidas */}
+          <div className="sidebar-section">
+            <button onClick={()=> go('/')} className="sidebar-link flex items-center gap-2"><IconHome/> Catálogo</button>
+            <button onClick={()=> go('/avaliacoes')} className="sidebar-link flex items-center gap-2"><IconStar/> Avaliações & Loja & Contato</button>
+            <a href="https://www.instagram.com/_poluseletrotecnica/" target="_blank" rel="noopener noreferrer" className="sidebar-link flex items-center gap-2"><IconIg/> Instagram</a>
+          </div>
 
+          {/* Marcas */}
           <div className="sidebar-section">
             <div className="sidebar-title">Marcas</div>
             <div className="flex flex-wrap gap-2">
@@ -91,6 +100,7 @@ export default function Sidebar({ open, setOpen }:{
             </div>
           </div>
 
+          {/* Categorias + Subcategorias */}
           <div className="sidebar-section">
             <div className="sidebar-title">Categorias</div>
             <div className="flex flex-col gap-3">
@@ -112,8 +122,9 @@ export default function Sidebar({ open, setOpen }:{
             </div>
           </div>
 
+          {/* CTA */}
           <div className="mt-6">
-            <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" className="btn-quote w-full justify-center inline-flex">Falar no WhatsApp</a>
+            <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" className="btn-quote w-full justify-center inline-flex"><IconWp/> Falar no WhatsApp</a>
           </div>
 
           <div className="pt-6 text-xs opacity-60">© {new Date().getFullYear()} Polus Eletrotécnica</div>

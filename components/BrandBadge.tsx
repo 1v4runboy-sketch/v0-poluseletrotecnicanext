@@ -1,69 +1,38 @@
 'use client';
 import ImageSafe from './ImageSafe';
 
-// Arquivos reais em /public/marcas
-const BRAND_FILE_MAP = {
-  'weg': 'weg',
-  'nsk': 'nsk-logo',
-  'hch': 'hch-logo',
-  'jl capacitores': 'jl-capacitores',
-  'lanc comercial': 'lanc-comercial',
-  'solda cobix': 'solda-cobix',
-  'cifa': 'cifa',
-  'igui': 'igui',
-  'jacuzzi': 'jacuzzi',
-  'tramar': 'tramar',
-  'cofibam': 'cofibam',
+const BRAND_FILE_MAP: Record<string,string> = {
+  'weg':'weg','nsk':'nsk-logo','hch':'hch-logo','jl capacitores':'jl-capacitores',
+  'lanc comercial':'lanc-comercial','solda cobix':'solda-cobix','cifa':'cifa',
+  'igui':'igui','jacuzzi':'jacuzzi','tramar':'tramar','cofibam':'cofibam',
 };
 
 function norm(s=''){
-  return String(s)
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,' ')
-    .trim();
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 }
 
-// Tenta deduzir a marca a partir do produto
-function inferBrand(product){
-  if (!product) return '';
-  const cand = [
-    product.brand,
-    product.subcategory,
-    product.category,
-    product.title,
-    product.slug,
-  ].filter(Boolean).map(norm).join(' ');
-
-  // Resinas → Lanc Comercial
-  if (/\bresina\b|\bcalas\b|\bincolor\b|\bvermelh/.test(cand)) {
-    return 'Lanc Comercial';
-  }
-  // Silicone / Espaguete Flexnor 130 °C → Tramar
-  if (/\bsilicone\b|\bespaguete\b|\bflexnor\b|\b130c\b|\b130\b.+\bgrau/.test(cand)) {
-    return 'Tramar';
-  }
-  // Lides → Cofibam
-  if (/\blides\b/.test(cand)) {
-    return 'Cofibam';
-  }
-
-  // Demais heurísticas
-  if (/\bweg\b/.test(cand)) return 'WEG';
-  if (/\bnsk\b/.test(cand)) return 'NSK';
-  if (/\bhch\b/.test(cand)) return 'HCH';
-  if (/\bjl\b|\bcapacitor(es)?\b/.test(cand)) return 'JL Capacitores';
-  if (/\bcobix\b|\bsolda\b/.test(cand)) return 'Solda Cobix';
-  if (/\bcifa\b/.test(cand)) return 'Cifa';
-  if (/\bigui\b/.test(cand)) return 'IGUI';
-  if (/\bjacuzzi\b/.test(cand)) return 'Jacuzzi';
-
-  return (product.brand || '').trim();
+// dedução simples (mantém suas heurísticas)
+function inferBrand(product:any){
+  if(!product) return '';
+  const bag = [product.brand, product.subcategory, product.category, product.title, product.slug]
+    .filter(Boolean).join(' ').toLowerCase();
+  if (/\bresina|calas|incolor|vermelh/.test(bag)) return 'Lanc Comercial';
+  if (/\bsilicone|espaguete|flexnor|130c|130\s*graus/.test(bag)) return 'Tramar';
+  if (/\blides\b/.test(bag)) return 'Cofibam';
+  if (/\bweg\b/.test(bag)) return 'WEG';
+  if (/\bnsk\b/.test(bag)) return 'NSK';
+  if (/\bhch\b/.test(bag)) return 'HCH';
+  if (/\bcapacitor| jl\b/.test(bag)) return 'JL Capacitores';
+  if (/\bcobix|solda\b/.test(bag)) return 'Solda Cobix';
+  if (/\bcifa\b/.test(bag)) return 'Cifa';
+  if (/\bigui\b/.test(bag)) return 'IGUI';
+  if (/\bjacuzzi\b/.test(bag)) return 'Jacuzzi';
+  return (product.brand || '').toString();
 }
 
-function candFromName(name){
-  const n = norm(name);
-  const base = BRAND_FILE_MAP[n] || n.replace(/\s+/g,'-');
+function candidates(name:string){
+  const key = norm(name);
+  const base = BRAND_FILE_MAP[key] || key.replace(/\s+/g,'-');
   return [
     `/marcas/${base}.webp`,
     `/marcas/${base}.png`,
@@ -74,13 +43,20 @@ function candFromName(name){
   ];
 }
 
-export default function BrandBadge({ brand, product }){
-  const logicalBrand = brand || inferBrand(product);
-  if (!logicalBrand) return null;
-  const srcs = candFromName(logicalBrand);
+export default function BrandBadge({ brand, product }:{
+  brand?: string; product?: any;
+}){
+  const logical = brand || inferBrand(product);
+  if (!logical) return null;
+  const srcs = candidates(logical);
+
+  // aumento sutil para Jacuzzi/Cifa/Cofibam
+  const big = ['jacuzzi','cifa','cofibam'].includes(norm(logical));
+  const cls = big ? 'w-32 h-[60px]' : 'w-28 h-12';
+
   return (
     <div className="absolute left-2 top-2 p-2 rounded-lg bg-white/90 dark:bg-black/55 shadow">
-      <ImageSafe srcs={srcs} alt={logicalBrand} className="w-28 h-12 object-contain brand-logo" type="brand" />
+      <ImageSafe srcs={srcs} alt={logical} className={`${cls} object-contain brand-logo`} type="brand" />
     </div>
   );
 }

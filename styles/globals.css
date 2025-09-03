@@ -5,51 +5,83 @@
 /* =================== TOKENS / THEME =================== */
 :root{
   --radius: 16px;
-  --hairline-light: rgba(0,0,0,.08);
-  --hairline-dark: rgba(255,255,255,.08);
+  --hairline-light: rgba(0,0,0,.10);
+  --hairline-dark: rgba(255,255,255,.10);
   --elev-1: 0 6px 24px rgba(0,0,0,.06);
-  --elev-2: 0 12px 40px rgba(0,0,0,.10);
-  --hero-color: rgba(12,20,36,0.66);
+  --elev-2: 0 12px 40px rgba(0,0,0,.12);
+  --hero-color: rgba(12,20,36,0.55);
   --motion-fast: 160ms;
   --motion-base: 240ms;
   --bezier: cubic-bezier(.2,.8,.2,1);
+
+  /* Alto contraste / acessibilidade */
+  --bg: #f6f8fc;               /* fundo claro */
+  --fg: #0f172a;               /* texto claro */
+  --card: rgba(255,255,255,.95);
+  --muted: #334155;
+
+  --bg-dark: #070a14;          /* fundo escuro */
+  --fg-dark: #e5e7eb;          /* texto escuro */
+  --card-dark: rgba(255,255,255,.06);
+  --muted-dark: #94a3b8;
 }
 
-html, body {
-  height: 100%;
-  background: linear-gradient(180deg, #f8fafc, #eef2ff);
-  cursor: url('/loading-logo.png'), auto;
-  scroll-behavior: smooth;
+@layer base{
+  html, body { @apply h-full; }
+  body{
+    color: var(--fg);
+    background: linear-gradient(180deg, var(--bg), #eaf0ff);
+  }
+  .dark body{
+    color: var(--fg-dark);
+    background: radial-gradient(1200px 600px at 50% 0%, #0a0b2e, #040517 60%, #020316 100%);
+  }
+
+  h1{ @apply text-2xl md:text-3xl font-semibold; color: var(--fg); }
+  h2{ @apply text-xl  md:text-2xl  font-semibold; color: var(--fg); }
+  h3{ @apply text-lg  md:text-xl   font-semibold; color: var(--fg); }
 }
 
-.dark html, .dark body {
-  background: radial-gradient(1200px 600px at 50% 0%, #0a0b2e, #040517 60%, #020316 100%);
-}
+/* Cursor imagem + fallback (garanta /public/loading-logo.png) */
+body{ cursor: url('/loading-logo.png'), auto; }
 
 /* =================== HEADER / HERO =================== */
 .header-hero {
-  @apply backdrop-blur-md sticky top-0 z-[60];
-  background: color-mix(in oklab, var(--hero-color) 30%, transparent);
+  /* 👇 ERRO corrigido: havia "z-[60]backdrop-blur-md" sem espaço */
+  @apply sticky top-0 z-[60] backdrop-blur-md;
+  background: color-mix(in oklab, var(--hero-color) 36%, transparent);
   box-shadow: 0 0 0 1px var(--hairline-light) inset;
 }
-
-/* Garante que qualquer mídia (vídeo/hero) fique atrás de overlays */
 .hero-wrap { position: relative; z-index: 0; }
 
 /* =================== CARDS / CHIPS =================== */
 .card-modern {
-  @apply rounded-2xl p-4 bg-white/80 dark:bg-white/5 shadow;
+  @apply rounded-2xl p-4 shadow;
+  background: var(--card);
+  border: 1px solid var(--hairline-light);
   box-shadow: var(--elev-1);
-  transition: transform .2s var(--bezier), box-shadow .3s var(--bezier), background .3s var(--bezier);
+  transition: transform .2s var(--bezier), box-shadow .3s var(--bezier), background .3s var(--bezier), border-color .3s;
+}
+.dark .card-modern{
+  background: var(--card-dark);
+  border-color: var(--hairline-dark);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
 }
 .card-modern:hover { transform: translateY(-2px); box-shadow: var(--elev-2); }
 
 .chip {
-  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition;
+  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition;
+  background: rgba(0,0,0,.04);
+  border: 1px solid rgba(0,0,0,.08);
 }
+.chip:hover{ background: rgba(0,0,0,.06); }
+.dark .chip{
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.10);
+}
+.dark .chip:hover{ background: rgba(255,255,255,.10); }
 
 /* =================== CTAs =================== */
-/* Botão verde: Solicitar cotação */
 .btn-quote{
   @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white shadow;
   background: linear-gradient(180deg, #22c55e, #16a34a);
@@ -59,7 +91,6 @@ html, body {
 .btn-quote:hover{ transform: translateY(-1px); box-shadow: 0 12px 34px rgba(34,197,94,.45); }
 .btn-quote:active{ transform: translateY(0); }
 
-/* Botão escuro: Adicionar ao carrinho */
 .btn-cart{
   @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white;
   background: linear-gradient(180deg, #0f172a, #0b1326);
@@ -69,133 +100,109 @@ html, body {
 .btn-cart:hover{ transform: translateY(-1px); background: linear-gradient(180deg, #111827, #0d1630); }
 .btn-cart:active{ transform: translateY(0); }
 
-/* =================== LOGOS DE MARCA =================== */
-/* Glow natural para logos soltas (badges etc.) */
+/* =================== LOGOS (badges) =================== */
 .brand-logo {
-  filter: drop-shadow(0 6px 28px rgba(10,108,178,.45));
+  filter: drop-shadow(0 6px 22px rgba(10,108,178,.35));
   transition: transform .2s var(--bezier), filter .2s var(--bezier), opacity .2s var(--bezier);
 }
-.brand-logo:hover { transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 8px 34px rgba(10,108,178,.55)); }
+.brand-logo:hover { transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 8px 30px rgba(10,108,178,.45)); }
 
-/* Itens do carrossel de marcas (altura controlada) */
-.brand-logo-item{
-  height: 56px; width: auto; object-fit: contain;
-  filter: drop-shadow(0 4px 14px rgba(10,108,178,.22));
-  opacity: .98;
-  transition: transform .18s ease, filter .18s ease, opacity .18s ease;
+/* =================== BRAND TAPE (logos da home) =================== */
+/* Variáveis controlam tamanho real — MUITO menores agora */
+.brand-tape-sm{
+  --brand-h: 24px;   /* mobile */
+  --brand-w: 120px;  /* largura máx por logo */
+  --brand-gap: 1.5rem;
 }
-.brand-logo-item:hover{ transform: translateY(-2px) scale(1.02); filter: drop-shadow(0 6px 20px rgba(10,108,178,.34)); opacity: 1; }
+@media (min-width: 640px){ .brand-tape-sm{ --brand-h: 28px; --brand-w: 130px; --brand-gap: 2rem; } }
+@media (min-width: 768px){ .brand-tape-sm{ --brand-h: 32px; --brand-w: 140px; --brand-gap: 2.5rem; } }
+@media (min-width: 1024px){ .brand-tape-sm{ --brand-h: 36px; --brand-w: 150px; --brand-gap: 3rem; } }
+
+/* Imagens SEMPRE pequenas e proporcionais (independe do arquivo original) */
+.brand-logo-item{
+  display: block;
+  width: auto;
+  height: var(--brand-h);
+  max-width: var(--brand-w);
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 3px 10px rgba(10,108,178,.16));
+  opacity: .98;
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
+  will-change: transform;
+}
+.brand-logo-item:hover{
+  transform: translateY(-1px) scale(1.04);
+  filter: drop-shadow(0 5px 16px rgba(10,108,178,.24));
+  opacity: 1;
+}
+
+/* Remove QUALQUER override antigo que possa inflar tamanho */
+.brand-logo-item[data-brand]{ max-height: var(--brand-h) !important; max-width: var(--brand-w) !important; }
 
 /* =================== CARROSSEL / NAVEGAÇÃO =================== */
 .carousel-arrow {
   @apply absolute top-1/2 -translate-y-1/2 p-2 rounded-full text-white;
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.55);
   backdrop-filter: blur(6px);
 }
 
-/* =================== BRAND TAPE (marquee CSS – fallback) =================== */
-.brand-tape{ --speed: 38s; }
-.brand-track{
-  display:flex; width:200%;
-  animation: marquee var(--speed) linear infinite;
+/* =================== CURSOR: rastro de estrela branca =================== */
+.cursor-trail-star{
+  position: fixed;
+  width: 8px; height: 8px; pointer-events: none; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,.85) 35%, rgba(255,255,255,0) 70%);
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,255,255,.7), 0 0 30px rgba(160,210,255,.35);
+  animation: starFade .7s ease-out forwards;
+  z-index: 200000;
 }
-.group:hover .brand-track{ animation-play-state: paused; }
-.brand-seq{
-  display:flex; gap:4rem; align-items:center;
-  width:50%; justify-content:space-around; padding:0 2rem;
-}
-@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-@media (prefers-reduced-motion: reduce){
-  .brand-track{ animation: none; transform: none; }
-}
-
-/* =================== EFEITOS OPCIONAIS =================== */
-.cursor-trail{
-  position: fixed; width:8px; height:8px; border-radius:999px;
-  background: radial-gradient(circle, rgba(96,165,250,.9), rgba(96,165,250,0));
-  pointer-events:none; transform: translate(-50%,-50%);
-  animation: trailFade .7s ease-out forwards;
-}
-@keyframes trailFade{
-  from{ opacity:1; } to{ opacity:0; transform: translate(-50%,-50%) scale(3); }
+@keyframes starFade{
+  0%{ opacity:1; transform: translate(-50%,-50%) scale(1); }
+  70%{ opacity:.6; transform: translate(-50%,-50%) scale(1.8); }
+  100%{ opacity:0; transform: translate(-50%,-50%) scale(2.6); }
 }
 
-.backface-hidden{ backface-visibility: hidden; }
-.anim-soft { transition: all var(--motion-base) var(--bezier); }
-
-/* =================== LOGO SPINNER (keyframes globais, caso usados) =================== */
-@keyframes spinY { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
-.logo-spin { animation: spinY 12s linear infinite; }
-.logo-spin.fast { animation-duration: 5s; }
-@keyframes spinY_slow { from { transform: rotateY(0deg) } to { transform: rotateY(360deg) } }
-
-/* =================== SIDEBAR (Sheet com portal) =================== */
-.sidebar-backdrop{
-  position: fixed; inset: 0; z-index: 100000;
-  pointer-events: none;
-}
+/* =================== SIDEBAR (sheet com portal) =================== */
+.sidebar-backdrop{ position: fixed; inset: 0; z-index: 100000; pointer-events: none; }
 .sidebar-backdrop.sb-open{ pointer-events: auto; }
-.sidebar-mask{
-  position: absolute; inset: 0; background: rgba(0,0,0,.45);
-  opacity: 0; transition: opacity .25s var(--bezier);
-}
+.sidebar-mask{ position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .25s var(--bezier); }
 .sb-open .sidebar-mask{ opacity: 1; }
 
 .sidebar-panel{
   position: absolute; left: 0; top: 0; bottom: 0;
-  width: 88vw; max-width: 340px;
-  padding: 18px; overflow: auto;
-  background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.72));
+  width: 88vw; max-width: 360px;
+  padding: 20px; overflow: auto;
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
   backdrop-filter: blur(14px);
   border-right: 1px solid rgba(0,0,0,.06);
   transform: translateX(-100%);
   transition: transform .28s var(--bezier), box-shadow .28s var(--bezier);
   box-shadow: 0 10px 50px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.35);
-  background-image:
-    radial-gradient(800px 300px at -20% -10%, rgba(10,108,178,.25), transparent 60%),
-    radial-gradient(600px 300px at 120% 110%, rgba(99,102,241,.18), transparent 60%),
-    linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,255,255,.70));
+  border-radius: 0 18px 18px 0;
 }
 .dark .sidebar-panel{
-  background: linear-gradient(180deg, rgba(4,7,20,.82), rgba(8,12,28,.78));
+  background: linear-gradient(180deg, rgba(4,7,20,.86), rgba(9,14,30,.82));
   border-right: 1px solid rgba(255,255,255,.08);
   box-shadow: 0 10px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
 }
 .sb-in{ transform: translateX(0); }
 
-.sidebar-header{
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom: 8px;
-}
-.sidebar-close{
-  @apply rounded-xl px-3 py-1;
-  background: rgba(0,0,0,.06); color:#111;
-  transition: transform .15s var(--bezier), background .2s var(--bezier);
-}
+.sidebar-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
+.sidebar-close{ @apply rounded-xl px-3 py-1; background: rgba(0,0,0,.06); color:#111; transition: transform .15s var(--bezier), background .2s var(--bezier); }
 .dark .sidebar-close{ background: rgba(255,255,255,.08); color:#fff; }
 .sidebar-close:hover{ transform: translateY(-1px); }
 
 .sidebar-section{ margin-top: 16px; }
-.sidebar-title{ @apply text-sm font-semibold mb-2 opacity-80; }
+.sidebar-title{ @apply text-sm font-semibold mb-2 opacity-80; color: var(--muted); }
+.dark .sidebar-title{ color: var(--muted-dark); }
 
-.sidebar-link{
-  @apply w-full text-left px-3 py-2 rounded-xl font-medium;
-  background: rgba(0,0,0,.04);
-  transition: transform .15s var(--bezier), background .2s var(--bezier);
-}
+.sidebar-link{ @apply w-full text-left px-3 py-2 rounded-xl font-medium; background: rgba(0,0,0,.04); transition: transform .15s var(--bezier), background .2s var(--bezier); }
 .dark .sidebar-link{ background: rgba(255,255,255,.06); }
 .sidebar-link:hover{ transform: translateY(-1px); background: rgba(0,0,0,.06); }
 .dark .sidebar-link:hover{ background: rgba(255,255,255,.10); }
 
-.sidebar-chip{
-  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium;
-  background: rgba(0,0,0,.05);
-  border: 1px solid rgba(0,0,0,.07);
-  transition: transform .12s var(--bezier), box-shadow .2s var(--bezier), background .2s var(--bezier);
-}
-.dark .sidebar-chip{
-  background: rgba(255,255,255,.05);
-  border-color: rgba(255,255,255,.10);
-}
+.sidebar-chip{ @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium; background: rgba(0,0,0,.05); border: 1px solid rgba(0,0,0,.07); transition: transform .12s var(--bezier), box-shadow .2s var(--bezier), background .2s var(--bezier); }
+.dark .sidebar-chip{ background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.10); }
 .sidebar-chip:hover{ transform: translateY(-1px); }
 .hover-glow:hover{ box-shadow: 0 8px 24px rgba(10,108,178,.35); }

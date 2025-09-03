@@ -1,11 +1,12 @@
 import HeroColorSync from "@/components/HeroColorSync"
 import BrandCarousel from "@/components/BrandCarousel"
 import ProductListPageClient from "@/components/ProductListPageClient"
+import HomeWhatsCTA from "@/components/HomeWhatsCTA"
 
 export default function HomePage() {
   return (
     <>
-      <section className="relative rounded-[20px] overflow-hidden mt-4 ring-1 ring-white/10 z-0 hero-wrap">
+      <section className="relative rounded-[20px] overflow-hidden mt-4 ring-1 ring-white/10 hero-wrap">
         <HeroColorSync src="/Loop-ezgif.com-video-to-webp-converter.webp" />
         <img
           src="/Loop-ezgif.com-video-to-webp-converter.webp"
@@ -22,6 +23,9 @@ export default function HomePage() {
           <p className="opacity-90 text-sm">Peças para motores elétricos e bombas d’água.</p>
         </div>
       </section>
+
+      {/* Botão novo (Uiverse) — abaixo do herói */}
+      <HomeWhatsCTA />
 
       <BrandCarousel />
 
