@@ -3,6 +3,7 @@ import ProductCarousel from './ProductCarousel';
 import { whatsappHref, hashSlug, stableShuffle, titleCaseSmart } from '../lib/site';
 import ProductCard from './ProductCard';
 import { products } from '../lib/products';
+import QuoteButton from './QuoteButton';
 import WhatsButton from './WhatsButton';
 
 function Highlights({ product }){
@@ -36,6 +37,9 @@ export default function ProductPageClient({ product }){
   const related = stableShuffle(pool, seed).slice(0,4);
   const niceTitle = titleCaseSmart(product.title || '');
 
+  const waHref  = whatsappHref(niceTitle);
+  const cotHref = whatsappHref('SOLICITAR COTAÇÃO — ' + niceTitle);
+
   return (
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
@@ -59,10 +63,8 @@ export default function ProductPageClient({ product }){
           )}
 
           <div className="flex items-center gap-2">
-            <WhatsButton href={whatsappHref(niceTitle)} text="Whatsapp" />
-            <button
-              onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado ao carrinho'); }}
-              className="btn-cart">Adicionar ao carrinho</button>
+            <QuoteButton href={cotHref} />
+            <WhatsButton href={waHref} />
           </div>
         </div>
       </div>

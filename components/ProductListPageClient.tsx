@@ -1,21 +1,16 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { products } from '../lib/products';
-import ProductCard from './ProductCard';
+import { products } from '@/lib/products';
+import ProductCard from '@/components/ProductCard';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { hashSlug, stableShuffle } from '../lib/site';
+import { hashSlug, stableShuffle } from '@/lib/site';
 
 const PER_PAGE = 15;
-
-// Marcas curadas (batem com as logos e com a inferência)
-const BRAND_OPTIONS = [
-  'WEG','NSK','HCH','JL Capacitores','Lanc Comercial','Solda Cobix','Cifa','IGUI','Jacuzzi'
-];
 
 function buildTree(list){
   const out = {};
   for(const p of list){
-    if(!p.category) continue;
+    if(!p?.category) continue;
     out[p.category] ??= {};
     const sub = p.subcategory || 'Outros';
     out[p.category][sub] = (out[p.category][sub]||0)+1;
@@ -23,23 +18,14 @@ function buildTree(list){
   return out;
 }
 
-function countByCategory(tree){
-  const res = {};
-  for(const c of Object.keys(tree)){
-    res[c] = Object.values(tree[c]).reduce((a,b)=>a+b,0);
-  }
-  return res;
-}
-
 function pageNumbers(cur, total){
   const arr = [];
-  const push = (n)=> arr.push(n);
-  if (total <= 7) { for(let i=1;i<=total;i++) push(i); return arr; }
-  push(1);
-  if (cur > 4) push('…');
-  for (let i=Math.max(2,cur-1); i<=Math.min(total-1,cur+1); i++) push(i);
-  if (cur < total-3) push('…');
-  push(total);
+  if (total <= 7) { for(let i=1;i<=total;i++) arr.push(i); return arr; }
+  arr.push(1);
+  if (cur > 4) arr.push('…');
+  for (let i=Math.max(2,cur-1); i<=Math.min(total-1,cur+1); i++) arr.push(i);
+  if (cur < total-3) arr.push('…');
+  arr.push(total);
   return arr;
 }
 
@@ -52,7 +38,6 @@ export default function ProductListPageClient(){
 
   const [q, setQ] = useState(searchParams.get('q') || '');
   const [debounced, setDebounced] = useState(q);
-
   useEffect(()=>{ const t=setTimeout(()=>setDebounced(q),300); return ()=>clearTimeout(t); },[q]);
 
   const marca = searchParams.get('marca') || '';
@@ -64,30 +49,18 @@ export default function ProductListPageClient(){
   useEffect(()=>{ scrollTopSmooth(); }, [page, pathname]);
 
   const tree = useMemo(()=> buildTree(products), []);
-  const catCount = useMemo(()=> countByCategory(tree), [tree]);
-
-  // aplica filtros
   const filtered = useMemo(()=>{
     let arr = products.slice();
-    // filtro de marca: usa inferência simples a partir de título/slug/sub
-    if(marca){
-      const m = marca.toLowerCase();
-      arr = arr.filter(p=>{
-        const bag = [p.brand, p.category, p.subcategory, p.title, p.slug]
-          .filter(Boolean).join(' ').toLowerCase();
-        if (m==='lanc comercial') return /\bresina\b|\bcalas\b|\bincolor\b|\bvermelh/.test(bag) || /lanc/.test(bag);
-        if (m==='jl capacitores') return /\bcapacitor/.test(bag) || /jl/.test(bag);
-        if (m==='solda cobix') return /\bcobix\b|\bsolda\b/.test(bag);
-        if (m==='igui') return /\bigui\b/.test(bag);
-        if (m==='jacuzzi') return /\bjacuzzi\b/.test(bag);
-        return bag.includes(m);
-      });
-    }
+    if(marca) arr = arr.filter(p => (p.brand||'') === marca);
     if(cat)   arr = arr.filter(p => p.category === cat);
-    if(sub)   arr = arr.filter(p => p.subcategory === sub);
+    if(sub)   arr = arr.filter(p => (p.subcategory||'') === sub);
     if(debounced.trim()){
-      const s = debounced.toLowerCase();
-      arr = arr.filter(p => (p.title||'').toLowerCase().includes(s));
+      const s = debounced.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      arr = arr.filter(p => {
+        const bag = [p.title, p.slug, p.brand, p.category, p.subcategory].filter(Boolean).join(' ')
+          .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        return bag.includes(s);
+      });
     }
     if(ord === 'rand'){
       const seed = products.reduce((a,p)=> a + hashSlug(p.slug), 0);
@@ -110,87 +83,54 @@ export default function ProductListPageClient(){
     scrollTopSmooth();
   }
 
-  function clearFilters(){
-    const sp = new URLSearchParams(searchParams.toString());
-    ['marca','cat','sub','q','ord','page'].forEach(k=> sp.delete(k));
-    router.push(`${pathname}?${sp.toString()}`);
-    setQ('');
-    scrollTopSmooth();
-  }
-
   return (
-    <div className="space-y-5">
-      {/* Barra de Filtros completa */}
+    <div className="relative z-[10] space-y-5">
+      {/* Barra rápida de busca/ordem */}
       <div className="card-modern">
         <div className="flex flex-wrap items-center gap-3">
           <input
             value={q}
             onChange={(e)=> setQ(e.target.value)}
-            placeholder="Buscar produtos..."
-            className="px-3 py-2 rounded-xl bg-white/70 dark:bg-white/10 outline-none"
+            placeholder="Buscar produtos por qualquer nome..."
+            className="px-3 py-2 rounded-xl bg-white/80 dark:bg-white/10 outline-none w-64 md:w-80"
           />
           <select className="chip" value={ord} onChange={e=> setParam('ord', e.target.value)}>
             <option value="rand">Misturar catálogo</option>
             <option value="">Ordenar A–Z</option>
           </select>
-          <button onClick={clearFilters} className="chip">Limpar filtros</button>
+          {(marca || cat || sub || debounced) && (
+            <button className="chip" onClick={()=>{ router.push(pathname); setQ(''); scrollTopSmooth(); }}>
+              Limpar filtros
+            </button>
+          )}
         </div>
-
-        {/* Marcas (curadas) */}
-        <div className="mt-4">
-          <div className="text-sm font-semibold mb-2">Marcas</div>
-          <div className="flex flex-wrap gap-2">
-            <button onClick={()=> setParam('marca','')} className={`chip ${!marca?'ring-2 ring-weg/60':''}`}>Todas</button>
-            {BRAND_OPTIONS.map(b=>(
-              <button key={b} onClick={()=> setParam('marca',b)} className={`chip ${marca===b?'ring-2 ring-weg/60':''}`}>{b}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Categorias com contagem */}
-        <div className="mt-4">
-          <div className="text-sm font-semibold mb-2">Categorias</div>
-          <div className="flex flex-wrap gap-2">
-            <button onClick={()=> setParam('cat','')} className={`chip ${!cat?'ring-2 ring-weg/60':''}`}>Todas</button>
-            {Object.keys(catCount).sort().map(C=>(
-              <button key={C} onClick={()=> setParam('cat',C)} className={`chip ${cat===C?'ring-2 ring-weg/60':''}`}>
-                {C} <span className="opacity-60">({catCount[C]})</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Subcategorias com contagem (quando há categoria selecionada) */}
-        {cat && tree[cat] && (
-          <div className="mt-4">
-            <div className="text-sm font-semibold mb-2">Subcategorias</div>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={()=> setParam('sub','')} className={`chip ${!sub?'ring-2 ring-weg/60':''}`}>Todas</button>
-              {Object.keys(tree[cat]).sort().map(S=>(
-                <button key={S} onClick={()=> setParam('sub', S)} className={`chip ${sub===S?'ring-2 ring-weg/60':''}`}>
-                  {S} <span className="opacity-60">({tree[cat][S]})</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Lista */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {pageItems.map(p=> <ProductCard key={p.id} product={p} highlight={debounced} />)}
-      </div>
+      {/* Lista / Fallback */}
+      {pageItems.length === 0 ? (
+        <div className="card-modern">
+          <div className="text-sm">
+            Nenhum produto encontrado. <button className="chip ml-2" onClick={()=>{ router.push(pathname); setQ(''); }}>Limpar filtros</button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {pageItems.map(p=> <ProductCard key={p.id} product={p} highlight={debounced} />)}
+        </div>
+      )}
 
       {/* Paginação */}
-      <nav className="flex justify-center items-center gap-2 select-none">
-        <button disabled={curPage<=1} onClick={()=> setParam('page', String(curPage-1), false)} className="chip disabled:opacity-50">Anterior</button>
-        {pageNumbers(curPage, totalPages).map((n, idx)=>(
-          typeof n === 'number'
-            ? <button key={idx} onClick={()=> setParam('page', String(n), false)} className={`chip ${n===curPage?'ring-2 ring-weg/60':''}`}>{n}</button>
-            : <span key={idx} className="px-1">…</span>
-        ))}
-        <button disabled={curPage>=totalPages} onClick={()=> setParam('page', String(curPage+1), false)} className="chip disabled:opacity-50">Próxima</button>
-      </nav>
+      {pageItems.length > 0 && (
+        <nav className="flex justify-center items-center gap-2 select-none">
+          <button disabled={curPage<=1} onClick={()=> setParam('page', String(curPage-1), false)} className="chip disabled:opacity-50">Anterior</button>
+          {pageNumbers(curPage, totalPages).map((n, idx)=>(
+            typeof n === 'number'
+              ? <button key={idx} onClick={()=> setParam('page', String(n), false)} className={`chip ${n===curPage?'ring-2 ring-weg/60':''}`}>{n}</button>
+              : <span key={idx} className="px-1">…</span>
+          ))}
+          <button disabled={curPage>=totalPages} onClick={()=> setParam('page', String(curPage+1), false)} className="chip disabled:opacity-50">Próxima</button>
+        </nav>
+      )}
     </div>
   );
 }

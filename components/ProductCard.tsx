@@ -2,8 +2,9 @@
 import { useRouter } from 'next/navigation';
 import BrandBadge from './BrandBadge';
 import ImageSafe from './ImageSafe';
-import WhatsButton from './WhatsButton';
 import { titleCaseSmart, whatsappHref } from '../lib/site';
+import QuoteButton from './QuoteButton';
+import WhatsButton from './WhatsButton';
 
 function SpecMini({ p }){
   const list = Array.isArray(p.techSpecs) ? p.techSpecs.slice(0,3) : [];
@@ -36,8 +37,11 @@ export default function ProductCard({ product, highlight }){
     if(!q) return base;
     const idx = base.toLowerCase().indexOf(q);
     if(idx<0) return base;
-    return (<>{base.slice(0, idx)}<mark className="bg-yellow-200 dark:bg-yellow-600/50">{base.slice(idx, idx+q.length)}</mark>{base.slice(idx+q.length)}</>);
+    return (<>{base.slice(0,idx)}<mark className="bg-yellow-200 dark:bg-yellow-600/50">{base.slice(idx,idx+q.length)}</mark>{base.slice(idx+q.length)}</>);
   };
+
+  const waHref  = whatsappHref(niceTitle);
+  const cotHref = whatsappHref('SOLICITAR COTAÇÃO — ' + niceTitle);
 
   return (
     <div role="link" tabIndex={0} onClick={go} onKeyDown={onKey}
@@ -61,17 +65,8 @@ export default function ProductCard({ product, highlight }){
       </div>
 
       <div className="mt-3 flex items-center gap-2">
-        <WhatsButton
-          href={whatsappHref(niceTitle)}
-          onClick={(e)=> e.stopPropagation()} /* evita navegar o card */
-          text="Whatsapp"
-        />
-        <button
-          onClick={(e)=>{ e.stopPropagation(); const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado ao carrinho'); }}
-          className="btn-cart"
-        >
-          Adicionar
-        </button>
+        <QuoteButton href={cotHref} onClick={(e)=> e.stopPropagation()} />
+        <WhatsButton href={waHref}  onClick={(e)=> e.stopPropagation()} />
       </div>
     </div>
   );
