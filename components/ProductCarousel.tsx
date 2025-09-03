@@ -6,13 +6,13 @@ import ImageSafe from './ImageSafe';
 export default function ProductCarousel({ images, brand }){
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
-  const progRef = useRef<HTMLDivElement>(null);
+  const progRef = useRef(null);
   const n = images?.length || 0;
 
   useEffect(()=>{
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if(mql.matches) return;
-    let t: any;
+    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(m.matches) return;
+    let t;
     function loop(){ t = setTimeout(()=>{ if(!hover) setIdx(i=> (i+1)%n); loop(); }, 3000); }
     if(n>0){ loop(); }
     return ()=> clearTimeout(t);
@@ -28,7 +28,7 @@ export default function ProductCarousel({ images, brand }){
     return ()=>{ clearTimeout(id); if(progRef.current){ progRef.current.style.transition='none'; } };
   },[idx]);
 
-  const go = (d:number)=> setIdx(i=> (i + d + n) % n);
+  const go = (d)=> setIdx(i=> (i + d + n) % n);
 
   return (
     <div className="relative select-none" onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>

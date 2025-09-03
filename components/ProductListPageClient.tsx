@@ -42,7 +42,7 @@ export default function ProductListPageClient(){
   const marca = searchParams.get('marca') || '';
   const cat   = searchParams.get('cat')   || '';
   const sub   = searchParams.get('sub')   || '';
-  const ord   = searchParams.get('ord')   || '';
+  const ord   = (searchParams.get('ord') || 'rand'); // <- misturar por padrão
   const page  = parseInt(searchParams.get('page') || '1', 10);
 
   const tree = useMemo(()=> buildTree(products), []);
@@ -59,7 +59,7 @@ export default function ProductListPageClient(){
       const seed = products.reduce((a,p)=> a + hashSlug(p.slug), 0);
       arr = stableShuffle(arr, seed);
     } else {
-      arr.sort((a,b)=> (a.title||'').localeCompare(b.title||''));
+      arr.sort((a,b)=> (a.title||'').localeCompare((b.title||'')));
     }
     return arr;
   },[marca,cat,sub,debounced,ord]);
@@ -81,8 +81,8 @@ export default function ProductListPageClient(){
       <div className="flex flex-wrap gap-2 items-center">
         <input value={q} onChange={(e)=> setQ(e.target.value)} placeholder="Buscar produtos..." className="px-3 py-2 rounded-xl bg-white/70 dark:bg-white/10 outline-none" />
         <select className="chip" value={ord} onChange={e=> setParam('ord', e.target.value)}>
-          <option value="">Ordenação A–Z</option>
-          <option value="rand">Pseudo-aleatória</option>
+          <option value="rand">Misturar catálogo</option>
+          <option value="">Ordenar A–Z</option>
         </select>
       </div>
 

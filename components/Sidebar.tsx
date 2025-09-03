@@ -4,19 +4,17 @@ import { brands, products } from '../lib/products';
 import { useRouter } from 'next/navigation';
 import { whatsappHref } from '../lib/site';
 
-function norm(s:string){
-  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-}
+function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
 
 function treeFromProducts(){
-  const out: Record<string, Set<string>> = {};
+  const out = {};
   for(const p of products){
     if(!p.category) continue;
     const cat = p.category;
     out[cat] ??= new Set();
     if (p.subcategory) out[cat].add(p.subcategory);
   }
-  const obj: Record<string,string[]> = {};
+  const obj = {};
   for(const k of Object.keys(out)) obj[k] = Array.from(out[k]).sort();
   return obj;
 }
@@ -30,10 +28,10 @@ export default function Sidebar({ open, setOpen }){
   },[setOpen]);
 
   const tree = treeFromProducts();
-  const brandList = brands.filter(b => norm(b) !== 'polus' && norm(b) !== 'polus eletrotecnica' && norm(b) !== 'polus eletrotécnica');
+  const brandList = brands.filter(b => !['polus','polus eletrotecnica','polus eletrotécnica'].includes(norm(b)));
 
   return (
-    <div className={`fixed inset-0 z-[120] transition ${open?'':'pointer-events-none'}`} aria-hidden={!open}>
+    <div className={`fixed inset-0 z-[200] transition ${open?'':'pointer-events-none'}`} aria-hidden={!open}>
       <div className={`absolute inset-0 bg-black/40 ${open?'opacity-100':'opacity-0'}`} onClick={()=>setOpen(false)} />
       <aside className={`absolute left-0 top-0 bottom-0 w-80 p-4 bg-white dark:bg-slate-900 shadow-xl transition-transform ${open?'translate-x-0':'-translate-x-full'}`}>
         <h3 className="text-lg font-semibold mb-3">Navegação</h3>

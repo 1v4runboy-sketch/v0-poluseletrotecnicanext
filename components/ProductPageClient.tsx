@@ -37,19 +37,23 @@ export default function ProductPageClient({ product }){
               <button onClick={()=> router.push(`/?cat=${encodeURIComponent(product.category)}&sub=${encodeURIComponent(product.subcategory)}`)} className="chip">{product.subcategory}</button>
             )}
           </div>
-          <p className="text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
+
+          {/* Descrição */}
+          {product.shortDescription && (
+            <p className="text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
+          )}
+
+          {/* Ações */}
           <div className="flex items-center gap-2">
             <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-magnetic">WhatsApp</a>
             <button
               onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado à lista de orçamento'); }}
-              className="chip"
-            >
-              Adicionar à lista
-            </button>
+              className="chip">Adicionar à lista</button>
           </div>
         </div>
       </div>
 
+      {/* Ficha técnica */}
       {product.techSpecs && (
         <div className="card-modern">
           <div className="font-semibold mb-2">Ficha técnica</div>
@@ -64,6 +68,7 @@ export default function ProductPageClient({ product }){
         </div>
       )}
 
+      {/* Relacionados */}
       <div>
         <div className="font-semibold mb-3">Relacionados</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

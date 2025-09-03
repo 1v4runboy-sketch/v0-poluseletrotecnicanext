@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import WhatsFloat from '@/components/WhatsFloat';
 import BackToTop from '@/components/BackToTop';
 import MiniCartDrawer from '@/components/MiniCartDrawer';
+import ScrollTop from '@/components/ScrollTop';
 
 export const metadata = {
   title: 'Polus Eletrotécnica — Catálogo Técnico',
@@ -19,8 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }){
     <html lang="pt-BR" suppressHydrationWarning>
       <body className="min-h-screen">
         <ThemeProvider>
+          <ScrollTop />
           <Header />
-          {/* Sidebar removida daqui (é controlada pelo Header) */}
+          {/* Sidebar é controlada pelo Header */}
           <MiniCartDrawer />
 
           <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>

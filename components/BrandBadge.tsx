@@ -1,7 +1,7 @@
 'use client';
 import ImageSafe from './ImageSafe';
 
-const BRAND_MAP: Record<string,string> = {
+const BRAND_MAP = {
   'jl capastores': 'jl-capacitores',
   'jl capacitores': 'jl-capacitores',
   'nsk': 'nsk-logo',
@@ -12,20 +12,18 @@ const BRAND_MAP: Record<string,string> = {
   'cifra': 'cifa',
 };
 
-function normalizeBrandName(brand:string){
+function normalizeBrandName(brand){
   return String(brand||'').toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^a-z0-9]+/g,' ').trim();
 }
 
-function brandCandidates(brand: string) {
+function brandCandidates(brand) {
   const norm = normalizeBrandName(brand);
   const mapped = BRAND_MAP[norm] || norm.replace(/\s+/g,'-');
-  const bases = [mapped];
-  if(mapped.endsWith('-logo')) bases.push(mapped.replace(/-logo$/, ''));
-  else bases.push(mapped+'-logo');
+  const bases = [mapped, mapped.endsWith('-logo') ? mapped.replace(/-logo$/,'') : mapped+'-logo'];
 
-  const cands: string[] = [];
+  const cands = [];
   for(const base of bases){
     cands.push(`/marcas/${base}.svg`);
     cands.push(`/marcas/${base}.webp`);
@@ -38,8 +36,8 @@ function brandCandidates(brand: string) {
 export default function BrandBadge({ brand }){
   const srcs = brandCandidates(brand);
   return (
-    <div className="absolute left-2 top-2 p-1.5 rounded-lg bg-white/80 dark:bg-black/40 shadow">
-      <ImageSafe srcs={srcs} alt={brand} className="w-16 h-6 object-contain brand-logo" type="brand" />
+    <div className="absolute left-2 top-2 p-2 rounded-lg bg-white/85 dark:bg-black/50 shadow">
+      <ImageSafe srcs={srcs} alt={brand} className="w-24 h-10 object-contain brand-logo" type="brand" />
     </div>
   );
 }

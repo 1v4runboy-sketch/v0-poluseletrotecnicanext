@@ -11,14 +11,14 @@ export default function ImageSafe({
   type = 'product', // 'product' | 'brand'
 }) {
   const initialList = useMemo(() => {
-    const cand: string[] = [];
-    const push = (s?: string) => { if (s && !cand.includes(s)) cand.push(s); };
+    const cand = [];
+    const push = (s) => { if (s && !cand.includes(s)) cand.push(s); };
 
     if (Array.isArray(srcs) && srcs.length) {
       srcs.forEach(push);
     } else if (src) {
       push(src);
-      if (/\.(webp)$/i.test(src)) {
+      if (/\.webp$/i.test(src)) {
         push(src.replace(/\.webp$/i, '.png'));
         push(src.replace(/\.webp$/i, '.jpg'));
         push(src.replace(/\.webp$/i, '.jpeg'));
@@ -26,11 +26,9 @@ export default function ImageSafe({
       push(src.replace(/-\d+(\.\w+)$/i, '$1'));
     }
 
-    if (type === 'brand') {
-      push('/polus-logo.svg');
-    } else {
-      push('/produtos/placeholder.webp');
-    }
+    if (type === 'brand') push('/polus-logo.svg');
+    else push('/produtos/placeholder.webp');
+
     return cand;
   }, [src, srcs, type]);
 

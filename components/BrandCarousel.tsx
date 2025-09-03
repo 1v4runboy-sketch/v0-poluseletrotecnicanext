@@ -5,11 +5,9 @@ import { brands as brandsAll } from '../lib/products';
 
 const EXCLUDE = new Set(['polus','polus eletrotecnica','polus eletrotécnica']);
 
-function norm(s:string){
-  return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-}
+function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
 
-function cand(brand: string) {
+function cand(brand) {
   const base = String(brand || '').toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -26,19 +24,19 @@ function cand(brand: string) {
 
 export default function BrandCarousel(){
   const logos = useMemo(() => {
-    const uniq: string[] = [];
+    const uniq = [];
     for(const b of brandsAll){
       const n = norm(b);
       if(!n || EXCLUDE.has(n)) continue;
       if(!uniq.some(x=> norm(x)===n)) uniq.push(b);
     }
-    // Extras para garantir visibilidade
+    // Extras visuais
     const extras = ['Cifa','JL Capacitores','Jacuzzi','IGUI','Lanc Comercial','Solda Cobix','WEG','NSK','HCH'];
     for(const e of extras){ if(!uniq.some(x=> norm(x)===norm(e))) uniq.push(e); }
     return uniq;
   }, []);
 
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
   const [paused, setPaused] = useState(false);
 
   useEffect(()=>{
@@ -63,11 +61,11 @@ export default function BrandCarousel(){
   const items = [...logos, ...logos];
 
   return (
-    <div className="overflow-hidden py-6" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
-      <div ref={ref} className="flex items-center gap-10 will-change-transform">
+    <div className="overflow-hidden py-8" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+      <div ref={ref} className="flex items-center gap-12 will-change-transform">
         {items.map((name,i)=> (
-          <div key={i} className="h-10 w-auto brand-logo">
-            <ImageSafe srcs={cand(name)} alt={name} className="h-10 w-auto object-contain" type="brand" />
+          <div key={i} className="h-16 md:h-20 w-auto brand-logo">
+            <ImageSafe srcs={cand(name)} alt={name} className="h-full w-auto object-contain" type="brand" />
           </div>
         ))}
       </div>

@@ -2,13 +2,23 @@
 import { useRouter } from 'next/navigation';
 import BrandBadge from './BrandBadge';
 import ImageSafe from './ImageSafe';
-import { titleCaseSmart } from '../lib/site';
+import { titleCaseSmart, whatsappHref } from '../lib/site';
+
+function SpecMini({ p }){
+  // até 3 specs curtas, se houver:
+  const list = Array.isArray(p.techSpecs) ? p.techSpecs.slice(0,3) : [];
+  if(!list.length) return null;
+  return (
+    <ul className="mt-2 text-xs text-slate-600 dark:text-slate-400 grid grid-cols-2 gap-x-3 gap-y-1">
+      {list.map((kv,idx)=> <li key={idx} className="truncate"><span className="opacity-70">{kv[0]}:</span> <strong className="opacity-90">{kv[1]}</strong></li>)}
+    </ul>
+  );
+}
 
 export default function ProductCard({ product, highlight }){
   const router = useRouter();
   const go = ()=> router.push(`/produtos/${product.slug}`);
   const onKey = (e)=> { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); go(); } };
-
   const first = product.images?.[0];
   const niceTitle = titleCaseSmart(product.title || '');
 
@@ -18,37 +28,34 @@ export default function ProductCard({ product, highlight }){
     if(!q) return base;
     const idx = base.toLowerCase().indexOf(q);
     if(idx<0) return base;
-    return (
-      <>
-        {base.slice(0, idx)}
-        <mark className="bg-yellow-200 dark:bg-yellow-600/50">{base.slice(idx, idx+q.length)}</mark>
-        {base.slice(idx+q.length)}
-      </>
-    );
+    return (<>{base.slice(0, idx)}<mark className="bg-yellow-200 dark:bg-yellow-600/50">{base.slice(idx, idx+q.length)}</mark>{base.slice(idx+q.length)}</>);
   };
 
-  const wpHref = `/api/whatsapp?title=${encodeURIComponent(niceTitle)}`;
-
   return (
-    <div role="link" tabIndex={0} onClick={go} onKeyDown={onKey} className="card-modern flex flex-col gap-3 hover:cursor-pointer">
+    <div role="link" tabIndex={0} onClick={go} onKeyDown={onKey}
+         className="card-modern hover:cursor-pointer overflow-hidden bg-gradient-to-b from-white/90 to-white/60 dark:from-white/10 dark:to-white/5">
       <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
         {first && <ImageSafe src={first.src} alt={first.alt || niceTitle} className="w-full h-full object-cover" />}
         <BrandBadge brand={product.brand} />
       </div>
 
-      <div className="flex-1">
-        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{renderTitle()}</h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{product.shortDescription}</p>
+      <div className="mt-3">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100 line-clamp-2">{renderTitle()}</h3>
+        {product.shortDescription && <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{product.shortDescription}</p>}
+        <div className="mt-2 flex flex-wrap gap-2">
+          {product.brand && <span className="chip">{product.brand}</span>}
+          {product.category && <span className="chip">{product.category}</span>}
+          {product.subcategory && <span className="chip">{product.subcategory}</span>}
+        </div>
+        <SpecMini p={product} />
       </div>
 
-      <div className="flex items-center gap-2">
-        <a href={wpHref} target="_blank" rel="noopener noreferrer" className="btn-magnetic text-sm">WhatsApp</a>
+      <div className="mt-3 flex items-center gap-2">
+        <a href={`/api/whatsapp?title=${encodeURIComponent(niceTitle)}`} target="_blank" rel="noopener noreferrer" className="btn-magnetic text-sm">WhatsApp</a>
         <button
           onClick={(e)=>{ e.stopPropagation(); const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado à lista de orçamento'); }}
           className="chip"
-        >
-          Adicionar
-        </button>
+        >Adicionar</button>
       </div>
     </div>
   );
