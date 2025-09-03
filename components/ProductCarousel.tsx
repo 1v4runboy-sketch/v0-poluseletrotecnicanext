@@ -1,24 +1,27 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import BrandBadge from './BrandBadge';
 import ImageSafe from './ImageSafe';
 
-export default function ProductCarousel({ images, brand }){
+export default function ProductCarousel({ images, brand, product }){
+  // limpa a lista de imagens (só src válidos)
+  const pics = useMemo(()=> (Array.isArray(images) ? images.filter(x => x && x.src) : []), [images]);
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
-  const progRef = useRef<HTMLDivElement>(null);
+  const progRef = useRef(null);
+  const n = pics.length;
 
-  const n = Array.isArray(images) ? images.length : 0;
-
+  // autoplay
   useEffect(()=>{
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     if(mql.matches || n <= 1) return;
-    let t: any;
-    function loop(){ t = setTimeout(()=>{ if(!hover) setIdx(i=> (i+1)%n); loop(); }, 3000); }
+    let t;
+    const loop = ()=> { t = setTimeout(()=>{ if(!hover) setIdx(i=> (i+1)%n); loop(); }, 3000); };
     loop();
     return ()=> clearTimeout(t);
   },[n, hover]);
 
+  // barra de progresso
   useEffect(()=>{
     if(!progRef.current || n<=1) return;
     progRef.current.style.width = '0%';
@@ -29,18 +32,24 @@ export default function ProductCarousel({ images, brand }){
     return ()=>{ clearTimeout(id); if(progRef.current){ progRef.current.style.transition='none'; } };
   },[idx, n]);
 
-  const go = (d:number)=> setIdx(i=> (i + d + n) % Math.max(n,1));
+  const go = (d)=> setIdx(i=> (i + d + n) % Math.max(n,1));
+
+  // mostra apenas UMA imagem
+  const cur = pics[idx] || pics[0];
 
   return (
     <div className="relative select-none" onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
-        {images?.map((im, i)=> (
-          <ImageSafe key={i} src={im.src} alt={im.alt||''}
-             className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
-             loading={i===0?'eager':'lazy'} decoding="async"
-             style={{ opacity: i===idx?1:0 }} />
-        ))}
-        <BrandBadge brand={brand} />
+        {cur && (
+          <ImageSafe
+            src={cur.src}
+            alt={cur.alt || ''}
+            className="absolute inset-0 w-full h-full object-contain"
+            loading="eager"
+            decoding="async"
+          />
+        )}
+        <BrandBadge brand={brand} product={product} />
         {n>1 && <>
           <button aria-label="Anterior" onClick={()=>go(-1)} className="carousel-arrow left-2">‹</button>
           <button aria-label="Próxima" onClick={()=>go(1)} className="carousel-arrow right-2">›</button>

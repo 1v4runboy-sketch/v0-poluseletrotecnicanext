@@ -1,48 +1,73 @@
 'use client';
 import ImageSafe from './ImageSafe';
 
-const BRAND_MAP = {
-  'jl capastores': 'jl-capacitores',
-  'jl capacitores': 'jl-capacitores',
+// Arquivos reais em /public/marcas
+const BRAND_FILE_MAP = {
+  'weg': 'weg',
   'nsk': 'nsk-logo',
   'hch': 'hch-logo',
-  'solda cobix': 'solda-cobix',
+  'jl capacitores': 'jl-capacitores',
   'lanc comercial': 'lanc-comercial',
-  'lanç comercial': 'lanc-comercial',
-  'cifra': 'cifa',
+  'solda cobix': 'solda-cobix',
+  'cifa': 'cifa',
+  'igui': 'igui',
+  'jacuzzi': 'jacuzzi',
 };
 
-function normalizeBrandName(brand){
-  return String(brand||'').toLowerCase()
+function norm(s=''){
+  return String(s)
+    .toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]+/g,' ').trim();
+    .replace(/[^a-z0-9]+/g,' ')
+    .trim();
 }
 
-function brandCandidates(brand) {
-  const norm = normalizeBrandName(brand);
-  const mapped = BRAND_MAP[norm] || norm.replace(/\s+/g,'-');
-  const bases = [mapped, mapped.endsWith('-logo') ? mapped.replace(/-logo$/,'') : mapped+'-logo'];
+// Tenta deduzir a marca a partir do product
+function inferBrand(product){
+  if (!product) return '';
+  const cand = [
+    product.brand,
+    product.subcategory,
+    product.category,
+    product.title,
+    product.slug,
+  ].filter(Boolean).map(norm).join(' ');
 
-  const cands = [];
-  for(const base of bases){
-    cands.push(`/marcas/${base}.svg`);
-    cands.push(`/marcas/${base}.webp`);
-    cands.push(`/marcas/${base}.png`);
-    cands.push(`/marcas/${base}.jpg`);
-  }
-  return cands;
+  // ordem importa (evita colisão de "jl"/"lanc" etc.)
+  if (/\bweg\b/.test(cand)) return 'WEG';
+  if (/\bnsk\b/.test(cand)) return 'NSK';
+  if (/\bhch\b/.test(cand)) return 'HCH';
+  if (/\bjl\b|\bcapacitor(es)?\b/.test(cand)) return 'JL Capacitores';
+  if (/\blanc\b/.test(cand)) return 'Lanc Comercial';
+  if (/\bcobix\b|\bsolda\b/.test(cand)) return 'Solda Cobix';
+  if (/\bcifa\b/.test(cand)) return 'Cifa';
+  if (/\bigui\b/.test(cand)) return 'IGUI';
+  if (/\bjacuzzi\b/.test(cand)) return 'Jacuzzi';
+  return (product.brand || '').trim();
 }
 
-export default function BrandBadge({ brand }){
-  const srcs = brandCandidates(brand);
+// Constrói candidatos de caminho a partir do nome
+function brandCandidatesName(name){
+  const n = norm(name);
+  const mapped = BRAND_FILE_MAP[n] || n.replace(/\s+/g,'-');
+  const base = mapped;
+  return [
+    `/marcas/${base}.webp`,
+    `/marcas/${base}.png`,
+    `/marcas/${base}.jpg`,
+    `/marcas/${base}-logo.webp`,
+    `/marcas/${base}-logo.png`,
+    `/marcas/${base}-logo.jpg`,
+  ];
+}
+
+export default function BrandBadge({ brand, product }){
+  const logicalBrand = brand || inferBrand(product);
+  if (!logicalBrand) return null;
+  const srcs = brandCandidatesName(logicalBrand);
   return (
     <div className="absolute left-2 top-2 p-2 rounded-lg bg-white/90 dark:bg-black/55 shadow">
-      <ImageSafe
-        srcs={srcs}
-        alt={brand}
-        className="w-32 h-14 object-contain brand-logo"
-        type="brand"
-      />
+      <ImageSafe srcs={srcs} alt={logicalBrand} className="w-28 h-12 object-contain brand-logo" type="brand" />
     </div>
   );
 }

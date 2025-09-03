@@ -1,6 +1,5 @@
 'use client';
 import ProductCarousel from './ProductCarousel';
-import BrandBadge from './BrandBadge';
 import { whatsappHref, hashSlug, stableShuffle, titleCaseSmart } from '../lib/site';
 import ProductCard from './ProductCard';
 import { products } from '../lib/products';
@@ -10,7 +9,7 @@ export default function ProductPageClient({ product }){
   const router = useRouter();
   if(!product) return <div className="p-4">Produto não encontrado.</div>;
 
-  const relatedPool = products.filter(p=> p.slug!==product.slug && (p.category===product.category || p.brand===product.brand));
+  const relatedPool = products.filter(p=> p.slug!==product.slug && (p.category===product.category || p.subcategory===product.subcategory));
   const fallbackPool = products.filter(p=> p.slug!==product.slug);
   const pool = relatedPool.length>0 ? relatedPool : fallbackPool;
   const seed = hashSlug(product.slug);
@@ -22,10 +21,12 @@ export default function ProductPageClient({ product }){
     <div className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
         <div className="relative select-none">
-          <ProductCarousel images={product.images} brand={product.brand} />
+          <ProductCarousel images={product.images} brand={product.brand} product={product} />
         </div>
+
         <div className="space-y-4">
           <h1 className="text-2xl font-bold">{niceTitle}</h1>
+
           <div className="flex flex-wrap gap-2">
             {product.brand && (
               <button onClick={()=> router.push(`/?marca=${encodeURIComponent(product.brand)}`)} className="chip">{product.brand}</button>
@@ -38,12 +39,10 @@ export default function ProductPageClient({ product }){
             )}
           </div>
 
-          {/* Descrição */}
           {product.shortDescription && (
             <p className="text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
           )}
 
-          {/* Ações */}
           <div className="flex items-center gap-2">
             <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-magnetic">WhatsApp</a>
             <button
@@ -53,7 +52,6 @@ export default function ProductPageClient({ product }){
         </div>
       </div>
 
-      {/* Ficha técnica */}
       {product.techSpecs && (
         <div className="card-modern">
           <div className="font-semibold mb-2">Ficha técnica</div>
@@ -68,7 +66,6 @@ export default function ProductPageClient({ product }){
         </div>
       )}
 
-      {/* Relacionados */}
       <div>
         <div className="font-semibold mb-3">Relacionados</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

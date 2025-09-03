@@ -11,13 +11,12 @@ function cand(brand) {
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return [
-    `/marcas/${base}.svg`,
     `/marcas/${base}.webp`,
     `/marcas/${base}.png`,
-    `/marcas/${base}-logo.svg`,
+    `/marcas/${base}.jpg`,
     `/marcas/${base}-logo.webp`,
     `/marcas/${base}-logo.png`,
-    `/marcas/${base}.jpg`,
+    `/marcas/${base}-logo.jpg`,
   ];
 }
 
@@ -62,27 +61,11 @@ export default function BrandCarousel(){
         MARCAS QUE TRABALHAMOS
       </h2>
 
-      <div
-        className="overflow-hidden"
-        onMouseEnter={()=>setPaused(true)}
-        onMouseLeave={()=>setPaused(false)}
-      >
-        <div
-          ref={ref}
-          className="flex items-center gap-16 sm:gap-20 md:gap-24 will-change-transform"
-        >
+      <div className="overflow-hidden" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+        <div ref={ref} className="flex items-center gap-16 sm:gap-20 md:gap-24 will-change-transform">
           {items.map((name,i)=> (
-            <div
-              key={i}
-              className="h-28 sm:h-32 md:h-36 lg:h-40 w-auto brand-logo"
-              title={String(name)}
-            >
-              <ImageSafe
-                srcs={cand(name)}
-                alt={name}
-                className="h-full w-auto object-contain"
-                type="brand"
-              />
+            <div key={i} className="h-28 sm:h-32 md:h-36 lg:h-40 w-auto brand-logo">
+              <ImageSafe srcs={cand(name)} alt={name} className="h-full w-auto object-contain" type="brand" />
             </div>
           ))}
         </div>

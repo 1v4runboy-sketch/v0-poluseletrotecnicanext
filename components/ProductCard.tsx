@@ -43,9 +43,9 @@ export default function ProductCard({ product, highlight }){
          className="card-modern hover:cursor-pointer overflow-hidden bg-gradient-to-b from-white/90 to-white/60 dark:from-white/10 dark:to-white/5">
       <div className="relative rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-black/5 dark:border-white/10">
         <div className="w-full aspect-[4/3] flex items-center justify-center p-3">
-          <ImageSafe srcs={candidates} alt={niceTitle} className="max-h-full max-w-full object-contain" />
+          <ImageSafe srcs={candidates} alt={niceTitle} className="max-w-full max-h-full object-contain" />
         </div>
-        <BrandBadge brand={product.brand} />
+        <BrandBadge product={product} />
       </div>
 
       <div className="mt-3">
