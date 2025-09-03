@@ -3849,70 +3849,114 @@ export const PRODUCTS: Product[] = [
   }
 ];
 
+
+
 /** ============================================
- *  Normalização de títulos (Title Case) + UF/VAC
+ *  Normalização de títulos (Title Case) + UF/VAC + BRANDS/Modelos em MAIÚSCULO
  *  ============================================
  * - id vazio -> slug
  * - techSpecs: null -> undefined
  * - Cabos: remove "600V"
  * - Capacitores: MF/µF -> UF e UF antes de VAC
+ * - BRAND sempre MAIÚSCULA
+ * - MODELOS alfanuméricos em MAIÚSCULA (k1m4, 6203zz, 2rs, A/B etc.)
  */
 
 function titleCaseSmartLocal(raw: string): string {
   if (!raw) return '';
   let s = String(raw).trim();
+
   // MF/µF -> UF
   s = s.replace(/\b([0-9]+(?:[.,][0-9]+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/g, (_m, num) => `${num} UF`);
+
   // 12-50mm -> 12,50 mm
   s = s.replace(/(\d+)-(\d+)\s*(mm)\b/gi, (_m, a, b, u) => `${a},${b} ${u.toUpperCase()}`);
+
   // separadores -> espaço
   s = s.replace(/[_]+/g, ' ').replace(/[-]+/g, ' ');
-  // espaços número+unidade
-  const unitMap: Record<string,string> = { mm:'mm', cm:'cm', m:'m', awg:'AWG', cv:'CV', hp:'HP', hz:'Hz', v:'V', vac:'VAC', vca:'VCA', vcc:'VCC', a:'A', w:'W', kw:'kW', rpm:'RPM', uf:'UF' };
-  s = s.replace(/(\d+)\s*(mm|cm|m|awg|cv|hp|hz|v|vac|vca|vcc|a|w|kw|rpm|uf)\b/gi, (_m, num, u) => `${num} ${unitMap[u.toLowerCase()] || u.toUpperCase()}`);
-  // Title Case básico (preserva siglas)
-  const keep = new Set(['WEG','NSK','HCH','JL','DDU','ZZ','AC','DC','IP','NBR','UF','VAC','RPM','AWG','CV','HP','HZ','V','A','KW']);
+
+  // espaços número+unidade (inclui UF)
+  const unitMap: Record<string,string> = {
+    mm:'mm', cm:'cm', m:'m', awg:'AWG', cv:'CV', hp:'HP', hz:'Hz',
+    v:'V', vac:'VAC', vca:'VCA', vcc:'VCC', a:'A', w:'W', kw:'kW', rpm:'RPM', uf:'UF'
+  };
+  s = s.replace(/(\d+)\s*(mm|cm|m|awg|cv|hp|hz|v|vac|vca|vcc|a|w|kw|rpm|uf)\b/gi,
+    (_m, num, u) => `${num} ${unitMap[u.toLowerCase()] || u.toUpperCase()}`);
+
+  // Title Case técnico (preserva siglas e MODELOS)
+  const keep = new Set([
+    'WEG','NSK','HCH','JL','DDU','ZZ','AC','DC','IP','NBR','UF','VAC','RPM','AWG','CV','HP','HZ','V','A','KW',
+    'TRAMAR','COFIBAM','LANC','COMERCIAL','CIFA','IGUI','JACUZZI','COBIX','SOLDA'
+  ]);
   const lower = new Set(['de','da','do','das','dos','e','em','para','por','com','sem','o','as','os','no','na','nos','nas','ao','à','às','aos','pra','pro']);
-  const up = (w:string)=> (keep.has(w.toUpperCase()) || /^[0-9]+[a-zA-Z]+[0-9a-zA-Z]*$/.test(w)) ? w.toUpperCase() : w;
+
+  const isModel = (w:string)=> (/[A-Za-z]/.test(w) && /\d/.test(w)) || /^[ab]$/i.test(w) || /^(zz|rs|2rs|2rsr|2rsh?)$/i.test(w);
+
+  const up  = (w:string)=> (keep.has(w.toUpperCase()) || isModel(w) || /^[0-9]+[a-zA-Z]+[0-9a-zA-Z-]*$/.test(w)) ? w.toUpperCase() : w;
   const cap = (w:string)=> w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+
   s = s.split(/\s+/).filter(Boolean).map((w,i)=>{
     if(w.includes('/')){ const t = w.split('/').map(up).join('/'); return i===0 ? cap(t) : t; }
-    if(/^[ab]$/i.test(w)) return w.toUpperCase();
+    if(isModel(w)) return w.toUpperCase();
     if(/^[0-9]+[a-zA-Z]+/.test(w) || /^[A-Z0-9\-]{2,}$/.test(w)) return up(w);
     const l = w.toLowerCase(); return (i>0 && lower.has(l)) ? l : cap(up(w));
   }).join(' ').replace(/\s{2,}/g,' ').trim();
+
   return s;
 }
 
+// Reordena Capacitores p/ "UF ... VAC"
 function reorderCapacitorTitle(base: string): string {
-  const uf = base.match(/(\d+(?:[.,]\d+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/i);
+  const uf  = base.match(/(\d+(?:[.,]\d+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/i);
   const vac = base.match(/(\d+(?:[-/]\d{2,4})?)\s*(?:vac|vca|v)\b/i);
+
   let rest = base;
-  if (uf) rest = rest.replace(uf[0], '');
+  if (uf)  rest = rest.replace(uf[0], '');
   if (vac) rest = rest.replace(vac[0], '');
-  const ufNum = uf ? uf[1].replace(',', '.') : '';
+
+  const ufNum  = uf  ? uf[1].replace(',', '.') : '';
   const vacNum = vac ? vac[1].replace(/-/g, '–') : '';
+
   const parts: string[] = [];
-  if (uf) parts.push(`${ufNum} UF`.replace('.0',''));
+  if (uf)  parts.push(`${ufNum} UF`.replace('.0',''));
   if (vac) parts.push(`${vacNum} VAC`);
   const cleanRest = rest.replace(/\s{2,}/g,' ').trim();
   if (cleanRest) parts.push(cleanRest);
+
   return parts.filter(Boolean).join(' ').replace(/\s{2,}/g,' ').trim();
 }
 
 export function formatTitle(p: Product): string {
   let base = p.title || p.slug || '';
-  if (/(cabo|cabos)/i.test(p.category || '')) base = base.replace(/\b600\s*v\b/gi, '').replace(/\s{2,}/g,' ').trim();
+
+  // Cabos: remove "600V"
+  if (/(cabo|cabos)/i.test(p.category || '')) {
+    base = base.replace(/\b600\s*v\b/gi, '').replace(/\s{2,}/g,' ').trim();
+  }
+
+  // Capacitores: MF/µF -> UF e UF antes de VAC
   if (/(capacitor|capacitores)/i.test(p.category || '') || /capacitor/i.test(base)) {
     base = base.replace(/\b([0-9]+(?:[.,][0-9]+)?)\s*(?:µf|uF|uf|UF|mf|MF)\b/g, (_m, num) => `${num} UF`);
     base = reorderCapacitorTitle(base);
   }
+
+  // Title Case técnico + modelos em MAIÚSCULO
   let nice = titleCaseSmartLocal(base);
-  return nice.replace(/\s+,/g, ',').replace(/\bvac\b/gi, 'VAC').replace(/\buf\b/gi, 'UF').replace(/(\d+)\s*–\s*(\d+)/g, '$1–$2');
+
+  // ajustes finos
+  nice = nice
+    .replace(/\s+,/g, ',')
+    .replace(/\bvac\b/gi, 'VAC')
+    .replace(/\buf\b/gi, 'UF')
+    .replace(/(\d+)\s*–\s*(\d+)/g, '$1–$2');
+
+  return nice;
 }
 
 export const products: Product[] = PRODUCTS.map((p) => ({
   ...p,
+  // BRAND sempre MAIÚSCULA
+  brand: p.brand ? String(p.brand).toUpperCase().trim() : p.brand,
   id: p.id && String(p.id).trim() !== '' ? p.id : p.slug,
   title: formatTitle(p),
   techSpecs: (p as any).techSpecs == null ? undefined : p.techSpecs,

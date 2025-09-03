@@ -3,8 +3,8 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 /**
- * Giro contínuo (rAF) + aceleração fluida no hover sem reset.
- * Verso idêntico: scaleX(-1) rotateY(180deg)  (ordem importa!)
+ * Giro contínuo (rAF) com aceleração fluida no hover sem reset.
+ * Verso correto: scaleX(-1) rotateY(180deg)
  */
 export default function LogoSpinner(){
   const router = useRouter();
@@ -13,10 +13,10 @@ export default function LogoSpinner(){
   const shellRef = useRef<HTMLDivElement|null>(null);
   const coreRef  = useRef<HTMLDivElement|null>(null);
 
-  const angleRef  = useRef(0);      // posição acumulada em graus
+  const angleRef  = useRef(0);      // posição acumulada
   const speedRef  = useRef(40);     // deg/s atual
-  const targetRef = useRef(40);     // 40 normal, 120 hover
-  const hoverRef  = useRef(false);  // estado de hover
+  const targetRef = useRef(40);     // 40 normal; 120 hover
+  const hoverRef  = useRef(false);
   const runningRef= useRef(false);
 
   useEffect(()=>{
@@ -29,6 +29,7 @@ export default function LogoSpinner(){
 
     const loop = (now: number)=>{
       const dt = (now - last) / 1000; last = now;
+
       targetRef.current = hoverRef.current ? 120 : 40;
       speedRef.current  = lerp(speedRef.current, targetRef.current, Math.min(1, dt*6));
       angleRef.current  = (angleRef.current + speedRef.current * dt) % 360;
@@ -39,7 +40,6 @@ export default function LogoSpinner(){
 
       raf = requestAnimationFrame(loop);
     };
-
     raf = requestAnimationFrame(loop);
     return ()=> cancelAnimationFrame(raf);
   },[]);
@@ -64,7 +64,7 @@ export default function LogoSpinner(){
           className="absolute inset-0 w-full h-full object-contain"
           style={{ backfaceVisibility:'hidden' }}
         />
-        {/* Verso NÃO espelhado: aplicar scaleX antes do rotateY (ordem à esquerda executa por último) */}
+        {/* Verso NÃO espelhado (ordem importa): scaleX(-1) rotateY(180deg) */}
         <img
           src="/polus-logo.svg"
           alt=""

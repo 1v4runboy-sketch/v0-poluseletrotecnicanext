@@ -55,7 +55,7 @@ export default function Sidebar({ open, setOpen }:{
     return ()=>{ el?.removeEventListener('touchstart', onStart); el?.removeEventListener('touchmove', onMove); el?.removeEventListener('touchend', onEnd); };
   },[open, setOpen]);
 
-  // Essentials inline (garante overlay mesmo sem CSS)
+  // Essentials inline (garante overlay mesmo sem CSS carregado)
   const overlay: React.CSSProperties = { position:'fixed', inset:'0', zIndex:100000, pointerEvents: open?'auto':'none' };
   const mask: React.CSSProperties    = { position:'absolute', inset:'0', background:'rgba(0,0,0,.45)', opacity: open?1:0, transition:'opacity .25s cubic-bezier(.2,.8,.2,1)' };
   const panel: React.CSSProperties   = {
