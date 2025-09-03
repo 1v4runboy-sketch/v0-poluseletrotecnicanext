@@ -1,19 +1,18 @@
 'use client';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import BrandBadge from './BrandBadge';
-import ImageSafe from './ImageSafe';
 
 export default function ProductCarousel({ images, brand, product }){
   const pics = useMemo(()=> (Array.isArray(images) ? images.filter(x => x && x.src) : []), [images]);
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
-  const progRef = useRef(null);
+  const progRef = useRef<HTMLDivElement>(null);
   const n = pics.length;
 
   useEffect(()=>{
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     if(mql.matches || n <= 1) return;
-    let t;
+    let t: any;
     const loop = ()=> { t = setTimeout(()=>{ if(!hover) setIdx(i=> (i+1)%n); loop(); }, 3000); };
     loop();
     return ()=> clearTimeout(t);
@@ -29,14 +28,14 @@ export default function ProductCarousel({ images, brand, product }){
     return ()=>{ clearTimeout(id); if(progRef.current){ progRef.current.style.transition='none'; } };
   },[idx, n]);
 
-  const go = (d)=> setIdx(i=> (i + d + n) % Math.max(n,1));
+  const go = (d:number)=> setIdx(i=> (i + d + n) % Math.max(n,1));
   const cur = pics[idx] || pics[0];
 
   return (
     <div className="relative select-none" onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
         {cur && (
-          <ImageSafe
+          <img
             src={cur.src}
             alt={cur.alt || ''}
             className="absolute inset-0 w-full h-full object-contain"

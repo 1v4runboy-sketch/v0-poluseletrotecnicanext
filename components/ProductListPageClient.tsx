@@ -47,7 +47,6 @@ export default function ProductListPageClient(){
   const ord   = (searchParams.get('ord') || 'rand');
   const page  = parseInt(searchParams.get('page') || '1', 10);
 
-  // sobe ao topo quando o número da página muda
   useEffect(()=>{ scrollTopSmooth(); }, [page, pathname]);
 
   const tree = useMemo(()=> buildTree(products), []);
@@ -78,7 +77,6 @@ export default function ProductListPageClient(){
     if(value) sp.set(key, value); else sp.delete(key);
     if(resetPage) sp.set('page','1');
     router.push(`${pathname}?${sp.toString()}`);
-    // sobe imediatamente para o topo
     scrollTopSmooth();
   }
 
