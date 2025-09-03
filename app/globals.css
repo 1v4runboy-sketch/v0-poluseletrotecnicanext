@@ -49,7 +49,7 @@
 body{ cursor: url('/loading-logo.png'), auto; }
 
 /* =================== HEADER / HERO =================== */
-/* ⛔️ SEM @apply aqui — CSS nativo evita o bug "z-[60]backdrop-blur-md" */
+/* ⛔️ SEM @apply aqui — CSS nativo evita o bug “z-[60]backdrop…” */
 .header-hero{
   position: sticky;
   top: 0;
@@ -93,10 +93,6 @@ body{ cursor: url('/loading-logo.png'), auto; }
 }
 .dark .chip:hover{ background: rgba(255,255,255,.10); }
 
-/* =================== LOGOS (badges) =================== */
-.brand-logo{ filter: drop-shadow(0 6px 22px rgba(10,108,178,.35)); transition: transform .2s var(--bezier), filter .2s var(--bezier), opacity .2s var(--bezier); }
-.brand-logo:hover{ transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 8px 30px rgba(10,108,178,.45)); }
-
 /* =================== BRAND TAPE (Home) =================== */
 .brand-tape-sm{ position: relative; z-index: 1; --brand-h: 24px; --brand-w: 120px; --brand-gap: 1.4rem; }
 @media (min-width: 640px){ .brand-tape-sm{ --brand-h: 28px; --brand-w: 130px; --brand-gap: 1.8rem; } }
@@ -114,10 +110,10 @@ body{ cursor: url('/loading-logo.png'), auto; }
 }
 .brand-logo-item:hover{ transform: translateY(-1px) scale(1.04); filter: drop-shadow(0 5px 16px rgba(10,108,178,.24)); opacity: 1; }
 
-/* =================== CARROSSEL / NAVEGAÇÃO =================== */
+/* =================== CARROSSEL / NAV =================== */
 .carousel-arrow{ @apply absolute top-1/2 -translate-y-1/2 p-2 rounded-full text-white; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); }
 
-/* =================== CURSOR: rastro de estrela branca =================== */
+/* =================== CURSOR – rastro estrela =================== */
 .cursor-trail-star{
   position: fixed; width: 8px; height: 8px; pointer-events: none; transform: translate(-50%,-50%);
   background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,.85) 35%, rgba(255,255,255,0) 70%);
@@ -127,7 +123,7 @@ body{ cursor: url('/loading-logo.png'), auto; }
 }
 @keyframes starFade{ 0%{opacity:1; transform: translate(-50%,-50%) scale(1);} 70%{opacity:.6; transform: translate(-50%,-50%) scale(1.8);} 100%{opacity:0; transform: translate(-50%,-50%) scale(2.6);} }
 
-/* =================== SIDEBAR (sheet com portal) =================== */
+/* =================== SIDEBAR =================== */
 .sidebar-backdrop{ position: fixed; inset: 0; z-index: 100000; pointer-events: none; }
 .sidebar-backdrop.sb-open{ pointer-events: auto; }
 .sidebar-mask{ position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .25s var(--bezier); }
