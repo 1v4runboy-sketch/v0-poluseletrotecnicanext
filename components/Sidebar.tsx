@@ -23,14 +23,12 @@ function treeFromProducts(){
 export default function Sidebar({ open, setOpen }){
   const router = useRouter();
 
-  // ESC fecha
   useEffect(()=>{
     const onEsc = (e)=>{ if(e.key==='Escape') setOpen(false); };
     window.addEventListener('keydown', onEsc);
     return ()=> window.removeEventListener('keydown', onEsc);
   },[setOpen]);
 
-  // Scroll lock no body quando aberta
   useEffect(()=>{
     if (open) {
       const prev = document.documentElement.style.overflow;

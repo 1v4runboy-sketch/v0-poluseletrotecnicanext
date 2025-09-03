@@ -13,7 +13,7 @@ export default function AvaliacoesLojaContatoPage(){
         <ReviewsCarousel />
       </section>
 
-      {/* Fachada da loja (apenas 3 imagens) */}
+      {/* Fachada da loja (3 imagens) */}
       <section>
         <h2 className="text-xl font-semibold mb-3">Nossa loja</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
