@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =================== Tokens =================== */
+/* =================== TOKENS / THEME =================== */
 :root{
   --radius: 16px;
   --hairline-light: rgba(0,0,0,.08);
@@ -26,16 +26,17 @@ html, body {
   background: radial-gradient(1200px 600px at 50% 0%, #0a0b2e, #040517 60%, #020316 100%);
 }
 
-/* =================== Header/Hero =================== */
+/* =================== HEADER / HERO =================== */
 .header-hero {
   @apply backdrop-blur-md sticky top-0 z-[60];
   background: color-mix(in oklab, var(--hero-color) 30%, transparent);
   box-shadow: 0 0 0 1px var(--hairline-light) inset;
 }
 
+/* Garante que qualquer mídia (vídeo/hero) fique atrás de overlays */
 .hero-wrap { position: relative; z-index: 0; }
 
-/* =================== Cartões e Chips =================== */
+/* =================== CARDS / CHIPS =================== */
 .card-modern {
   @apply rounded-2xl p-4 bg-white/80 dark:bg-white/5 shadow;
   box-shadow: var(--elev-1);
@@ -47,7 +48,7 @@ html, body {
   @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition;
 }
 
-/* =================== Botões CTA =================== */
+/* =================== CTAs =================== */
 /* Botão verde: Solicitar cotação */
 .btn-quote{
   @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white shadow;
@@ -68,21 +69,47 @@ html, body {
 .btn-cart:hover{ transform: translateY(-1px); background: linear-gradient(180deg, #111827, #0d1630); }
 .btn-cart:active{ transform: translateY(0); }
 
-/* =================== Logos de marca =================== */
+/* =================== LOGOS DE MARCA =================== */
+/* Glow natural para logos soltas (badges etc.) */
 .brand-logo {
   filter: drop-shadow(0 6px 28px rgba(10,108,178,.45));
-  transition: transform .2s var(--bezier), filter .2s var(--bezier);
+  transition: transform .2s var(--bezier), filter .2s var(--bezier), opacity .2s var(--bezier);
 }
 .brand-logo:hover { transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 8px 34px rgba(10,108,178,.55)); }
 
-/* =================== Carrossel / Navegação =================== */
+/* Itens do carrossel de marcas (altura controlada) */
+.brand-logo-item{
+  height: 56px; width: auto; object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(10,108,178,.22));
+  opacity: .98;
+  transition: transform .18s ease, filter .18s ease, opacity .18s ease;
+}
+.brand-logo-item:hover{ transform: translateY(-2px) scale(1.02); filter: drop-shadow(0 6px 20px rgba(10,108,178,.34)); opacity: 1; }
+
+/* =================== CARROSSEL / NAVEGAÇÃO =================== */
 .carousel-arrow {
   @apply absolute top-1/2 -translate-y-1/2 p-2 rounded-full text-white;
   background: rgba(0,0,0,.45);
   backdrop-filter: blur(6px);
 }
 
-/* =================== Efeitos (opcionais) =================== */
+/* =================== BRAND TAPE (marquee CSS – fallback) =================== */
+.brand-tape{ --speed: 38s; }
+.brand-track{
+  display:flex; width:200%;
+  animation: marquee var(--speed) linear infinite;
+}
+.group:hover .brand-track{ animation-play-state: paused; }
+.brand-seq{
+  display:flex; gap:4rem; align-items:center;
+  width:50%; justify-content:space-around; padding:0 2rem;
+}
+@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@media (prefers-reduced-motion: reduce){
+  .brand-track{ animation: none; transform: none; }
+}
+
+/* =================== EFEITOS OPCIONAIS =================== */
 .cursor-trail{
   position: fixed; width:8px; height:8px; border-radius:999px;
   background: radial-gradient(circle, rgba(96,165,250,.9), rgba(96,165,250,0));
@@ -96,10 +123,11 @@ html, body {
 .backface-hidden{ backface-visibility: hidden; }
 .anim-soft { transition: all var(--motion-base) var(--bezier); }
 
-/* =================== Logo spinner =================== */
-@keyframes spinY3D { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
-.logo-spin { animation: spinY3D 12s linear infinite; }
+/* =================== LOGO SPINNER (keyframes globais, caso usados) =================== */
+@keyframes spinY { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+.logo-spin { animation: spinY 12s linear infinite; }
 .logo-spin.fast { animation-duration: 5s; }
+@keyframes spinY_slow { from { transform: rotateY(0deg) } to { transform: rotateY(360deg) } }
 
 /* =================== SIDEBAR (Sheet com portal) =================== */
 .sidebar-backdrop{

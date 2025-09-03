@@ -1,7 +1,33 @@
 /** @type {import('tailwindcss').Config} */
+const colors = require('tailwindcss/colors');
+
 module.exports = {
-  darkMode: 'class',
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', "*.{js,ts,jsx,tsx,mdx}"],
-  theme: { extend: {} },
-  plugins: []
+  content: [
+    './app/**/*.{js,jsx,ts,tsx}',
+    './components/**/*.{js,jsx,ts,tsx}',
+    './lib/**/*.{js,jsx,ts,tsx}',
+        "*.{js,ts,jsx,tsx,mdx}"
+    ],
+  theme: {
+    extend: {
+      colors: {
+        // cor institucional
+        weg: '#0A6CB2',
+        // (opcional) expõe paletas atuais do Tailwind
+        slate: colors.slate,
+        gray: colors.gray,
+        neutral: colors.neutral,
+        stone: colors.stone,
+        sky: colors.sky,
+      },
+      borderRadius: {
+        xl: 'var(--radius)',
+      },
+      boxShadow: {
+        elev1: '0 6px 24px rgba(0,0,0,.06)',
+        elev2: '0 12px 40px rgba(0,0,0,.10)',
+      },
+    },
+  },
+  plugins: [],
 };
