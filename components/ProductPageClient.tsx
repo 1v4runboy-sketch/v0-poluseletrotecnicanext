@@ -4,9 +4,26 @@ import { whatsappHref, hashSlug, stableShuffle, titleCaseSmart } from '../lib/si
 import ProductCard from './ProductCard';
 import { products } from '../lib/products';
 
-const CartIcon = (props)=>(
-  <svg width="18" height="18" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M7 18a2 2 0 1 0 0 4a2 2 0 0 0 0-4m10 0a2 2 0 1 0 0 4a2 2 0 0 0 0-4M6.16 6l.84 2h10a1 1 0 0 1 .96 1.27l-1.5 5A2 2 0 0 1 14.55 16H9.45a2 2 0 0 1-1.91-1.36L5 8H3a1 1 0 0 1 0-2z"/></svg>
-);
+function Highlights({ product }){
+  const specs = Array.isArray(product.techSpecs)? product.techSpecs : [];
+  const pick = [];
+  const keys = ['Potência','Tensão','Dimensão','Vedação','Blindagem','Frequência','Capacitância'];
+  for(const k of keys){
+    const found = specs.find(s=> (s?.[0]||'').toLowerCase().includes(k.toLowerCase()));
+    if(found) pick.push(found);
+    if(pick.length>=3) break;
+  }
+  if(pick.length===0) return null;
+  return (
+    <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+      {pick.map((kv, i)=>(
+        <li key={i} className="rounded-lg px-3 py-2 bg-slate-100/70 dark:bg-white/5 border border-black/5 dark:border-white/10">
+          <span className="opacity-70">{kv[0]}: </span><strong>{kv[1]}</strong>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default function ProductPageClient({ product }){
   if(!product) return <div className="p-4">Produto não encontrado.</div>;
@@ -16,7 +33,6 @@ export default function ProductPageClient({ product }){
   const pool = relatedPool.length>0 ? relatedPool : fallbackPool;
   const seed = hashSlug(product.slug);
   const related = stableShuffle(pool, seed).slice(0,4);
-
   const niceTitle = titleCaseSmart(product.title || '');
 
   return (
@@ -35,6 +51,8 @@ export default function ProductPageClient({ product }){
             {product.subcategory && (<span className="chip">{product.subcategory}</span>)}
           </div>
 
+          <Highlights product={product} />
+
           {product.shortDescription && (
             <p className="text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
           )}
@@ -43,8 +61,7 @@ export default function ProductPageClient({ product }){
             <a href={whatsappHref(niceTitle)} target="_blank" rel="noopener noreferrer" className="btn-quote">Solicitar cotação</a>
             <button
               onClick={()=>{ const lst = JSON.parse(localStorage.getItem('orcamento')||'[]'); if(!lst.find(x=>x===product.id)) lst.push(product.id); localStorage.setItem('orcamento', JSON.stringify(lst)); alert('Adicionado ao carrinho'); }}
-              className="btn-cart"
-            ><CartIcon/> Adicionar ao carrinho</button>
+              className="btn-cart">Adicionar ao carrinho</button>
           </div>
         </div>
       </div>

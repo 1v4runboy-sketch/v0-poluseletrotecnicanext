@@ -12,6 +12,8 @@ const BRAND_FILE_MAP = {
   'cifa': 'cifa',
   'igui': 'igui',
   'jacuzzi': 'jacuzzi',
+  'tramar': 'tramar',
+  'cofibam': 'cofibam',
 };
 
 function norm(s=''){
@@ -33,9 +35,17 @@ function inferBrand(product){
     product.slug,
   ].filter(Boolean).map(norm).join(' ');
 
-  // Resinas -> Lanc Comercial
-  if (/\bresina\b|\bcalas\b|\bincolor\b|\bvermelh/.test(cand) || /\bresinas\b/.test(cand) || /\bcalas\b/.test(cand)) {
+  // Resinas → Lanc Comercial
+  if (/\bresina\b|\bcalas\b|\bincolor\b|\bvermelh/.test(cand)) {
     return 'Lanc Comercial';
+  }
+  // Silicone / Espaguete Flexnor 130 °C → Tramar
+  if (/\bsilicone\b|\bespaguete\b|\bflexnor\b|\b130c\b|\b130\b.+\bgrau/.test(cand)) {
+    return 'Tramar';
+  }
+  // Lides → Cofibam
+  if (/\blides\b/.test(cand)) {
+    return 'Cofibam';
   }
 
   // Demais heurísticas
