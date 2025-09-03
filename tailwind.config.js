@@ -11,21 +11,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // cor institucional
         weg: '#0A6CB2',
-        // (opcional) expõe paletas atuais do Tailwind
+        // paletas atuais (sem renomes antigos)
         slate: colors.slate,
         gray: colors.gray,
         neutral: colors.neutral,
         stone: colors.stone,
         sky: colors.sky,
+        indigo: colors.indigo,
+        emerald: colors.emerald,
       },
-      borderRadius: {
-        xl: 'var(--radius)',
-      },
+      borderRadius: { xl: '16px' },
       boxShadow: {
         elev1: '0 6px 24px rgba(0,0,0,.06)',
-        elev2: '0 12px 40px rgba(0,0,0,.10)',
+        elev2: '0 12px 40px rgba(0,0,0,.12)',
       },
     },
   },

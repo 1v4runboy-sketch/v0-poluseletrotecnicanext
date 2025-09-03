@@ -14,20 +14,11 @@
   --motion-base: 240ms;
   --bezier: cubic-bezier(.2,.8,.2,1);
 
-  /* Alto contraste / acessibilidade */
-  --bg: #f6f8fc;       /* fundo claro */
-  --fg: #0f172a;       /* texto claro */
-  --card: rgba(255,255,255,.96);
-  --muted: #334155;
-
-  --bg-dark: #070a14;  /* fundo escuro */
-  --fg-dark: #e5e7eb;  /* texto escuro */
-  --card-dark: rgba(255,255,255,.06);
-  --muted-dark: #94a3b8;
+  --bg: #f6f8fc;  --fg: #0f172a;  --card: rgba(255,255,255,.96);  --muted: #334155;
+  --bg-dark:#070a14; --fg-dark:#e5e7eb; --card-dark: rgba(255,255,255,.06); --muted-dark:#94a3b8;
 }
 
 @layer base{
-  /* Reset/normalize importante para evitar elementos “estranhos” cobrindo conteúdo */
   *, *::before, *::after { box-sizing: border-box; }
   html, body { @apply h-full; }
   img, svg, video, canvas { display:block; max-width:100%; }
@@ -54,22 +45,23 @@
   h3{ @apply text-lg  md:text-xl   font-semibold; color: var(--fg); }
 }
 
-/* Cursor imagem (garanta /public/loading-logo.png) */
+/* Cursor imagem */
 body{ cursor: url('/loading-logo.png'), auto; }
 
 /* =================== HEADER / HERO =================== */
+/* ⛔️ SEM @apply aqui — CSS nativo evita o bug "z-[60]backdrop-blur-md" */
 .header-hero{
-  /* ⚠️ Espaço correto entre utilities para não quebrar o Tailwind */
-  @apply sticky top-0 z-[60] backdrop-blur-md;
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   background: color-mix(in oklab, var(--hero-color) 36%, transparent);
   box-shadow: 0 0 0 1px var(--hairline-light) inset;
 }
-
-/* Garante que o hero NUNCA cobre o resto da página */
 .hero-wrap{ position: relative; z-index: 0; }
 
 /* =================== CONTEÚDO / CATALOGO =================== */
-/* Eleva a seção do catálogo acima de qualquer mídia/efeito de fundo */
 .catalog-wrap{ position: relative; z-index: 2; }
 
 /* =================== CARDS / CHIPS =================== */
@@ -101,65 +93,39 @@ body{ cursor: url('/loading-logo.png'), auto; }
 }
 .dark .chip:hover{ background: rgba(255,255,255,.10); }
 
-/* =================== CTAs (cores neutras; botões Uiverse usam styled-jsx próprio) =================== */
-.btn-quote{
-  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white shadow;
-  background: linear-gradient(180deg, #0ea5e9, #0284c7);
-  box-shadow: 0 10px 28px rgba(2,132,199,.35);
-}
-.btn-cart{
-  @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white;
-  background: linear-gradient(180deg, #0f172a, #0b1326);
-  border: 1px solid rgba(255,255,255,.1);
-}
-
 /* =================== LOGOS (badges) =================== */
 .brand-logo{ filter: drop-shadow(0 6px 22px rgba(10,108,178,.35)); transition: transform .2s var(--bezier), filter .2s var(--bezier), opacity .2s var(--bezier); }
 .brand-logo:hover{ transform: translateY(-2px) scale(1.04); filter: drop-shadow(0 8px 30px rgba(10,108,178,.45)); }
 
 /* =================== BRAND TAPE (Home) =================== */
-/* Regras à prova de “gigantes”: altura e largura máximas por breakpoint */
 .brand-tape-sm{ position: relative; z-index: 1; --brand-h: 24px; --brand-w: 120px; --brand-gap: 1.4rem; }
 @media (min-width: 640px){ .brand-tape-sm{ --brand-h: 28px; --brand-w: 130px; --brand-gap: 1.8rem; } }
 @media (min-width: 768px){ .brand-tape-sm{ --brand-h: 32px; --brand-w: 140px; --brand-gap: 2.2rem; } }
 @media (min-width: 1024px){ .brand-tape-sm{ --brand-h: 36px; --brand-w: 150px; --brand-gap: 2.6rem; } }
 
 .brand-viewport{ position: relative; z-index: 1; overflow:hidden; }
-.brand-track{ display:flex; will-change: transform; pointer-events: none; } /* não bloqueia o clique nos cards */
+.brand-track{ display:flex; will-change: transform; pointer-events: none; }
 .brand-seq{ display:flex; align-items:center; gap: var(--brand-gap); padding: 0 var(--brand-gap); }
 .brand-cell{ flex: 0 0 auto; display:flex; align-items:center; justify-content:center; line-height:0; pointer-events: auto; }
 .brand-logo-item{
-  display:block;
-  width:auto;
-  height: var(--brand-h);
-  max-width: var(--brand-w);
-  object-fit: contain;
-  image-rendering: auto;
-  filter: drop-shadow(0 3px 10px rgba(10,108,178,.16));
-  opacity: .98;
-  transition: transform .16s ease, filter .16s ease, opacity .16s ease;
-  will-change: transform;
+  display:block; width:auto; height: var(--brand-h); max-width: var(--brand-w); object-fit: contain;
+  image-rendering: auto; filter: drop-shadow(0 3px 10px rgba(10,108,178,.16)); opacity:.98;
+  transition: transform .16s ease, filter .16s ease, opacity .16s ease; will-change: transform;
 }
 .brand-logo-item:hover{ transform: translateY(-1px) scale(1.04); filter: drop-shadow(0 5px 16px rgba(10,108,178,.24)); opacity: 1; }
 
-/* =================== NAVEGAÇÃO / CARROSSEL DE PRODUTO =================== */
+/* =================== CARROSSEL / NAVEGAÇÃO =================== */
 .carousel-arrow{ @apply absolute top-1/2 -translate-y-1/2 p-2 rounded-full text-white; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); }
 
 /* =================== CURSOR: rastro de estrela branca =================== */
 .cursor-trail-star{
-  position: fixed;
-  width: 8px; height: 8px; pointer-events: none; transform: translate(-50%, -50%);
+  position: fixed; width: 8px; height: 8px; pointer-events: none; transform: translate(-50%,-50%);
   background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,.85) 35%, rgba(255,255,255,0) 70%);
   border-radius: 999px;
   box-shadow: 0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,255,255,.7), 0 0 30px rgba(160,210,255,.35);
-  animation: starFade .7s ease-out forwards;
-  z-index: 200000;
+  animation: starFade .7s ease-out forwards; z-index: 200000;
 }
-@keyframes starFade{
-  0%{ opacity:1; transform: translate(-50%,-50%) scale(1); }
-  70%{ opacity:.6; transform: translate(-50%,-50%) scale(1.8); }
-  100%{ opacity:0; transform: translate(-50%,-50%) scale(2.6); }
-}
+@keyframes starFade{ 0%{opacity:1; transform: translate(-50%,-50%) scale(1);} 70%{opacity:.6; transform: translate(-50%,-50%) scale(1.8);} 100%{opacity:0; transform: translate(-50%,-50%) scale(2.6);} }
 
 /* =================== SIDEBAR (sheet com portal) =================== */
 .sidebar-backdrop{ position: fixed; inset: 0; z-index: 100000; pointer-events: none; }
@@ -168,20 +134,13 @@ body{ cursor: url('/loading-logo.png'), auto; }
 .sb-open .sidebar-mask{ opacity: 1; }
 
 .sidebar-panel{
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 88vw; max-width: 360px;
-  padding: 20px; overflow: auto;
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
-  backdrop-filter: blur(14px);
-  border-right: 1px solid rgba(0,0,0,.06);
-  transform: translateX(-100%);
-  transition: transform .28s var(--bezier), box-shadow .28s var(--bezier);
-  box-shadow: 0 10px 50px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.35);
-  border-radius: 0 18px 18px 0;
+  position: absolute; left: 0; top: 0; bottom: 0; width: 88vw; max-width: 360px; padding: 20px; overflow: auto;
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78)); backdrop-filter: blur(14px);
+  border-right: 1px solid rgba(0,0,0,.06); transform: translateX(-100%); transition: transform .28s var(--bezier), box-shadow .28s var(--bezier);
+  box-shadow: 0 10px 50px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.35); border-radius: 0 18px 18px 0;
 }
 .dark .sidebar-panel{
-  background: linear-gradient(180deg, rgba(4,7,20,.86), rgba(9,14,30,.82));
-  border-right: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(180deg, rgba(4,7,20,.86), rgba(9,14,30,.82)); border-right: 1px solid rgba(255,255,255,.08);
   box-shadow: 0 10px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
 }
 .sb-in{ transform: translateX(0); }
