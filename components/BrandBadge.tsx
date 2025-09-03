@@ -22,7 +22,7 @@ function norm(s=''){
     .trim();
 }
 
-// Tenta deduzir a marca a partir do product
+// Tenta deduzir a marca a partir do produto
 function inferBrand(product){
   if (!product) return '';
   const cand = [
@@ -33,7 +33,6 @@ function inferBrand(product){
     product.slug,
   ].filter(Boolean).map(norm).join(' ');
 
-  // ordem importa (evita colisão de "jl"/"lanc" etc.)
   if (/\bweg\b/.test(cand)) return 'WEG';
   if (/\bnsk\b/.test(cand)) return 'NSK';
   if (/\bhch\b/.test(cand)) return 'HCH';
@@ -46,11 +45,9 @@ function inferBrand(product){
   return (product.brand || '').trim();
 }
 
-// Constrói candidatos de caminho a partir do nome
-function brandCandidatesName(name){
+function candFromName(name){
   const n = norm(name);
-  const mapped = BRAND_FILE_MAP[n] || n.replace(/\s+/g,'-');
-  const base = mapped;
+  const base = BRAND_FILE_MAP[n] || n.replace(/\s+/g,'-');
   return [
     `/marcas/${base}.webp`,
     `/marcas/${base}.png`,
@@ -64,7 +61,7 @@ function brandCandidatesName(name){
 export default function BrandBadge({ brand, product }){
   const logicalBrand = brand || inferBrand(product);
   if (!logicalBrand) return null;
-  const srcs = brandCandidatesName(logicalBrand);
+  const srcs = candFromName(logicalBrand);
   return (
     <div className="absolute left-2 top-2 p-2 rounded-lg bg-white/90 dark:bg-black/55 shadow">
       <ImageSafe srcs={srcs} alt={logicalBrand} className="w-28 h-12 object-contain brand-logo" type="brand" />

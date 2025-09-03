@@ -4,14 +4,12 @@ import BrandBadge from './BrandBadge';
 import ImageSafe from './ImageSafe';
 
 export default function ProductCarousel({ images, brand, product }){
-  // limpa a lista de imagens (só src válidos)
   const pics = useMemo(()=> (Array.isArray(images) ? images.filter(x => x && x.src) : []), [images]);
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
   const progRef = useRef(null);
   const n = pics.length;
 
-  // autoplay
   useEffect(()=>{
     const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
     if(mql.matches || n <= 1) return;
@@ -21,7 +19,6 @@ export default function ProductCarousel({ images, brand, product }){
     return ()=> clearTimeout(t);
   },[n, hover]);
 
-  // barra de progresso
   useEffect(()=>{
     if(!progRef.current || n<=1) return;
     progRef.current.style.width = '0%';
@@ -33,8 +30,6 @@ export default function ProductCarousel({ images, brand, product }){
   },[idx, n]);
 
   const go = (d)=> setIdx(i=> (i + d + n) % Math.max(n,1));
-
-  // mostra apenas UMA imagem
   const cur = pics[idx] || pics[0];
 
   return (

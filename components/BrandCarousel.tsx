@@ -1,38 +1,29 @@
 'use client';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ImageSafe from './ImageSafe';
-import { brands as brandsAll } from '../lib/products';
 
-const EXCLUDE = new Set(['polus','polus eletrotecnica','polus eletrotécnica']);
-const norm = (s)=> String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+// Arquivos reais no seu /public/marcas (foto que você mandou)
+const HOME_BRANDS = [
+  { label: 'Cifa',            base: 'cifa' },
+  { label: 'HCH',             base: 'hch-logo' },
+  { label: 'IGUI',            base: 'igui' },
+  { label: 'Jacuzzi',         base: 'jacuzzi' },
+  { label: 'JL Capacitores',  base: 'jl-capacitores' },
+  { label: 'Lanc Comercial',  base: 'lanc-comercial' },
+  { label: 'NSK',             base: 'nsk-logo' },
+  { label: 'Solda Cobix',     base: 'solda-cobix' },
+  { label: 'WEG',             base: 'weg' },
+];
 
-function cand(brand) {
-  const base = String(brand || '').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+function cand(base){
   return [
     `/marcas/${base}.webp`,
     `/marcas/${base}.png`,
     `/marcas/${base}.jpg`,
-    `/marcas/${base}-logo.webp`,
-    `/marcas/${base}-logo.png`,
-    `/marcas/${base}-logo.jpg`,
   ];
 }
 
 export default function BrandCarousel(){
-  const logos = useMemo(() => {
-    const uniq = [];
-    for(const b of brandsAll){
-      const n = norm(b);
-      if(!n || EXCLUDE.has(n)) continue;
-      if(!uniq.some(x=> norm(x)===n)) uniq.push(b);
-    }
-    const extras = ['Cifa','JL Capacitores','Jacuzzi','IGUI','Lanc Comercial','Solda Cobix','WEG','NSK','HCH'];
-    for(const e of extras){ if(!uniq.some(x=> norm(x)===norm(e))) uniq.push(e); }
-    return uniq;
-  }, []);
-
   const ref = useRef(null);
   const [paused, setPaused] = useState(false);
 
@@ -53,7 +44,7 @@ export default function BrandCarousel(){
     return ()=> cancelAnimationFrame(raf);
   },[paused]);
 
-  const items = [...logos, ...logos];
+  const items = [...HOME_BRANDS, ...HOME_BRANDS];
 
   return (
     <section className="py-8">
@@ -63,9 +54,9 @@ export default function BrandCarousel(){
 
       <div className="overflow-hidden" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
         <div ref={ref} className="flex items-center gap-16 sm:gap-20 md:gap-24 will-change-transform">
-          {items.map((name,i)=> (
-            <div key={i} className="h-28 sm:h-32 md:h-36 lg:h-40 w-auto brand-logo">
-              <ImageSafe srcs={cand(name)} alt={name} className="h-full w-auto object-contain" type="brand" />
+          {items.map((it,i)=> (
+            <div key={i} className="h-28 sm:h-32 md:h-36 lg:h-40 w-auto brand-logo" title={it.label}>
+              <ImageSafe srcs={cand(it.base)} alt={it.label} className="h-full w-auto object-contain" type="brand" />
             </div>
           ))}
         </div>

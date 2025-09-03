@@ -29,6 +29,8 @@ function pageNumbers(cur, total){
   return arr;
 }
 
+function scrollTopSmooth(){ try{ window.scrollTo({ top: 0, behavior: 'smooth' }); }catch{ window.scrollTo(0,0); } }
+
 export default function ProductListPageClient(){
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -42,8 +44,11 @@ export default function ProductListPageClient(){
   const marca = searchParams.get('marca') || '';
   const cat   = searchParams.get('cat')   || '';
   const sub   = searchParams.get('sub')   || '';
-  const ord   = (searchParams.get('ord') || 'rand'); // <- misturar por padrão
+  const ord   = (searchParams.get('ord') || 'rand');
   const page  = parseInt(searchParams.get('page') || '1', 10);
+
+  // sobe ao topo quando o número da página muda
+  useEffect(()=>{ scrollTopSmooth(); }, [page, pathname]);
 
   const tree = useMemo(()=> buildTree(products), []);
   const filtered = useMemo(()=>{
@@ -73,6 +78,8 @@ export default function ProductListPageClient(){
     if(value) sp.set(key, value); else sp.delete(key);
     if(resetPage) sp.set('page','1');
     router.push(`${pathname}?${sp.toString()}`);
+    // sobe imediatamente para o topo
+    scrollTopSmooth();
   }
 
   return (
