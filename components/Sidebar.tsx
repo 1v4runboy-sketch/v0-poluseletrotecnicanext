@@ -22,6 +22,7 @@ export default function Sidebar({ open, setOpen }:{
   const router = useRouter();
   const tree = buildTree();
   const brandList = brands.filter(b => !['polus','polus eletrotecnica','polus eletrotécnica'].includes(norm(b)));
+  const go = (url:string)=>{ setOpen(false); router.push(url); };
 
   // ESC
   useEffect(()=>{
@@ -39,7 +40,7 @@ export default function Sidebar({ open, setOpen }:{
     }
   },[open]);
 
-  // swipe para fechar
+  // swipe
   const panelRef = useRef<HTMLDivElement|null>(null);
   useEffect(()=>{
     if(!open) return;
@@ -54,9 +55,7 @@ export default function Sidebar({ open, setOpen }:{
     return ()=>{ el?.removeEventListener('touchstart', onStart); el?.removeEventListener('touchmove', onMove); el?.removeEventListener('touchend', onEnd); };
   },[open, setOpen]);
 
-  const go = (url:string)=>{ setOpen(false); router.push(url); };
-
-  // Inline essentials para garantir overlay (mesmo sem CSS carregado)
+  // Essentials inline (garante overlay mesmo sem CSS)
   const overlay: React.CSSProperties = { position:'fixed', inset:'0', zIndex:100000, pointerEvents: open?'auto':'none' };
   const mask: React.CSSProperties    = { position:'absolute', inset:'0', background:'rgba(0,0,0,.45)', opacity: open?1:0, transition:'opacity .25s cubic-bezier(.2,.8,.2,1)' };
   const panel: React.CSSProperties   = {

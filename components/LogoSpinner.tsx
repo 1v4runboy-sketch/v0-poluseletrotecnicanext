@@ -3,10 +3,8 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 /**
- * Aceleração fluida SEM reset:
- * - angleRef: acumula posição
- * - speedRef/targetRef: aceleração com lerp
- * Verso correto: scaleX(-1) rotateY(180deg)  (ordem importa!)
+ * Giro contínuo (rAF) + aceleração fluida no hover sem reset.
+ * Verso idêntico: scaleX(-1) rotateY(180deg)  (ordem importa!)
  */
 export default function LogoSpinner(){
   const router = useRouter();
@@ -15,9 +13,9 @@ export default function LogoSpinner(){
   const shellRef = useRef<HTMLDivElement|null>(null);
   const coreRef  = useRef<HTMLDivElement|null>(null);
 
-  const angleRef  = useRef(0);      // graus acumulados
+  const angleRef  = useRef(0);      // posição acumulada em graus
   const speedRef  = useRef(40);     // deg/s atual
-  const targetRef = useRef(40);     // alvo (40 normal; 120 no hover)
+  const targetRef = useRef(40);     // 40 normal, 120 hover
   const hoverRef  = useRef(false);  // estado de hover
   const runningRef= useRef(false);
 
@@ -31,20 +29,17 @@ export default function LogoSpinner(){
 
     const loop = (now: number)=>{
       const dt = (now - last) / 1000; last = now;
-
-      // target por hover; nunca zera ângulo
       targetRef.current = hoverRef.current ? 120 : 40;
       speedRef.current  = lerp(speedRef.current, targetRef.current, Math.min(1, dt*6));
       angleRef.current  = (angleRef.current + speedRef.current * dt) % 360;
 
-      const shell = shellRef.current;
+      const shell = shellRef.current, core = coreRef.current;
       if (shell) shell.style.transform = `rotateY(${angleRef.current}deg)`;
-
-      const core  = coreRef.current;
       if (core)  core.style.transform  = `scale(${hoverRef.current ? 1.02 : 1})`;
 
       raf = requestAnimationFrame(loop);
     };
+
     raf = requestAnimationFrame(loop);
     return ()=> cancelAnimationFrame(raf);
   },[]);
@@ -69,7 +64,7 @@ export default function LogoSpinner(){
           className="absolute inset-0 w-full h-full object-contain"
           style={{ backfaceVisibility:'hidden' }}
         />
-        {/* Verso NÃO espelhado: aplicar depois do rotateY => escrever 'scaleX(-1) rotateY(180deg)' */}
+        {/* Verso NÃO espelhado: aplicar scaleX antes do rotateY (ordem à esquerda executa por último) */}
         <img
           src="/polus-logo.svg"
           alt=""
