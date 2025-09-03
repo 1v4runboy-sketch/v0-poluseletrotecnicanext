@@ -1,87 +1,59 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useMemo } from 'react';
 
-const BRANDS = [
-  { label: 'Cifa',            src: '/marcas/cifa.webp' },
-  { label: 'HCH',             src: '/marcas/hch-logo.webp' },
-  { label: 'IGUI',            src: '/marcas/igui.webp' },
-  { label: 'Jacuzzi',         src: '/marcas/jacuzzi.webp' },
-  { label: 'JL Capacitores',  src: '/marcas/jl-capacitores.webp' },
-  { label: 'Lanc Comercial',  src: '/marcas/lanc-comercial.webp' },
-  { label: 'NSK',             src: '/marcas/nsk-logo.webp' },
-  { label: 'Solda Cobix',     src: '/marcas/solda-cobix.webp' },
-  { label: 'WEG',             src: '/marcas/weg.webp' },
-  { label: 'Tramar',          src: '/marcas/tramar.webp' },
-  { label: 'Cofibam',         src: '/marcas/cofibam.webp' },
+type Brand = { name: string; src: string; alt?: string };
+
+type Props = {
+  brands?: Brand[];
+  duplicate?: number; // quantas duplicações para scroll infinito
+};
+
+const DEFAULT_BRANDS: Brand[] = [
+  { name: 'WEG', src: '/images/brands/weg.png' },
+  { name: 'JACUZZI', src: '/images/brands/jacuzzi.png' },
+  { name: 'CIFA', src: '/images/brands/cifa.png' },
+  { name: 'COFIBAM', src: '/images/brands/distribuidor-cabos-cofibam-sp-removebg-preview.webp' },
+  { name: 'TRAMAR', src: '/images/brands/logo_2x-removebg-preview.webp' },
 ];
 
-export default function BrandCarousel(){
-  const trackRef = useRef<HTMLDivElement|null>(null);
-  const pausedRef = useRef(false);
-  const widthRef  = useRef(0);
-  const xRef      = useRef(0);
-  const rafRef    = useRef<number| null>(null);
-
-  useEffect(()=>{
-    const measure = ()=>{
-      const el = trackRef.current?.querySelector<HTMLDivElement>('.brand-seq');
-      widthRef.current = el?.scrollWidth || 0;
-    };
-    measure();
-    const ro = trackRef.current ? new ResizeObserver(measure) : null;
-    if (trackRef.current && ro) ro.observe(trackRef.current);
-    window.addEventListener('resize', measure, { passive:true });
-    return ()=>{ window.removeEventListener('resize', measure); ro?.disconnect(); };
-  },[]);
-
-  useEffect(()=>{
-    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if(m.matches) return;
-    let last = performance.now();
-
-    const loop = (now:number)=>{
-      const el = trackRef.current, cw = widthRef.current;
-      const dt = (now - last)/1000; last = now;
-      if(el && cw>0 && !pausedRef.current){
-        xRef.current -= 0.45 * (dt*60);
-        if (xRef.current <= -cw) xRef.current += cw;
-        el.style.transform = `translateX(${xRef.current}px)`;
-      }
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-    return ()=> { if(rafRef.current) cancelAnimationFrame(rafRef.current); };
-  },[]);
-
-  const onEnter = ()=> (pausedRef.current = true);
-  const onLeave = ()=> (pausedRef.current = false);
-
-  const items = [...BRANDS, ...BRANDS];
+export default function BrandCarousel({ brands = DEFAULT_BRANDS, duplicate = 2 }: Props){
+  const list = useMemo(() => Array.from({length: duplicate}).flatMap(() => brands), [brands, duplicate]);
 
   return (
-    <section className="py-8 brand-tape-sm">
-      <h2 className="text-center text-xs sm:text-sm tracking-[0.3em] text-slate-600 dark:text-slate-300 mb-6">
-        MARCAS QUE TRABALHAMOS
-      </h2>
-
-      <div className="brand-viewport" onMouseEnter={onEnter} onMouseLeave={onLeave}>
-        <div ref={trackRef} className="brand-track">
-          <div className="brand-seq" style={{flex:'0 0 auto'}}>
-            {items.slice(0, BRANDS.length).map((b,i)=>(
-              <div key={`a-${i}`} className="brand-cell">
-                <img src={b.src} alt={b.label} className="brand-logo-item" loading="lazy" decoding="async" />
+    <div className="brand-tape-sm">
+      <div className="brand-viewport">
+        <div className="brand-scroller">
+          {/* bloco 1 */}
+          <div className="brand-seq">
+            {list.map((b, i) => (
+              <div className="brand-cell" key={`b1-${b.name}-${i}`}>
+                <Image
+                  className="brand-logo-item"
+                  src={b.src}
+                  alt={b.alt ?? b.name}
+                  width={150} height={40}
+                  loading="lazy"
+                />
               </div>
             ))}
           </div>
-          <div className="brand-seq" style={{flex:'0 0 auto'}} aria-hidden>
-            {items.slice(BRANDS.length).map((b,i)=>(
-              <div key={`b-${i}`} className="brand-cell">
-                <img src={b.src} alt="" className="brand-logo-item" loading="lazy" decoding="async" />
+          {/* bloco 2 (duplica pra infinito) */}
+          <div className="brand-seq">
+            {list.map((b, i) => (
+              <div className="brand-cell" key={`b2-${b.name}-${i}`}>
+                <Image
+                  className="brand-logo-item"
+                  src={b.src}
+                  alt={b.alt ?? b.name}
+                  width={150} height={40}
+                  loading="lazy"
+                />
               </div>
             ))}
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

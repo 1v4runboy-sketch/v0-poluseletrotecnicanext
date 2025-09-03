@@ -11,14 +11,29 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        weg: '#0A6CB2',
+        // paleta atualizada (sem lightBlue/trueGray/blueGray)
         slate: colors.slate,
         gray: colors.gray,
         neutral: colors.neutral,
         stone: colors.stone,
         sky: colors.sky,
-        indigo: colors.indigo,
         emerald: colors.emerald,
+        indigo: colors.indigo,
+        weg: '#0A6CB2',
+      },
+      zIndex: {
+        max: '2147483647',
+        overlay: '99999',
+        sidebar: '100000',
+        search: '110000',
+        header: '60',
+      },
+      boxShadow: {
+        elev1: '0 6px 24px rgba(0,0,0,.06)',
+        elev2: '0 12px 40px rgba(0,0,0,.12)',
+      },
+      borderRadius: {
+        xl2: '1rem',
       },
     },
   },
