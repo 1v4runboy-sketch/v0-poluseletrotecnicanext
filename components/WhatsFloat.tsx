@@ -1,8 +1,6 @@
 'use client';
 
-type Props = { href: string; label?: string };
-
-export default function WhatsFloat({ href, label = 'Whatsapp' }: Props){
+export default function WhatsFloat({ href, label='Whatsapp' }:{ href:string; label?:string }){
   return (
     <a
       href={href}
@@ -37,8 +35,7 @@ export default function WhatsFloat({ href, label = 'Whatsapp' }: Props){
         .waSign{ width:100%; display:flex; align-items:center; justify-content:center; transition: width .3s ease, padding-left .3s ease; }
         .waSvg{ width:25px; height:25px; display:block; }
         .waText{
-          position:absolute; right:0; width:0%; opacity:0; color:#fff;
-          font-size:1.1rem; font-weight:700; line-height:1; white-space:nowrap;
+          position:absolute; right:0; width:0%; opacity:0; color:#fff; font-size:1.1rem; font-weight:700; line-height:1; white-space:nowrap;
           transition: width .3s ease, opacity .3s ease, padding-right .3s ease;
         }
         .waBtn:hover{ width:150px; border-radius:40px; }

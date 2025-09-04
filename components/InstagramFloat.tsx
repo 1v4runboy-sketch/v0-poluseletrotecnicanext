@@ -1,8 +1,6 @@
 'use client';
 
-type Props = { href: string };
-
-export default function InstagramFloat({ href }: Props){
+export default function InstagramFloat({ href }:{ href:string }){
   return (
     <a
       href={href}
