@@ -1,38 +1,36 @@
 import './globals.css';
-import ThemeProvider from '@/components/ThemeProvider';
-import Starfield from '@/components/Starfield';
-import CursorTrail from '@/components/CursorTrail';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import WhatsFloat from '@/components/WhatsFloat';
-import BackToTop from '@/components/BackToTop';
-import MiniCartDrawer from '@/components/MiniCartDrawer';
-import ScrollTop from '@/components/ScrollTop';
+import InstagramFloat from '@/components/InstagramFloat';
+import { whatsappHref, SITE } from '@/lib/site';
 
 export const metadata = {
-  title: 'Polus Eletrotécnica — Catálogo Técnico',
-  description: "Catálogo técnico de peças para motores elétricos e bombas d'água.",
-  generator: 'polus',
+  title: 'Polus Eletrotécnica — Catálogo',
+  description: 'Catálogo técnico de produtos',
+    generator: 'v0.app'
 };
 
-export default function RootLayout({ children }){
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className="min-h-screen">
-        <ThemeProvider>
-          <ScrollTop />
-          <Header />
-          {/* Sidebar é controlada pelo Header */}
-          <MiniCartDrawer />
+      <body>
+        {/* Header simples (fixo) */}
+        <header className="header-hero">
+          <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/polus-logo.svg" alt="Polus" className="h-7 w-auto" />
+              <span className="text-sm font-semibold opacity-80">Polus Eletrotécnica</span>
+            </div>
+          </div>
+        </header>
 
-          <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+        {/* Conteúdo */}
+        <main className="hero-wrap">
+          {children}
+        </main>
 
-          <Footer />
-          <WhatsFloat />
-          <BackToTop />
-          <CursorTrail />
-          <Starfield />
-        </ThemeProvider>
+        {/* Flutuantes (Instagram acima / WhatsApp abaixo) */}
+        <InstagramFloat href={SITE?.instagram || 'https://www.instagram.com/'} />
+        <WhatsFloat href={whatsappHref()} />
       </body>
     </html>
   );
