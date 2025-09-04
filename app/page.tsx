@@ -18,7 +18,6 @@ export default function Page() {
           </p>
         </header>
 
-        {/* Grade de produtos (client) */}
         <ProductListPageClient />
       </section>
     </main>
