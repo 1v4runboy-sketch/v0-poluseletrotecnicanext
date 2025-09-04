@@ -1,19 +1,26 @@
-'use client';
-import WhatsButton from '@/components/WhatsButton';
-import { whatsappHref } from '@/lib/site';
+import ProductListPageClient from '@/components/ProductListPageClient';
 
-/**
- * CTA de WhatsApp na Home (centralizado, logo abaixo do herói)
- */
-export default function HomeWhatsCTA(){
+export const metadata = {
+  title: 'Polus Eletrotécnica — Catálogo',
+  description: 'Lista de produtos do catálogo técnico',
+};
+
+export default function Page() {
   return (
-    <section className="w-full flex items-center justify-center py-5">
-      <div className="flex flex-col items-center gap-2">
-        <WhatsButton href={whatsappHref()} text="Whatsapp" />
-        <p className="text-xs text-slate-600 dark:text-slate-400">
-          Fale agora com um especialista
-        </p>
-      </div>
-    </section>
+    <main>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <header className="mb-4">
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            Catálogo de Produtos
+          </h1>
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Use a busca e os filtros para encontrar rapidamente.
+          </p>
+        </header>
+
+        {/* Grade de produtos (client) */}
+        <ProductListPageClient />
+      </section>
+    </main>
   );
 }

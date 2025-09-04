@@ -2,230 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =================== TOKENS / THEME =================== */
+/* ===== tokens mínimos ===== */
 :root{
-  --radius: 16px;
   --hairline-light: rgba(0,0,0,.10);
   --hairline-dark: rgba(255,255,255,.10);
-  --elev-1: 0 6px 24px rgba(0,0,0,.06);
-  --elev-2: 0 12px 40px rgba(0,0,0,.12);
-  --hero-color: rgba(12,20,36,0.55);
-  --motion-fast: 160ms;
-  --motion-base: 240ms;
-  --bezier: cubic-bezier(.2,.8,.2,1);
-
-  --bg: #f6f8fc;  --fg: #0f172a;  --card: rgba(255,255,255,.96);  --muted: #334155;
-  --bg-dark:#070a14; --fg-dark:#e5e7eb; --card-dark: rgba(255,255,255,.06); --muted-dark:#94a3b8;
 }
 
 @layer base{
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { height:100%; }
-  img, svg, video, canvas { display:block; max-width:100%; }
-
+  html, body { height: 100%; }
   body{
-    color: var(--fg);
-    background: linear-gradient(180deg, var(--bg), #eaf0ff);
-    text-rendering: optimizeLegibility;
+    color: #0f172a; /* slate-900 */
+    background: #f6f8fc;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   .dark body{
-    color: var(--fg-dark);
+    color: #e5e7eb; /* slate-200 */
     background: radial-gradient(1200px 600px at 50% 0%, #0a0b2e, #040517 60%, #020316 100%);
   }
 
-  a:focus-visible, button:focus-visible, input:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59,130,246,.55);
-    border-radius: 8px;
-  }
-
-  h1{ @apply text-2xl md:text-3xl font-semibold; color: var(--fg); }
-  h2{ @apply text-xl  md:text-2xl  font-semibold; color: var(--fg); }
-  h3{ @apply text-lg  md:text-xl   font-semibold; color: var(--fg); }
+  h1{ @apply text-xl md:text-2xl font-semibold; }
+  h2{ @apply text-lg md:text-xl font-semibold; }
+  h3{ @apply text-base md:text-lg font-semibold; }
 }
 
-/* Cursor imagem (se quiser trocar o png, mantenha o caminho) */
+/* ===== Cursor imagem (garanta /public/loading-logo.png) ===== */
 body{ cursor: url('/loading-logo.png'), auto; }
 
-/* =================== HEADER / HERO =================== */
-/* ⛔️ SEM @apply aqui — evita o bug “z-[60]backdrop…” */
+/* ===== Header fixo (SEM @apply colado!) ===== */
 .header-hero{
   position: sticky;
   top: 0;
-  z-index: 60;
+  z-index: 60;                 /* equivalente a z-[60] */
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  background: color-mix(in oklab, var(--hero-color) 36%, transparent);
+  background: rgba(255,255,255,.6);
   box-shadow: 0 0 0 1px var(--hairline-light) inset;
 }
-.hero-wrap{ position: relative; z-index: 0; }
-.catalog-wrap{ position: relative; z-index: 2; }
 
-/* =================== CARTÕES =================== */
+/* ===== Cartões básicos ===== */
 .card-modern{
-  border-radius: 1rem; /* 16px */
-  padding: 1rem;
-  background: var(--card);
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
   border: 1px solid var(--hairline-light);
-  box-shadow: var(--elev-1);
-  transition: transform .2s var(--bezier), box-shadow .3s var(--bezier), background .3s var(--bezier), border-color .3s;
+  transition: transform .2s ease, box-shadow .3s ease;
 }
+.card-modern:hover{ transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
+
 .dark .card-modern{
-  background: var(--card-dark);
+  background: rgba(255,255,255,.06);
   border-color: var(--hairline-dark);
   box-shadow: 0 8px 28px rgba(0,0,0,.35);
 }
-.card-modern:hover{ transform: translateY(-2px); box-shadow: var(--elev-2); }
 
-/* =================== CHIPS =================== */
+/* ===== Chips ===== */
 .chip{
-  display:inline-flex; align-items:center; gap:.5rem; padding:.375rem .75rem; border-radius: .75rem;
-  font-size: .75rem; font-weight: 600; transition: all .2s var(--bezier);
-  background: rgba(0,0,0,.04); border: 1px solid rgba(0,0,0,.08); color: var(--fg);
-}
-.chip:hover{ background: rgba(0,0,0,.06); }
-.dark .chip{
-  background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.10); color: var(--fg-dark);
-}
-.dark .chip:hover{ background: rgba(255,255,255,.10); }
-
-/* =================== BRAND TAPE (Home - logos menores e sem reset) =================== */
-.brand-tape-sm{ position: relative; z-index: 1; --brand-h: 26px; --brand-w: 120px; --brand-gap: 1.2rem; }
-@media (min-width: 640px){ .brand-tape-sm{ --brand-h: 28px; --brand-w: 130px; --brand-gap: 1.6rem; } }
-@media (min-width: 768px){ .brand-tape-sm{ --brand-h: 30px; --brand-w: 140px; --brand-gap: 2rem; } }
-@media (min-width: 1024px){ .brand-tape-sm{ --brand-h: 32px; --brand-w: 150px; --brand-gap: 2.2rem; } }
-
-.brand-viewport{ position: relative; z-index: 1; overflow:hidden; }
-.brand-track{ display:flex; will-change: transform; pointer-events: none; }
-.brand-seq{ display:flex; align-items:center; gap: var(--brand-gap); padding: 0 var(--brand-gap); }
-.brand-cell{ flex: 0 0 auto; display:flex; align-items:center; justify-content:center; line-height:0; pointer-events: auto; }
-.brand-logo-item{
-  display:block; width:auto; height: var(--brand-h); max-width: var(--brand-w); object-fit: contain;
-  image-rendering: auto; filter: drop-shadow(0 3px 10px rgba(10,108,178,.16)); opacity:.98;
-  transition: transform .16s ease, filter .16s ease, opacity .16s ease; will-change: transform;
-}
-.brand-logo-item:hover{ transform: translateY(-1px) scale(1.035); filter: drop-shadow(0 5px 16px rgba(10,108,178,.24)); opacity: 1; }
-
-/* ===== Scroll infinito sem reset (pausa no hover) ===== */
-.brand-scroller{
-  --speed: 30s; /* ajuste global de velocidade */
-  display:flex; width: max-content; animation: brandScroll var(--speed) linear infinite;
-  animation-play-state: var(--play, running);
-}
-.brand-scroller:hover{ --play: paused; }
-@keyframes brandScroll{
-  0%{ transform: translateX(0); }
-  100%{ transform: translateX(-50%); }
+  display:inline-flex; align-items:center; gap:.5rem; padding:.375rem .75rem; border-radius: 12px;
+  font-size: .75rem; font-weight: 700;
+  background: rgba(0,0,0,.05);
+  border: 1px solid rgba(0,0,0,.07);
 }
 
-/* =================== CURSOR – rastro estrela =================== */
-.cursor-trail-star{
-  position: fixed; width: 8px; height: 8px; pointer-events: none; transform: translate(-50%,-50%);
-  background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,.85) 35%, rgba(255,255,255,0) 70%);
-  border-radius: 999px;
-  box-shadow: 0 0 10px rgba(255,255,255,.9), 0 0 18px rgba(255,255,255,.7), 0 0 30px rgba(160,210,255,.35);
-  animation: starFade .7s ease-out forwards; z-index: 200000;
-}
-@keyframes starFade{ 0%{opacity:1; transform: translate(-50%,-50%) scale(1);} 70%{opacity:.6; transform: translate(-50%,-50%) scale(1.8);} 100%{opacity:0; transform: translate(-50%,-50%) scale(2.6);} }
-
-/* =================== SIDEBAR =================== */
-.sidebar-backdrop{ position: fixed; inset: 0; z-index: 100000; pointer-events: none; }
-.sidebar-backdrop.sb-open{ pointer-events: auto; }
-.sidebar-mask{ position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .25s var(--bezier); }
-.sb-open .sidebar-mask{ opacity: 1; }
-
-.sidebar-panel{
-  position: absolute; left: 0; top: 0; bottom: 0; width: 88vw; max-width: 360px; padding: 20px; overflow: auto;
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78)); backdrop-filter: blur(14px);
-  border-right: 1px solid rgba(0,0,0,.06); transform: translateX(-100%); transition: transform .28s var(--bezier), box-shadow .28s var(--bezier);
-  box-shadow: 0 10px 50px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.35); border-radius: 0 18px 18px 0;
-}
-.dark .sidebar-panel{
-  background: linear-gradient(180deg, rgba(4,7,20,.86), rgba(9,14,30,.82)); border-right: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 10px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
-}
-.sb-in{ transform: translateX(0); }
-
-.sidebar-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; }
-.sidebar-close{ border-radius: 12px; padding: .5rem .75rem; background: rgba(0,0,0,.06); color:#111; transition: transform .15s var(--bezier), background .2s var(--bezier); }
-.dark .sidebar-close{ background: rgba(255,255,255,.08); color:#fff; }
-.sidebar-close:hover{ transform: translateY(-1px); }
-
-.sidebar-section{ margin-top: 16px; }
-.sidebar-title{ font-size: .875rem; font-weight: 700; margin-bottom: .5rem; opacity:.8; color: var(--muted); }
-.dark .sidebar-title{ color: var(--muted-dark); }
-
-.sidebar-link{ width:100%; text-align:left; padding:.5rem .75rem; border-radius: 12px; font-weight: 600;
-  background: rgba(0,0,0,.04); transition: transform .15s var(--bezier), background .2s var(--bezier); }
-.dark .sidebar-link{ background: rgba(255,255,255,.06); }
-.sidebar-link:hover{ transform: translateY(-1px); background: rgba(0,0,0,.06); }
-.dark .sidebar-link:hover{ background: rgba(255,255,255,.10); }
-
-.sidebar-chip{ display:inline-flex; align-items:center; gap:.5rem; padding:.375rem .75rem; border-radius: 12px; font-size:.75rem; font-weight:700;
-  background: rgba(0,0,0,.05); border: 1px solid rgba(0,0,0,.07); transition: transform .12s var(--bezier), box-shadow .2s var(--bezier), background .2s var(--bezier); }
-.dark .sidebar-chip{ background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.10); }
-.sidebar-chip:hover{ transform: translateY(-1px); }
-.hover-glow:hover{ box-shadow: 0 8px 24px rgba(10,108,178,.35); }
-
-/* =================== SEARCH OVERLAY (acima do vídeo) =================== */
-.search-overlay{
-  position: fixed; inset: 0; z-index: 110000; display:none;
-}
-.search-overlay.open{ display:block; }
-.search-panel{
-  position:absolute; left:50%; top:10%; transform: translateX(-50%); width:min(880px, 92vw);
-  background: rgba(255,255,255,.95); backdrop-filter: blur(10px);
-  border:1px solid rgba(0,0,0,.08); border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.25);
-  padding:16px;
-}
-.dark .search-panel{
-  background: rgba(10,14,28,.88); border-color: rgba(255,255,255,.12); box-shadow: 0 30px 100px rgba(0,0,0,.5);
-}
-
-/* =================== BOTÃO WHATSAPP (Uiverse) =================== */
-.Btn {
-  display: flex; align-items: center; justify-content: flex-start;
-  width: 45px; height: 45px;
-  border: none; border-radius: 50%;
-  cursor: pointer; position: relative; overflow: hidden;
-  transition-duration: 0.3s;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
-  background-color: #00d757;
-}
-.sign{ width: 100%; transition-duration: 0.3s; display:flex; align-items:center; justify-content:center; }
-.sign svg{ width: 25px; }
-.sign svg path{ fill:#fff; }
-.Btn .text{ position:absolute; right:0; width:0%; opacity:0; color:#fff; font-size:1.05rem; font-weight:700; transition-duration:.3s; }
-.Btn:hover{ width: 160px; border-radius: 40px; transition-duration:0.3s; }
-.Btn:hover .sign{ width:32%; padding-left:8px; transition-duration:0.3s; }
-.Btn:hover .text{ opacity:1; width:68%; padding-right:10px; transition-duration:0.3s; }
-.Btn:active{ transform: translate(2px,2px); }
-
-/* =================== BOTÃO INSTAGRAM (Uiverse) =================== */
-.ig-tooltip-container{ position: relative; cursor: pointer; transition: all .2s; font-size: 16px; border-radius: 10px; }
-.ig-tooltip{
-  position:absolute; top:0; left:50%; transform: translateX(-50%); padding:10px; opacity:0; pointer-events:none; transition: all .3s;
-  border-radius: 15px; box-shadow: inset 5px 5px 5px rgba(0,0,0,.2), inset -5px -5px 15px rgba(255,255,255,.1), 5px 5px 15px rgba(0,0,0,.3), -5px -5px 15px rgba(255,255,255,.1);
-}
-.ig-profile{ background:#2a2b2f; border-radius: 10px 15px; padding:10px; border:1px solid #52382f; }
-.ig-tooltip-container:hover .ig-tooltip{ top:-150px; opacity:1; visibility: visible; pointer-events: auto; }
-.ig-icon{ text-decoration: none; color:#fff; display:block; position: relative; }
-.ig-layer{ width:55px; height:55px; transition: transform .3s; }
-.ig-icon:hover .ig-layer{ transform: rotate(-35deg) skew(20deg); }
-.ig-layer span{ position:absolute; inset:0; border:1px solid #e6683c; border-radius: 15px; transition: all .3s; }
-.ig-icon .ig-text{ position:absolute; left:50%; bottom:-5px; transform: translateX(-50%); opacity:0; font-weight:700; transition: bottom .3s ease, opacity .3s ease; color:#e6683c; }
-.ig-icon:hover .ig-text{ bottom:-35px; opacity:1; }
-.ig-icon:hover .ig-layer span:nth-child(1){ opacity:.2; }
-.ig-icon:hover .ig-layer span:nth-child(2){ opacity:.4; transform: translate(5px, -5px); }
-.ig-icon:hover .ig-layer span:nth-child(3){ opacity:.6; transform: translate(10px, -10px); }
-.ig-icon:hover .ig-layer span:nth-child(4){ opacity:.8; transform: translate(15px, -15px); }
-.ig-layer .instagramSVG{
-  font-size: 25px; display:flex; align-items:center; justify-content:center;
-  background: linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
-}
-
-/* =================== FLOATERS (fixos canto inferior esquerdo) =================== */
-.float-stack{
-  position: fixed; left: 14px; bottom: 14px; z-index: 99999; display:flex; flex-direction: column; gap: 12px;
+/* ===== Hotfix opcional caso ainda exista algum @apply colado em outro arquivo ===== */
+@layer utilities{
+  .z-\[60\]backdrop-blur-md{
+    z-index: 60;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
 }
