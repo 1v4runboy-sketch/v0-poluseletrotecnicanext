@@ -11,7 +11,7 @@ export default function ClientPortal({ children }:{ children: React.ReactNode })
     const el = elRef.current!;
     document.body.appendChild(el);
     setMounted(true);
-    return ()=> { try{ document.body.removeChild(el) }catch{} };
+    return ()=>{ try{ document.body.removeChild(el) }catch{} };
   },[]);
   if(!mounted) return null;
   return createPortal(children, elRef.current!);
