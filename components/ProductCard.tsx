@@ -1,43 +1,88 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import * as SITEUTIL from '@/lib/site';
 
-function toSrc(img:any){ if(!img) return ''; return typeof img==='string' ? img : (img.src||''); }
-function brandLogoFor(brand:any){
-  const b = String(brand||'').toUpperCase();
-  const map:Record<string,string> = {
-    'WEG':'/marcas/weg.webp','NSK':'/marcas/nsk-logo.webp','HCH':'/marcas/hch-logo.webp',
-    'JL CAPACITORES':'/marcas/jl-capacitores.webp','LANC COMERCIAL':'/marcas/lanc-comercial.webp',
-    'CIFA':'/marcas/cifa.webp','IGUI':'/marcas/igui.webp','JACUZZI':'/marcas/jacuzzi.webp',
-    'TRAMAR':'/marcas/tramar.webp','COFIBAM':'/marcas/cofibam.webp',
-  };
-  return map[b];
+// Mapeamento de logos de marcas
+const BRAND_LOGOS = {
+  'WEG': '/marcas/weg.webp',
+  'NSK': '/marcas/nsk-logo.webp',
+  'HCH': '/marcas/hch-logo.webp',
+  'JL CAPACITORES': '/marcas/jl-capacitores.webp',
+  'LANC COMERCIAL': '/marcas/lanc-comercial.webp',
+  'CIFA': '/marcas/cifa.webp',
+  'IGUI': '/marcas/igui.webp',
+  'JACUZZI': '/marcas/jacuzzi.webp',
+  'TRAMAR': '/marcas/tramar.webp',
+  'COFIBAM': '/marcas/cofibam.webp',
+};
+
+function brandLogoFor(brand) {
+  const key = String(brand || '').trim().toUpperCase();
+  return BRAND_LOGOS[key] || '/polus-logo.svg';
 }
 
-export default function ProductCard({ product }:{product:any}) {
-  const cover = toSrc(product?.images?.[0]) || `/produtos/${product?.slug||'placeholder'}.webp`;
-  const logo  = product?.brandLogo || brandLogoFor(product?.brand);
+export default function ProductCard({
+  product,
+  titleDisplay,
+  imgSrc,
+  imgAlt,
+  brand,
+  onOpen,
+}) {
+  const router = useRouter();
+  const open = () => onOpen?.();
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm hover:shadow-lg transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)] hover:-translate-y-0.5">
-      <Link href={`/produto/${product.slug}`} className="block">
-        <div className="relative w-full aspect-[4/3] overflow-hidden rounded-t-2xl bg-white dark:bg-slate-900">
-          <img src={cover} alt={product.title||''} className="w-full h-full object-contain" loading="lazy" decoding="async" />
-          {logo && <img src={logo} alt={product.brand||''} className="absolute left-2 top-2 h-[22px] w-auto object-contain bg-white/90 dark:bg-black/60 rounded-md p-1" />}
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={open}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && open()}
+      className="group relative rounded-xl border border-slate-200 bg-white hover:shadow-md transition overflow-hidden cursor-pointer"
+    >
+      <div className="relative aspect-[4/3] bg-slate-100">
+        {/* Logo da marca no canto */}
+        <div className="absolute left-2 top-2 z-[2] bg-white/90 rounded-md border border-slate-200 px-2 py-1">
+          <img
+            src={brandLogoFor(brand)}
+            alt={brand}
+            className="h-5 w-auto object-contain"
+            draggable={false}
+          />
         </div>
-      </Link>
+
+        <img
+          src={imgSrc || '/polus-logo.svg'}
+          alt={imgAlt || titleDisplay || 'Produto'}
+          className="absolute inset-0 w-full h-full object-contain p-3"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
 
       <div className="p-3">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-[11px] font-bold tracking-wide uppercase text-slate-600 dark:text-slate-300">
-            {String(product.brand||'').toUpperCase()}{product.model?` • ${String(product.model).toUpperCase()}`:''}
-          </span>
+        <div className="text-sm md:text-[15px] font-medium text-slate-800 line-clamp-2">
+          {titleDisplay}
         </div>
-        <Link href={`/produto/${product.slug}`} className="block">
-          <h3 className="text-[13px] font-semibold leading-snug text-slate-900 dark:text-slate-100 line-clamp-2">
-            {product.title}
-          </h3>
-        </Link>
+        <div className="mt-3 flex items-center gap-2">
+          <a
+            href={SITEUTIL?.whatsappHref(titleDisplay)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center px-3 py-1.5 text-xs rounded-md bg-emerald-600 text-white hover:bg-emerald-700"
+          >
+            Pedir cotação
+          </a>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); router.push(`/produto/${encodeURIComponent(product.slug)}`); }}
+            className="inline-flex items-center justify-center px-3 py-1.5 text-xs rounded-md border border-slate-300 bg-white hover:bg-slate-50"
+          >
+            Ver detalhes
+          </button>
+        </div>
       </div>
     </div>
   );

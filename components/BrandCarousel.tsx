@@ -1,121 +1,91 @@
 'use client';
-import { useEffect, useRef } from 'react';
 
-/* Ajuste os caminhos conforme seus arquivos em /public/marcas */
-const BRANDS = [
-  { label: 'WEG',             src: '/marcas/weg.webp' },
-  { label: 'NSK',             src: '/marcas/nsk-logo.webp' },
-  { label: 'HCH',             src: '/marcas/hch-logo.webp' },
-  { label: 'JL Capacitores',  src: '/marcas/jl-capacitores.webp' },
-  { label: 'Lanc Comercial',  src: '/marcas/lanc-comercial.webp' },
-  { label: 'Cifa',            src: '/marcas/cifa.webp' },
-  { label: 'IGUI',            src: '/marcas/igui.webp' },
-  { label: 'Jacuzzi',         src: '/marcas/jacuzzi.webp' },
-  { label: 'Tramar',          src: '/marcas/tramar.webp' },
-  { label: 'Cofibam',         src: '/marcas/cofibam.webp' },
-];
+import { useEffect, useRef, useState, useMemo } from 'react';
+
+/**
+ * Mapeamento de logos (com logger).
+ */
+const BRAND_LOGOS = {
+  'WEG': '/marcas/weg.webp',
+  'NSK': '/marcas/nsk-logo.webp',
+  'HCH': '/marcas/hch-logo.webp',
+  'JL CAPACITORES': '/marcas/jl-capacitores.webp',
+  'LANC COMERCIAL': '/marcas/lanc-comercial.webp',
+  'CIFA': '/marcas/cifa.webp',
+  'IGUI': '/marcas/igui.webp',
+  'JACUZZI': '/marcas/jacuzzi.webp',
+  'TRAMAR': '/marcas/tramar.webp',
+  'COFIBAM': '/marcas/cofibam.webp',
+};
 
 export default function BrandCarousel() {
-  const trackRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef(null);
   const pausedRef = useRef(false);
-  const widthRef = useRef(0);
-  const xRef = useRef(0);
-  const rafRef = useRef<number | null>(null);
+  const offsetRef = useRef(0);
+  const rafRef = useRef(0);
+
+  // Definir a sequência base (A) e duplicada (A + B)
+  const brands = useMemo(() => Object.keys(BRAND_LOGOS), []);
+  const items = useMemo(() => [...brands, ...brands], [brands]);
 
   useEffect(() => {
-    const measure = () => {
-      const el = trackRef.current?.querySelector<HTMLDivElement>('.bc-seq');
-      widthRef.current = el?.scrollWidth || 0;
-    };
-    measure();
-    const ro = trackRef.current ? new ResizeObserver(measure) : null;
-    if (trackRef.current && ro) ro.observe(trackRef.current);
-    window.addEventListener('resize', measure, { passive: true });
-    return () => {
-      window.removeEventListener('resize', measure);
-      ro?.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (m.matches) return;
-
     let last = performance.now();
-    const loop = (now: number) => {
-      const el = trackRef.current,
-        cw = widthRef.current;
-      const dt = (now - last) / 1000;
-      last = now;
+    const speed = 0.05; // px/ms
 
-      if (el && cw > 0 && !pausedRef.current) {
-        xRef.current -= 0.38 * (dt * 60); // ~23 px/s
-        if (xRef.current <= -cw) xRef.current += cw;
-        el.style.transform = `translateX(${xRef.current}px)`;
+    const step = (t) => {
+      const dt = t - last;
+      last = t;
+
+      if (!pausedRef.current && trackRef.current) {
+        const track = trackRef.current;
+        const totalWidth = track.scrollWidth / 2; // metade é A
+        offsetRef.current = (offsetRef.current + dt * speed) % totalWidth;
+        track.style.transform = `translateX(${-offsetRef.current}px)`;
       }
-      rafRef.current = requestAnimationFrame(loop);
+      rafRef.current = requestAnimationFrame(step);
     };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
-
-  const onEnter = () => (pausedRef.current = true);
-  const onLeave = () => (pausedRef.current = false);
-
-  const items = [...BRANDS, ...BRANDS];
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 className="text-center text-[15px] sm:text-base font-semibold text-slate-900 dark:text-slate-100 mb-3">
+    <div className="w-full py-6 md:py-8">
+      <h2 className="text-center text-base md:text-lg font-semibold text-slate-800 mb-3">
         Marcas que Trabalhamos
       </h2>
 
-      <div className="overflow-hidden" onMouseEnter={onEnter} onMouseLeave={onLeave}>
-        <div ref={trackRef} className="flex will-change-transform">
-          {/* sequência A */}
-          <div className="bc-seq flex items-center gap-[var(--gap)] px-4" style={{ flex: '0 0 auto' }}>
+      <div
+        className="relative overflow-hidden"
+        onMouseEnter={() => (pausedRef.current = true)}
+        onMouseLeave={() => (pausedRef.current = false)}
+      >
+        <div className="brandstrip" style={{ ['--h']: '30px', ['--gap']: '40px' }}>
+          <div
+            ref={trackRef}
+            className="flex items-center"
+            style={{ gap: 'var(--gap)', willChange: 'transform' }}
+          >
             {items.map((b, i) => (
-              <div key={`a-${i}`} className="flex items-center justify-center" style={{ flex: '0 0 auto' }}>
-                <img src={b.src} alt={b.label} className="bc-logo" loading="lazy" decoding="async" />
-              </div>
-            ))}
-          </div>
-          {/* sequência B (clone) */}
-          <div className="bc-seq flex items-center gap-[var(--gap)] px-4" style={{ flex: '0 0 auto' }} aria-hidden>
-            {items.map((b, i) => (
-              <div key={`b-${i}`} className="flex items-center justify-center" style={{ flex: '0 0 auto' }}>
-                <img src={b.src} alt="" className="bc-logo" loading="lazy" decoding="async" />
+              <div key={`${b}-${i}`} className="shrink-0" style={{ height: 'var(--h)' }}>
+                <img
+                  src={BRAND_LOGOS[b] || '/polus-logo.svg'}
+                  alt={b}
+                  className="h-full w-auto object-contain opacity-90 hover:opacity-100 transition"
+                  draggable={false}
+                />
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* CSS escopado: logos pequenas e responsivas */}
       <style jsx>{`
-        :global(html) { --h: 22px; --w: 110px; --gap: 1.1rem; }
-        @media (min-width: 640px) { :global(html) { --h: 24px; --w: 120px; --gap: 1.4rem; } }
-        @media (min-width: 768px) { :global(html) { --h: 26px; --w: 130px; --gap: 1.7rem; } }
-        @media (min-width: 1024px){ :global(html) { --h: 28px; --w: 140px; --gap: 2.0rem; } }
-
-        .bc-logo{
-          height: var(--h);
-          width: auto;
-          max-width: var(--w);
-          object-fit: contain;
-          filter: drop-shadow(0 3px 10px rgba(10,108,178,.16));
-          opacity: .98;
-          transition: transform .16s ease, filter .16s ease, opacity .16s ease;
-          will-change: transform;
-        }
-        .bc-logo:hover{
-          transform: translateY(-1px) scale(1.035);
-          filter: drop-shadow(0 5px 16px rgba(10,108,178,.24));
-          opacity: 1;
+        .brandstrip { width: 100%; }
+        @media (min-width: 768px) {
+          .brandstrip { --h: 36px; --gap: 48px; }
         }
       `}</style>
-    </section>
+    </div>
   );
 }

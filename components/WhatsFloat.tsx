@@ -1,46 +1,68 @@
 'use client';
 
-export default function WhatsFloat({ href, label='Whatsapp' }:{ href:string; label?:string }){
+import * as SITEUTIL from '@/lib/site';
+
+// Usa número do SITE (compatível com legado)
+const SITE = SITEUTIL?.SITE || {};
+const whatsappHref = SITEUTIL?.whatsappHref || ((t) => `https://wa.me/551135992935?text=${encodeURIComponent('Olá! Gostaria de uma cotação.')}`);
+
+export default function WhatsFloat() {
+  const href = whatsappHref();
+
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="WhatsApp"
-      className="waBtn"
-      title="Falar no WhatsApp"
-      style={{
-        position: 'fixed',
-        left: 'max(14px, env(safe-area-inset-left))',
-        bottom: 'max(14px, calc(env(safe-area-inset-bottom) + 14px))',
-        zIndex: 2147483000,
-      }}
-    >
-      <span className="waSign" aria-hidden>
-        <svg className="waSvg" viewBox="0 0 16 16" width="16" height="16">
-          <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+    <a href={href} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="whats-wrap">
+      <span className="whats">
+        <svg viewBox="0 0 32 32" className="icon" aria-hidden="true">
+          <path d="M19.11 17.37c-.26-.13-1.52-.75-1.75-.83-.24-.09-.41-.13-.58.13-.17.25-.66.83-.81 1-.15.17-.3.19-.56.06-.26-.13-1.1-.41-2.11-1.31-.78-.7-1.31-1.57-1.46-1.83-.15-.26-.02-.4.11-.53.11-.11.26-.3.39-.45.13-.15.17-.26.26-.43.09-.17.04-.32-.02-.45-.06-.13-.58-1.4-.8-1.92-.21-.5-.43-.43-.58-.44l-.5-.01c-.17 0-.45.06-.68.32-.23.26-.89.86-.89 2.09s.92 2.43 1.05 2.6c.13.17 1.82 2.78 4.42 3.9.62.27 1.11.43 1.49.55.63.2 1.2.17 1.65.1.5-.08 1.52-.62 1.73-1.22.21-.6.21-1.11.15-1.22-.06-.11-.23-.17-.49-.3zM16.03 2.67C8.65 2.67 2.67 8.66 2.67 16.03c0 2.96.96 5.7 2.59 7.93L4 30l6.21-1.63a13.3 13.3 0 0 0 5.83 1.37c7.38 0 13.36-5.98 13.36-13.36 0-7.37-5.98-13.36-13.36-13.36zm0 24.16c-2.3 0-4.43-.74-6.16-1.99l-.44-.31-3.6.94.96-3.5-.33-.46a11.72 11.72 0 1 1 9.58 5.33z" />
         </svg>
+        <span className="label">Fale conosco</span>
       </span>
-      <span className="waText">{label}</span>
 
       <style jsx>{`
-        .waBtn{
-          display:flex; align-items:center; justify-content:flex-start;
-          width:45px; height:45px; border:none; border-radius:50%;
-          background:#00d757; color:#fff; text-decoration:none;
-          overflow:hidden; box-shadow:2px 2px 10px rgba(0,0,0,.2);
-          transition: width .3s ease, border-radius .3s ease, transform .15s ease;
+        .whats-wrap {
+          display: inline-block;
+          text-decoration: none;
         }
-        .waBtn:active{ transform: translate(2px,2px); }
-        .waSign{ width:100%; display:flex; align-items:center; justify-content:center; transition: width .3s ease, padding-left .3s ease; }
-        .waSvg{ width:25px; height:25px; display:block; }
-        .waText{
-          position:absolute; right:0; width:0%; opacity:0; color:#fff; font-size:1.1rem; font-weight:700; line-height:1; white-space:nowrap;
-          transition: width .3s ease, opacity .3s ease, padding-right .3s ease;
+        .whats {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 45px;
+          height: 45px;
+          border-radius: 9999px;
+          background: #25d366;
+          color: #fff;
+          transition: all 0.25s ease;
+          box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+          overflow: hidden;
         }
-        .waBtn:hover{ width:150px; border-radius:40px; }
-        .waBtn:hover .waSign{ width:32%; padding-left:10px; }
-        .waBtn:hover .waText{ width:68%; opacity:1; padding-right:10px; }
+        .whats:hover {
+          width: 150px; /* expande para pílula */
+        }
+        .icon {
+          width: 20px;
+          height: 20px;
+          flex-shrink: 0;
+          margin: 0 12px;
+          fill: currentColor;
+          transition: transform 0.25s ease;
+        }
+        .whats:hover .icon {
+          transform: translateX(-4px);
+        }
+        .label {
+          opacity: 0;
+          white-space: nowrap;
+          transform: translateX(8px);
+          transition: all 0.25s ease;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.2px;
+        }
+        .whats:hover .label {
+          opacity: 1;
+          transform: translateX(0);
+        }
       `}</style>
     </a>
   );

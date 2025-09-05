@@ -1,26 +1,35 @@
+'use client';
+
 import './globals.css';
 import HeaderShell from '@/components/HeaderShell';
+import ClientPortal from '@/components/ClientPortal';
 import WhatsFloat from '@/components/WhatsFloat';
 import InstagramFloat from '@/components/InstagramFloat';
-import { whatsappHref, SITE } from '@/lib/site';
 
-export const metadata = {
-  title: 'Polus Eletrotécnica — Catálogo Técnico',
-  description: 'Catálogo técnico de produtos da Polus Eletrotécnica',
-    generator: 'v0.app'
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body>
+    <html lang="pt-BR">
+      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         <HeaderShell />
-        <main className="hero-wrap">{children}</main>
+        <main>{children}</main>
 
-        {/* Flutuantes (Uiverse) */}
-        <InstagramFloat href={SITE?.instagram || 'https://www.instagram.com/'} />
-        <WhatsFloat href={whatsappHref()} />
+        {/* Flutuantes site-wide em Portal, z-index altíssimo */}
+        <ClientPortal>
+          <div className="fixed left-3 bottom-3 z-[100000] flex flex-col gap-3 pointer-events-none">
+            {/* Cada flutuante habilita o próprio pointer-events internamente */}
+            <div className="pointer-events-auto">
+              <InstagramFloat />
+            </div>
+            <div className="pointer-events-auto">
+              <WhatsFloat />
+            </div>
+          </div>
+        </ClientPortal>
       </body>
     </html>
   );
 }
+
+export const metadata = {
+      generator: 'v0.app'
+    };

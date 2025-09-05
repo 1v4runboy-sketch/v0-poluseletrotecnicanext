@@ -2,72 +2,123 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== tokens mínimos ===== */
-:root{
-  --hairline-light: rgba(0,0,0,.10);
-  --hairline-dark: rgba(255,255,255,.10);
-}
+/* ====== Hotfixes e utilitários ====== */
 
-@layer base{
-  html, body { height: 100%; }
-  body{
-    color: #0f172a; /* slate-900 */
-    background: #f6f8fc;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-  .dark body{
-    color: #e5e7eb; /* slate-200 */
-    background: radial-gradient(1200px 600px at 50% 0%, #0a0b2e, #040517 60%, #020316 100%);
-  }
-
-  h1{ @apply text-xl md:text-2xl font-semibold; }
-  h2{ @apply text-lg md:text-xl font-semibold; }
-  h3{ @apply text-base md:text-lg font-semibold; }
-}
-
-/* ===== Cursor imagem (garanta /public/loading-logo.png) ===== */
-body{ cursor: url('/loading-logo.png'), auto; }
-
-/* ===== Header fixo (SEM @apply colado!) ===== */
-.header-hero{
+/* Header sticky com CSS nativo */
+.header-hero {
   position: sticky;
   top: 0;
-  z-index: 60;                 /* equivalente a z-[60] */
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 60;
   backdrop-filter: blur(12px);
-  background: rgba(255,255,255,.6);
-  box-shadow: 0 0 0 1px var(--hairline-light) inset;
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* ===== Cartões básicos ===== */
-.card-modern{
-  border-radius: 16px;
-  background: rgba(255,255,255,.96);
-  border: 1px solid var(--hairline-light);
-  transition: transform .2s ease, box-shadow .3s ease;
-}
-.card-modern:hover{ transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
-
-.dark .card-modern{
-  background: rgba(255,255,255,.06);
-  border-color: var(--hairline-dark);
-  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+/* Hotfix de z-index + blur sem usar @apply */
+.z60-blur {
+  z-index: 60;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* ===== Chips ===== */
-.chip{
-  display:inline-flex; align-items:center; gap:.5rem; padding:.375rem .75rem; border-radius: 12px;
-  font-size: .75rem; font-weight: 700;
-  background: rgba(0,0,0,.05);
-  border: 1px solid rgba(0,0,0,.07);
+/* Melhorias gerais */
+:root {
+  color-scheme: light;
 }
 
-/* ===== Hotfix opcional caso ainda exista algum @apply colado em outro arquivo ===== */
-@layer utilities{
-  .z-\[60\]backdrop-blur-md{
-    z-index: 60;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-feature-settings: "liga", "kern";
+  text-rendering: optimizeLegibility;
+}
+
+/* Logo giratória centralizada no topo (aumentada para 150px) */
+.logo-spinner {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 150px; /* Aumentado para 150px */
+  height: 150px; /* Aumentado para 150px */
+  perspective: 800px;
+  transition: transform 0.3s ease, zoom 0.3s ease;
+}
+
+.logo-spinner img {
+  transition: transform 0.3s ease;
+}
+
+/* Efeito de zoom no hover (efeito de batimento) */
+.logo-spinner:hover img {
+  transform: scale(1.15); /* Aumento no efeito de batimento */
+}
+
+/* Pulse - animação de "coração batendo" */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
   }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.logo-spinner:hover img {
+  animation: pulse 1s infinite;
+}
+
+/* ====== Tailwind e estilo geral ====== */
+
+/* Aspect ratio simples */
+.aspect-[4/3] {
+  aspect-ratio: 4 / 3;
+}
+
+/* Para a logo que gira no eixo Y */
+.logo-spinner img {
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* ====== Configurações gerais ====== */
+
+html,
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: #f9fafb;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+#__next {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Adicionando ajuste para quando a logo está sendo clicada */
+.logo-spinner:active img {
+  transform: scale(1.05);
 }

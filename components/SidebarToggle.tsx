@@ -1,16 +1,19 @@
 'use client';
 
-export default function SidebarToggle({ onClick }:{ onClick: ()=>void }){
+export default function SidebarToggle({ onOpen }) {
   return (
     <button
-      type="button"
-      onClick={onClick}
+      onClick={onOpen}
       aria-label="Abrir menu"
-      className="flex items-center gap-2 rounded-xl px-3 py-2 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-90 transition"
-      title="Menu"
+      className="inline-flex items-center justify-center w-10 h-10 rounded-md hover:bg-slate-100 active:scale-[0.98] transition"
     >
-      <img src="/loading-logo.png" alt="" className="h-5 w-5 object-contain rounded" />
-      <span className="text-[13px] font-semibold hidden sm:inline">Menu</span>
+      {/* Ícone é uma IMAGEM real (/loading-logo.png), como exigido */}
+      <img
+        src="/loading-logo.png"
+        alt="Abrir menu"
+        className="w-7 h-7 object-contain"
+        draggable={false}
+      />
     </button>
   );
 }

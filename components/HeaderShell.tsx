@@ -1,30 +1,35 @@
 'use client';
-import { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import SidebarToggle from '@/components/SidebarToggle';
-import LogoSpinner from '@/components/LogoSpinner';
 
-export default function HeaderShell(){
+import { useState } from 'react';
+import Sidebar from './Sidebar';
+import SidebarToggle from './SidebarToggle';
+import LogoSpinner from './LogoSpinner';
+
+export default function HeaderShell() {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <header className="header-hero">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3">
-          {/* Toggle Sidebar (esquerda) */}
-          <SidebarToggle onClick={()=> setOpen(true)} />
+      <header className="header-hero bg-white/70 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-3 md:px-6">
+          <div className="flex items-center gap-3 py-2">
+            {/* Botão abre sidebar (ícone é /loading-logo.png) */}
+            <SidebarToggle onOpen={() => setOpen(true)} />
 
-          {/* Logo giratória central */}
-          <div className="flex-1 flex items-center justify-center">
-            <LogoSpinner src="/polus-logo.svg" size={56} />
+            {/* Logo giratória 3D (acelera no hover, sem reset) */}
+            <LogoSpinner size={36} />
+
+            <div className="flex-1" />
+
+            <div className="hidden md:flex items-center gap-4 text-sm text-slate-600">
+              <span className="font-semibold text-slate-800">Polus Eletrotécnica</span>
+              <span className="hidden md:inline">Catálogo Técnico</span>
+            </div>
           </div>
-
-          {/* Espaçador para manter centralização */}
-          <div className="w-[40px]" />
         </div>
       </header>
 
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar open={open} onClose={() => setOpen(false)} />
     </>
   );
 }

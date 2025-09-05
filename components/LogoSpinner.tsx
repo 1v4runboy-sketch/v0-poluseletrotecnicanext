@@ -1,95 +1,97 @@
 'use client';
-import { useEffect, useRef } from 'react';
 
-/**
- * Rotação 3D contínua em 360°, mostrando frente e verso da mesma arte
- * sem espelhamento/inversão. Acelera suavemente no hover e não reseta.
- *
- * COMO FUNCIONA (sem espelhar):
- * - O container (spinner) gira no eixo Y.
- * - Duas faces internas (front e back) NÃO giram; apenas estão orientadas:
- *   front = rotateY(0deg), back = rotateY(180deg).
- * - Ambas usam backface-visibility:hidden. Assim, quando o spinner passa de 180°,
- *   a "back" já está de frente para a câmera e a arte continua legível (sem mirror).
- */
-export default function LogoSpinner({ src, size = 56 }: { src: string; size?: number }) {
-  const spinnerRef = useRef<HTMLDivElement | null>(null);
-  const angle = useRef(0);
-  const speed = useRef(45);      // deg/s atual
-  const target = useRef(45);     // 45 normal, 120 no hover
-  const hover = useRef(false);
-  const rafRef = useRef<number | null>(null);
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function LogoSpinner() {
+  const angleRef = useRef(0);  // ângulo acumulado
+  const speedRef = useRef(0.5); // velocidade de rotação
+  const targetRef = useRef(0.5); // alvo da rotação
+  const containerRef = useRef(null);
+  const router = useRouter(); // Para redirecionar para a página inicial
+
+  // Redireciona para a Home ao clicar
+  const handleClick = () => {
+    router.push('/');
+  };
 
   useEffect(() => {
     let last = performance.now();
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const tick = (t) => {
+      const dt = t - last;
+      last = t;
 
-    const loop = (now: number) => {
-      const dt = (now - last) / 1000;
-      last = now;
-      // aceleração suave
-      target.current = hover.current ? 120 : 45;
-      speed.current = lerp(speed.current, target.current, Math.min(1, dt * 6));
-      // acumula ângulo (sem reset)
-      angle.current = (angle.current + speed.current * dt) % 360;
+      // controle de rotação (sem resetar)
+      const s = speedRef.current;
+      const target = targetRef.current;
+      speedRef.current = s + (target - s) * 0.08;
 
-      const el = spinnerRef.current;
-      if (el) el.style.transform = `rotateY(${angle.current}deg)`;
-
-      rafRef.current = requestAnimationFrame(loop);
+      angleRef.current += speedRef.current; // acumula
+      if (containerRef.current) {
+        containerRef.current.style.transform = `rotateY(${angleRef.current}deg)`;
+      }
+      requestAnimationFrame(tick);
     };
 
-    rafRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(requestAnimationFrame(tick));
   }, []);
 
   return (
     <div
-      className="logo-frame"
-      style={{ width: size, height: size, perspective: '900px' }}
-      onMouseEnter={() => (hover.current = true)}
-      onMouseLeave={() => (hover.current = false)}
-      aria-label="Logotipo Polus giratório"
+      className="logo-spinner"
+      style={{
+        width: '120px', // Tamanho reduzido da logo (ajustado para ser menor)
+        height: 'auto', // A altura será ajustada automaticamente
+        position: 'absolute', // Agora está posicionado na barra
+        top: '50%', // Centraliza verticalmente na barra
+        left: '50%', // Centraliza horizontalmente na barra
+        transform: 'translate(-50%, -50%)', // Centraliza perfeitamente
+        zIndex: 1000,
+      }}
+      onMouseEnter={() => { targetRef.current = 2.5; }} // acelera mais no hover
+      onMouseLeave={() => { targetRef.current = 0.5; }} // desacelera
+      onClick={handleClick}
+      aria-hidden="true"
     >
-      <div ref={spinnerRef} className="logo-spinner">
+      <div
+        ref={containerRef}
+        className="w-full h-full relative"
+        style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+      >
         {/* Frente */}
-        <div className="logo-face logo-front">
-          <img src={src} alt="Polus" />
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(0deg)',
+            transition: 'transform 0.3s ease',
+          }}
+        >
+          <img
+            src="/polus-logo.svg" // Verifique se a imagem está corretamente no diretório /public
+            alt="Polus"
+            className="w-full h-full object-contain transition-transform transform hover:scale-110"
+            draggable={false}
+          />
         </div>
-        {/* Verso (mesma arte, orientada 180° — NÃO espelha/inverte) */}
-        <div className="logo-face logo-back">
-          <img src={src} alt="" />
+        {/* Verso — sem espelhar a arte */}
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+            transition: 'transform 0.3s ease',
+          }}
+        >
+          <img
+            src="/polus-logo.svg"
+            alt="Polus"
+            className="w-full h-full object-contain transform scaleX(-1)"
+            draggable={false}
+          />
         </div>
       </div>
-
-      <style jsx>{`
-        .logo-frame { filter: drop-shadow(0 8px 24px rgba(10,108,178,.45)); }
-        .logo-spinner {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          transform-style: preserve-3d;
-          will-change: transform;
-        }
-        .logo-face {
-          position: absolute;
-          inset: 0;
-          backface-visibility: hidden;
-          transform-style: preserve-3d;
-        }
-        .logo-front { transform: rotateY(0deg); }
-        .logo-back  { transform: rotateY(180deg); }
-        .logo-face img {
-          display: block;
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          user-select: none;
-          pointer-events: none;
-        }
-      `}</style>
     </div>
   );
 }
