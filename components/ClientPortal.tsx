@@ -11,12 +11,8 @@ export default function ClientPortal({ children }) {
     const portalEl = document.createElement('div');
     portalEl.setAttribute('id', 'portal-root');
     document.body.appendChild(portalEl);
-    setEl(portalEl);
-    setMounted(true);
-    return () => {
-      document.body.removeChild(portalEl);
-      setMounted(false);
-    };
+    setEl(portalEl); setMounted(true);
+    return () => { document.body.removeChild(portalEl); setMounted(false); };
   }, []);
 
   if (!mounted || !el) return null;

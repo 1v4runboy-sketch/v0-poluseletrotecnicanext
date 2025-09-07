@@ -2,123 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ====== Hotfixes e utilitários ====== */
+/* Header fix (evita bug @apply colado) */
+.header-hero{ position: sticky; top: 0; z-index: 60; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
-/* Header sticky com CSS nativo */
-.header-hero {
-  position: sticky;
-  top: 0;
-  z-index: 60;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* Legibilidade/tema */
+:root{ color-scheme: light; --hero-fade: #ffffff; --hairline: #E5EAF0; }
+html, body{ height:100%; }
+body{ font-feature-settings:"liga","kern"; text-rendering: optimizeLegibility; }
+html.dark{ --hero-fade: #0b1222; --hairline: rgba(255,255,255,0.55); }
+html.dark body{ background-color:#0f172a; color:#f1f5f9; }
+
+/* Clamp simples */
+.line-clamp-2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+/* Deep glow da logo (drop-shadow não interfere no vídeo) */
+.logo-glow{
+  filter: drop-shadow(0 0 0.6px rgba(0,0,0,0.95)) drop-shadow(0 0 6px rgba(0,0,0,0.45)) drop-shadow(0 0 12px rgba(0,0,0,0.28));
+  transition: filter .25s ease;
+}
+html.dark .logo-glow{
+  filter: drop-shadow(0 0 0.8px rgba(255,255,255,0.95)) drop-shadow(0 0 7px rgba(255,255,255,0.55)) drop-shadow(0 0 16px rgba(255,255,255,0.34));
 }
 
-/* Hotfix de z-index + blur sem usar @apply */
-.z60-blur {
-  z-index: 60;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* Toggle Uiverse (cuzpq) */
+.theme-checkbox {
+  --toggle-size: 16px;
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  width: 6.25em; height: 3.125em;
+  background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat;
+  background-size: 205%; background-position: 0; transition: 0.4s;
+  border-radius: 99em; position: relative; cursor: pointer; font-size: var(--toggle-size);
+  border: 1px solid rgba(0,0,0,.08);
 }
-
-/* Melhorias gerais */
-:root {
-  color-scheme: light;
+.theme-checkbox::before {
+  content: ""; width: 2.25em; height: 2.25em; position: absolute; top: 0.438em; left: 0.438em;
+  background: linear-gradient(to right, #efefef 50%, #2a2a2a 50%) no-repeat; background-size: 205%; background-position: 100%;
+  border-radius: 50%; transition: 0.4s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
+.theme-checkbox:checked::before { left: calc(100% - 2.25em - 0.438em); background-position: 0; }
+.theme-checkbox:checked { background-position: 100%; }
 
-html,
-body {
-  height: 100%;
+/* Skeleton util */
+.skeleton{
+  background: linear-gradient(90deg, rgba(148,163,184,0.15), rgba(148,163,184,0.10), rgba(148,163,184,0.15));
+  background-size: 200% 100%; animation: shine 1.1s linear infinite;
 }
-
-body {
-  font-feature-settings: "liga", "kern";
-  text-rendering: optimizeLegibility;
-}
-
-/* Logo giratória centralizada no topo (aumentada para 150px) */
-.logo-spinner {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: 150px; /* Aumentado para 150px */
-  height: 150px; /* Aumentado para 150px */
-  perspective: 800px;
-  transition: transform 0.3s ease, zoom 0.3s ease;
-}
-
-.logo-spinner img {
-  transition: transform 0.3s ease;
-}
-
-/* Efeito de zoom no hover (efeito de batimento) */
-.logo-spinner:hover img {
-  transform: scale(1.15); /* Aumento no efeito de batimento */
-}
-
-/* Pulse - animação de "coração batendo" */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.logo-spinner:hover img {
-  animation: pulse 1s infinite;
-}
-
-/* ====== Tailwind e estilo geral ====== */
-
-/* Aspect ratio simples */
-.aspect-[4/3] {
-  aspect-ratio: 4 / 3;
-}
-
-/* Para a logo que gira no eixo Y */
-.logo-spinner img {
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-/* ====== Configurações gerais ====== */
-
-html,
-body {
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  background-color: #f9fafb;
-  color: #1f2937;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body,
-#__next {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Adicionando ajuste para quando a logo está sendo clicada */
-.logo-spinner:active img {
-  transform: scale(1.05);
-}
+@keyframes shine{ from { background-position: 200% 0; } to { background-position: -200% 0; } }

@@ -1,90 +1,121 @@
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-/**
- * Mapeamento de logos (com logger).
- */
 const BRAND_LOGOS = {
   'WEG': '/marcas/weg.webp',
   'NSK': '/marcas/nsk-logo.webp',
   'HCH': '/marcas/hch-logo.webp',
   'JL CAPACITORES': '/marcas/jl-capacitores.webp',
   'LANC COMERCIAL': '/marcas/lanc-comercial.webp',
-  'CIFA': '/marcas/cifa.webp',
   'IGUI': '/marcas/igui.webp',
   'JACUZZI': '/marcas/jacuzzi.webp',
   'TRAMAR': '/marcas/tramar.webp',
   'COFIBAM': '/marcas/cofibam.webp',
+  'CIFA Fios e Linhas': '/marcas/cifa.webp',
+  'COBIX': '/marcas/cobix.webp',
 };
+function logoFor(name) {
+  const key = String(name || '').trim();
+  return BRAND_LOGOS[key] || '/polus-logo.svg';
+}
 
 export default function BrandCarousel() {
+  const base = useMemo(() => Object.keys(BRAND_LOGOS), []);
+  const items = useMemo(() => [...base, ...base], [base]); // A + B
   const trackRef = useRef(null);
   const pausedRef = useRef(false);
   const offsetRef = useRef(0);
   const rafRef = useRef(0);
-
-  // Definir a sequência base (A) e duplicada (A + B)
-  const brands = useMemo(() => Object.keys(BRAND_LOGOS), []);
-  const items = useMemo(() => [...brands, ...brands], [brands]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const check = () => setIsMobile(window.matchMedia('(max-width: 767px)').matches);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     let last = performance.now();
     const speed = 0.05; // px/ms
-
     const step = (t) => {
-      const dt = t - last;
-      last = t;
-
+      const dt = t - last; last = t;
       if (!pausedRef.current && trackRef.current) {
         const track = trackRef.current;
-        const totalWidth = track.scrollWidth / 2; // metade é A
-        offsetRef.current = (offsetRef.current + dt * speed) % totalWidth;
+        const total = track.scrollWidth / 2;
+        offsetRef.current = (offsetRef.current + dt * speed) % total;
         track.style.transform = `translateX(${-offsetRef.current}px)`;
       }
       rafRef.current = requestAnimationFrame(step);
     };
-
     rafRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+  }, [isMobile]);
 
   return (
-    <div className="w-full py-6 md:py-8">
-      <h2 className="text-center text-base md:text-lg font-semibold text-slate-800 mb-3">
+    <div className="w-full py-7 md:py-9">
+      <h2 className="text-center text-base md:text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">
         Marcas que Trabalhamos
       </h2>
 
-      <div
-        className="relative overflow-hidden"
-        onMouseEnter={() => (pausedRef.current = true)}
-        onMouseLeave={() => (pausedRef.current = false)}
-      >
-        <div className="brandstrip" style={{ ['--h']: '30px', ['--gap']: '40px' }}>
+      <div className="mx-auto max-w-7xl rounded-2xl shadow-lg ring-1 ring-slate-200/60 dark:ring-white/10 backdrop-blur-xl bg-white/60 dark:bg-black/40 px-3 md:px-4 py-3 md:py-4">
+        {!isMobile ? (
           <div
-            ref={trackRef}
-            className="flex items-center"
-            style={{ gap: 'var(--gap)', willChange: 'transform' }}
+            className="relative overflow-hidden select-none"
+            onMouseEnter={() => (pausedRef.current = true)}
+            onMouseLeave={() => (pausedRef.current = false)}
           >
-            {items.map((b, i) => (
-              <div key={`${b}-${i}`} className="shrink-0" style={{ height: 'var(--h)' }}>
-                <img
-                  src={BRAND_LOGOS[b] || '/polus-logo.svg'}
-                  alt={b}
-                  className="h-full w-auto object-contain opacity-90 hover:opacity-100 transition"
-                  draggable={false}
-                />
+            <div
+              ref={trackRef}
+              className="flex items-center will-change-transform"
+              style={{ gap: 'var(--gap, 48px)', height: 'var(--h, 32px)' }}
+            >
+              {items.map((b, i) => (
+                <div key={`${b}-${i}`} className="brand-item shrink-0" data-brand={b} style={{ height: 'var(--h, 32px)' }}>
+                  <img
+                    src={logoFor(b)}
+                    alt={b}
+                    className="brand-logo focusable"
+                    draggable={false}
+                    onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center overflow-x-auto snap-x snap-mandatory gap-8 px-1 py-1" style={{ height: '32px', WebkitOverflowScrolling: 'touch' }}>
+            {base.map((b, i) => (
+              <div key={`${b}-${i}`} className="brand-item shrink-0 snap-start" data-brand={b} style={{ height: '32px' }}>
+                <img src={logoFor(b)} alt={b} className="brand-logo focusable" draggable={false} onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
 
       <style jsx>{`
-        .brandstrip { width: 100%; }
-        @media (min-width: 768px) {
-          .brandstrip { --h: 36px; --gap: 48px; }
+        @media (min-width: 768px) { :root { --h: 36px; --gap: 52px; } }
+        @media (min-width: 1024px){ :root { --h: 40px; --gap: 60px; } }
+
+        .brand-logo {
+          height: 100%; width: auto; object-fit: contain;
+          filter: contrast(1.05) saturate(1.02) brightness(1);
+          opacity: 0.96;
+          transform: scale(var(--s, 1));
+          transition: transform .35s ease, opacity .35s ease, filter .35s ease;
         }
+        .brand-logo:hover { transform: scale(calc(var(--s, 1) * 1.06)); opacity: 1; filter: contrast(1.08) saturate(1.05) brightness(1.02); }
+
+        /* Aumentar um pouco JACUZZI, COFIBAM e CIFA Fios e Linhas (Home) */
+        .brand-item[data-brand="JACUZZI"] .brand-logo,
+        .brand-item[data-brand="COFIBAM"] .brand-logo,
+        .brand-item[data-brand="CIFA Fios e Linhas"] .brand-logo { --s: 1.10; }
+
+        .focusable { outline: none; }
+        .focusable:focus { box-shadow: 0 0 0 3px rgba(138,216,255,.45); border-radius: 10px; }
       `}</style>
     </div>
   );

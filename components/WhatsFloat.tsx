@@ -1,14 +1,10 @@
 'use client';
 
-import * as SITEUTIL from '@/lib/site';
-
-// Usa número do SITE (compatível com legado)
-const SITE = SITEUTIL?.SITE || {};
-const whatsappHref = SITEUTIL?.whatsappHref || ((t) => `https://wa.me/551135992935?text=${encodeURIComponent('Olá! Gostaria de uma cotação.')}`);
+import * as SITEUTIL from '../lib/site';
+const whatsappHref = SITEUTIL?.whatsappHref || (() => 'https://wa.me/551135992935');
 
 export default function WhatsFloat() {
   const href = whatsappHref();
-
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="whats-wrap">
       <span className="whats">
@@ -17,52 +13,14 @@ export default function WhatsFloat() {
         </svg>
         <span className="label">Fale conosco</span>
       </span>
-
       <style jsx>{`
-        .whats-wrap {
-          display: inline-block;
-          text-decoration: none;
-        }
-        .whats {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 45px;
-          height: 45px;
-          border-radius: 9999px;
-          background: #25d366;
-          color: #fff;
-          transition: all 0.25s ease;
-          box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-          overflow: hidden;
-        }
-        .whats:hover {
-          width: 150px; /* expande para pílula */
-        }
-        .icon {
-          width: 20px;
-          height: 20px;
-          flex-shrink: 0;
-          margin: 0 12px;
-          fill: currentColor;
-          transition: transform 0.25s ease;
-        }
-        .whats:hover .icon {
-          transform: translateX(-4px);
-        }
-        .label {
-          opacity: 0;
-          white-space: nowrap;
-          transform: translateX(8px);
-          transition: all 0.25s ease;
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 0.2px;
-        }
-        .whats:hover .label {
-          opacity: 1;
-          transform: translateX(0);
-        }
+        .whats-wrap { display:inline-block; text-decoration:none; }
+        .whats { display:inline-flex; align-items:center; justify-content:center; width:45px; height:45px; border-radius:9999px; background:#25d366; color:#fff; transition:all .25s ease; box-shadow:0 6px 16px rgba(0,0,0,.25); overflow:hidden; }
+        .whats:hover { width:150px; }
+        .icon { width:20px; height:20px; flex-shrink:0; margin:0 12px; fill:currentColor; transition: transform .25s ease; }
+        .whats:hover .icon { transform: translateX(-4px); }
+        .label { opacity:0; white-space:nowrap; transform: translateX(8px); transition: all .25s ease; font-size:12px; font-weight:600; letter-spacing:.2px; }
+        .whats:hover .label { opacity:1; transform: translateX(0); }
       `}</style>
     </a>
   );
