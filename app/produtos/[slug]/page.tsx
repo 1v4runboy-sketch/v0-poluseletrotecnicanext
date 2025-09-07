@@ -68,7 +68,7 @@ export default function ProductPage({ params }) {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
           <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800 rounded-md overflow-hidden">
             <div className="absolute left-2 top-2 z-[2] bg-white/90 dark:bg-slate-900/90 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shadow">
-              <img src={info.logoSrc || '/polus-logo.svg'} alt={info.name} className="h-7 w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
+              <img src={info.logoSrc || '/polus-logo.svg'} alt={info.name} className="h-8 w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
             </div>
 
             <img
@@ -93,7 +93,7 @@ export default function ProductPage({ params }) {
         {/* DETALHES */}
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-[#0b1222] mb-3">
-            <img src={info.logoSrc || '/polus-logo.svg'} alt={`Marca: ${info.name}`} className="h-[20px] w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
+            <img src={info.logoSrc || '/polus-logo.svg'} alt={`Marca: ${info.name}`} className="h-[22px] w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
             <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 tracking-wide">{info.name}</span>
           </div>
 
