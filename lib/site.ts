@@ -29,7 +29,7 @@ function norm(x) {
  * Mapa de arquivos de logo JÁ EXISTENTES (não renomear no /public).
  * Chaves = nomes oficiais de exibição.
  *
- * OBS: adicionada DANCOR (coloque o arquivo em /public/marcas/dancor.webp).
+ * OBS: adicionado COBIX conforme seu pedido (coloque o arquivo em /public/marcas/cobix.webp).
  */
 const BRAND_FILES = {
   'WEG': '/marcas/weg.webp',
@@ -43,8 +43,7 @@ const BRAND_FILES = {
   'COFIBAM': '/marcas/cofibam.webp',
   'CIFA Fios e Linhas': '/marcas/cifa.webp',
   'COBIX': '/marcas/cobix.webp',
-  'DANCOR': '/marcas/dancor.webp',
-  'POLUS': '/polus-logo.svg', // fallback apenas
+  'POLUS': '/polus-logo.svg',
 };
 
 /**
@@ -68,7 +67,6 @@ const ALIASES = {
   'cofibam': 'COFIBAM',
   'cofiban': 'COFIBAM',
   'cobix': 'COBIX',
-  'dancor': 'DANCOR',
 
   // IGUI (oficial)
   'ig': 'IGUI',
@@ -91,13 +89,8 @@ const ALIASES = {
 // - Barbante encerado → CIFA Fios e Linhas
 // - Solda Cobix → COBIX
 // - Vernizes "1 litro" ou "5 litros" → WEG
-// - DANCOR → qualquer menção “dancor” dá prioridade à DANCOR
 function pickBrandBySpecialRules(blob) {
   // blob sempre em lower-case
-
-  // DANCOR
-  if (/\bdancor\b/.test(blob)) return 'DANCOR';
-
   // solda Cobix
   if (/\bcobix\b/.test(blob) || (/\bsolda\b/.test(blob) && /\bcobix\b/.test(blob))) return 'COBIX';
 
@@ -132,14 +125,13 @@ function pickBrandBySpecialRules(blob) {
 const KEY_HINTS = [
   { match: /rotores?/i, also: /ig|igu|igui/i, brand: 'IGUI' },
   { match: /jacuzzi/i, brand: 'JACUZZI' },
-  { match: /dancor/i, brand: 'DANCOR' },
   { match: /(cabo(s)?\s*lead(s)?|espaguete(s)?|sleeve|isolante)/i, brand: 'COFIBAM' },
   { match: /silicone/i, also: /cabo/i, brand: 'TRAMAR' },
   { match: /cifa|sifa/i, brand: 'CIFA Fios e Linhas' },
   { match: /nsk/i, brand: 'NSK' },
   { match: /hch/i, brand: 'HCH' },
   { match: /weg/i, brand: 'WEG' },
-  { match: /resina|encapsulamento|verniz/i, brand: 'LANC COMERCIAL' }, // lembrando: "vernizes 1/5 L" já vão pra WEG nas regras específicas
+  { match: /resina|encapsulamento|verniz/i, brand: 'LANC COMERCIAL' }, // atenção: "vernizes 1/5 litros" já capturados acima como WEG
 ];
 
 /**
@@ -221,7 +213,7 @@ export function buildProductDetails(product) {
   const blob = `${product?.title || ''} ${product?.slug || ''} ${product?.category || ''} ${product?.subcategory || ''}`.toLowerCase();
   const details = { desc: '', features: [], applications: [], notes: [] };
 
-  // JL CAPACITORES / Capacitores
+  // JL CAPACITORES / Capacitores (inclui permanentes/eletrolíticos)
   if (brand === 'JL CAPACITORES' || has(blob, /capacitor|µf|uf\b/)) {
     const hints = parseCapHints(product?.title || product?.slug || '');
     details.desc =
@@ -327,23 +319,6 @@ export function buildProductDetails(product) {
     details.features.push('Boa fluidez e molhabilidade', 'Composição balanceada para eletrônica');
     details.applications.push('Soldagem de terminais, cabos e placas', 'Manutenção elétrica');
     details.notes.push('Utilizar fluxo apropriado e controle térmico adequado');
-    return details;
-  }
-
-  // DANCOR – Bombas/filtros (piscinas/água)
-  if (brand === 'DANCOR' || has(blob, /dancor|bomba|filtro/)) {
-    details.desc =
-      'Componente ou conjunto para sistemas hidráulicos (bombas/filtros), projetado para confiabilidade, eficiência e fácil manutenção em ambientes residenciais e industriais leves.';
-    details.features.push(
-      'Conjunto otimizado para vazão e pressão estáveis',
-      'Materiais compatíveis com água tratada e ambientes úmidos',
-      'Projeto focado em durabilidade e manutenção facilitada'
-    );
-    details.applications.push(
-      'Sistemas de circulação/filtragem de água',
-      'Piscinas, hidromassagem e utilidades prediais'
-    );
-    details.notes.push('Verificar compatibilidade com o modelo da bomba/filtro e parâmetros hidráulicos');
     return details;
   }
 

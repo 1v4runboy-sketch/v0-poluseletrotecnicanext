@@ -31,7 +31,6 @@ export default function ProductPage({ params }) {
   const images = (product?.images || []).map((img) => ({ src: toSrc(img), alt: toAlt(img) }));
   const [idx, setIdx] = useState(0);
 
-  // Garante rolar para o topo/âncora ao montar
   useEffect(() => {
     try {
       const id = (typeof window !== 'undefined' && window.location.hash) ? window.location.hash.slice(1) : 'productTop';
@@ -75,9 +74,9 @@ export default function ProductPage({ params }) {
         {/* GALERIA */}
         <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
           <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800 rounded-md overflow-hidden">
-            {/* Selo da marca (um pouco maior) */}
+            {/* Selo da marca maior na galeria */}
             <div className="absolute left-2 top-2 z-[2] bg-white/90 dark:bg-slate-900/90 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shadow">
-              <img src={info.logoSrc || '/polus-logo.svg'} alt={info.name} className="h-8 w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
+              <img src={info.logoSrc || '/polus-logo.svg'} alt={info.name} className="h-7 w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
             </div>
 
             <img
@@ -103,7 +102,7 @@ export default function ProductPage({ params }) {
         <div>
           {/* CHIP DE MARCA ACIMA DO TÍTULO (um pouco maior) */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/20 bg-slate-50 dark:bg-[#0b1222] mb-3">
-            <img src={info.logoSrc || '/polus-logo.svg'} alt={`Marca: ${info.name}`} className="h-[22px] w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
+            <img src={info.logoSrc || '/polus-logo.svg'} alt={`Marca: ${info.name}`} className="h-[20px] w-auto object-contain" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
             <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 tracking-wide">{info.name}</span>
           </div>
 
@@ -177,7 +176,7 @@ export default function ProductPage({ params }) {
         </div>
       </div>
 
-      {/* RELACIONADOS (com ancora #productTop) */}
+      {/* RELACIONADOS */}
       {related.length > 0 && (
         <div className="mt-10">
           <h3 className="text-base md:text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Produtos relacionados</h3>
@@ -188,8 +187,9 @@ export default function ProductPage({ params }) {
               return (
                 <Link key={p.slug} href={`/produto/${encodeURIComponent(p.slug)}#productTop`} className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:shadow-md transition overflow-hidden">
                   <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800">
+                    {/* Selo da marca maior no relacionado */}
                     <div className="absolute left-2 top-2 z-[2] bg-white/90 dark:bg-slate-900/90 rounded-md border border-slate-200 dark:border-slate-700 px-2 py-1 shadow">
-                      <img src={bi.logoSrc || '/polus-logo.svg'} alt={bi.name} className="h-8 w-auto object-contain" />
+                      <img src={bi.logoSrc || '/polus-logo.svg'} alt={bi.name} className="h-7 w-auto object-contain" />
                     </div>
                     <img src={toSrc(img) || '/polus-logo.svg'} alt={toAlt(img) || p.title || p.slug} className="absolute inset-0 w-full h-full object-contain p-3" loading="lazy" decoding="async" onError={(e)=>{e.currentTarget.src='/polus-logo.svg';}} />
                   </div>

@@ -30,15 +30,6 @@ function formatTitle(raw) {
   return titleCaseSmart(s.replace(/[-_]/g, ' ').replace(/\s{2,}/g, ' ').trim());
 }
 
-/* Util: alinhar a viewport no topo da grade de produtos */
-function scrollToGrid(behavior) {
-  try {
-    const el = document.getElementById('gridTop');
-    if (el) el.scrollIntoView({ behavior: behavior || 'smooth', block: 'start' });
-    else window.scrollTo({ top: 0, behavior: behavior || 'smooth' });
-  } catch {}
-}
-
 export default function ProductListPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -121,22 +112,20 @@ export default function ProductListPageClient() {
     const clamped = Math.min(totalPages, Math.max(1, n));
     const qs = new URLSearchParams(Array.from(searchParams.entries()));
     qs.set('page', String(clamped));
-    router.push(`${pathname}?${qs.toString()}`, { scroll: false });
+    router.push(`${pathname}?${qs.toString()}`);
     setPage(clamped);
-    // Alinha a viewport no topo da grade
-    setTimeout(() => scrollToGrid('smooth'), 0);
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch {}
   }
 
-  // Reset para página 1 ao mudar filtros (e alinhamento)
+  // Reset para página 1 ao mudar filtros
   useEffect(() => {
     const qs = new URLSearchParams(Array.from(searchParams.entries()));
     if (qs.get('page') !== '1') {
       qs.set('page', '1');
-      router.replace(`${pathname}?${qs.toString()}`, { scroll: false });
+      router.replace(`${pathname}?${qs.toString()}`);
     } else {
       setPage(1);
     }
-    setTimeout(() => scrollToGrid('auto'), 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, brands, cats, subs, sort]);
 
@@ -311,7 +300,7 @@ export default function ProductListPageClient() {
         <button onClick={()=>pushPage(totalPages)} disabled={pageSafe>=totalPages} className="pg-btn" aria-label="Última página">{'>>'}</button>
       </nav>
 
-      {/* Estilos escopados */}
+      {/* Estilos escopados (mesmos da versão anterior) */}
       <style jsx>{`
         .filters-card{
           border-radius: 18px; padding: 16px;
